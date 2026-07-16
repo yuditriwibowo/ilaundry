@@ -35,6 +35,7 @@ export default function Page() {
             width={1000}
             height={760}
             className="hidden md:block"
+            loading="eager"
           />
           <Image
             src="/ilaundry-mobile.png"
@@ -42,6 +43,7 @@ export default function Page() {
             width={560}
             height={620}
             className="block md:hidden"
+            loading="eager"
           />
         </div>
       </div>
