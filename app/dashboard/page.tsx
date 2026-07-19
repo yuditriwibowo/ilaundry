@@ -22,9 +22,7 @@ export default async function Page() {
   console.log(latestInvoices);
   return (
     <main>
-      
-      
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-1 items-start">
+      <div className="grid grid-cols-1 gap-6 items-start">
         <LaundryCard
           totalRp={1000}
           totalPesanan={10}
