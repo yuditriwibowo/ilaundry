@@ -10,7 +10,7 @@ export default async function Page() {
       <LaundryCard
         totalRp={1285000}
         totalPesanan={23}
-        kiloanKg={10}
+        kiloanKg={116}
         satuanPcs={12}
         meteranM={20}
       />
