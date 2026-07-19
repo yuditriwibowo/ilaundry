@@ -6,12 +6,12 @@ export default async function Page() {
   const revenue = await fetchRevenue();
   //console.log(revenue);
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
       <LaundryCard
-        totalRp={1000}
-        totalPesanan={10}
+        totalRp={1285000}
+        totalPesanan={23}
         kiloanKg={10}
-        satuanPcs={9}
+        satuanPcs={12}
         meteranM={20}
       />
       <RevenueChart revenue={revenue} />

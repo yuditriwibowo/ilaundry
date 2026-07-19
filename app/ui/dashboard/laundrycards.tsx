@@ -18,11 +18,11 @@ export default function LaundryCard({
   meteranM = 0,
 }: LaundryCardProps) {
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       
       
     {/*Mengubah background menjadi biru (bg-blue-600) dan teks menjadi putih (text-white) agar kontras */}
-    <div className="w-full rounded-xl bg-blue-600 p-5 text-white shadow-md font-sans">
+    <div className="w-full h-full rounded-xl bg-blue-600 p-5 text-white shadow-md font-sans flex flex-col justify-between">
       {/* Bagian Atas / Header Card */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
