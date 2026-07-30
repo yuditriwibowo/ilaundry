@@ -1,10 +1,11 @@
 import LaundryCard from "@/app/ui/dashboard/laundrycards";
 import RevenueChart from "@/app/ui/dashboard/revenue-chart";
-import { fetchRevenue } from "@/app/lib/data";
+import { Suspense } from "react";
+import { RevenueChartSkeleton } from "@/app/ui/skeletons";
+
+export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const revenue = await fetchRevenue();
-  //console.log(revenue);
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
       <LaundryCard
@@ -14,7 +15,9 @@ export default async function Page() {
         satuanPcs={12}
         meteranM={20}
       />
-      <RevenueChart revenue={revenue} />
+      <Suspense fallback={<RevenueChartSkeleton />}>
+        <RevenueChart />
+      </Suspense>
     </div>
   );
 }
