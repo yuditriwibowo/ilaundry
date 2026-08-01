@@ -86,3 +86,14 @@ export type InvoiceForm = {
   amount: number;
   status: 'pending' | 'paid';
 };
+
+export type Pelanggan = {
+  id: string;
+  nama: string;
+  no_hp: string;
+  alamat: string | null;
+  email: string | null;
+  image_url: string | null;
+  tgl_daftar: string;
+};
+

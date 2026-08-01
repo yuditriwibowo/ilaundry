@@ -5,6 +5,7 @@ import {
   InvoiceForm,
   InvoicesTable,
   LatestInvoiceRaw,
+  Pelanggan,
   Revenue,
 } from "./definitions";
 import { formatCurrency } from "./utils";
@@ -216,3 +217,37 @@ export async function fetchFilteredCustomers(query: string) {
     throw new Error("Failed to fetch customer table.");
   }
 }
+
+export async function fetchFilteredPelanggan(
+  query: string,
+  currentPage: number,
+) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const pelanggan = await sql<Pelanggan[]>`
+      SELECT
+        id,
+        nama,
+        no_hp,
+        alamat,
+        email,
+        image_url,
+        tgl_daftar
+      FROM pelanggan
+      WHERE
+        nama ILIKE ${`%${query}%`} OR
+        no_hp ILIKE ${`%${query}%`} OR
+        alamat ILIKE ${`%${query}%`} OR
+        email ILIKE ${`%${query}%`}
+      ORDER BY tgl_daftar DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return pelanggan;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch pelanggan.");
+  }
+}
+
