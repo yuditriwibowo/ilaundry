@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { UpdatePelanggan, DeletePelanggan } from "@/app/ui/pelanggan/buttons";
 import { formatDateToLocal } from "@/app/lib/utils";
 import { fetchFilteredPelanggan } from "@/app/lib/data";
 
@@ -46,6 +47,10 @@ export default async function PelangganTable({
                       {formatDateToLocal(pelanggan.tgl_daftar)}
                     </p>
                   </div>
+                  <div className="flex justify-end gap-2">
+                    <UpdatePelanggan id={pelanggan.id} />
+                    <DeletePelanggan id={pelanggan.id} />
+                  </div>
                 </div>
               </div>
             ))}
@@ -67,6 +72,9 @@ export default async function PelangganTable({
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Tgl Daftar
+                </th>
+                <th scope="col" className="relative py-3 pl-6 pr-3">
+                  <span className="sr-only">Edit</span>
                 </th>
               </tr>
             </thead>
@@ -102,6 +110,12 @@ export default async function PelangganTable({
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(pelanggan.tgl_daftar)}
                   </td>
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    <div className="flex justify-end gap-3">
+                      <UpdatePelanggan id={pelanggan.id} />
+                      <DeletePelanggan id={pelanggan.id} />
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -111,3 +125,4 @@ export default async function PelangganTable({
     </div>
   );
 }
+

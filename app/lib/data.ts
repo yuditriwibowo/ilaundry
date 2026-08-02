@@ -251,3 +251,22 @@ export async function fetchFilteredPelanggan(
   }
 }
 
+export async function fetchPelangganPages(query: string) {
+  try {
+    const data = await sql`SELECT COUNT(*)
+    FROM pelanggan
+    WHERE
+      nama ILIKE ${`%${query}%`} OR
+      no_hp ILIKE ${`%${query}%`} OR
+      COALESCE(alamat, '') ILIKE ${`%${query}%`} OR
+      COALESCE(email, '') ILIKE ${`%${query}%`} OR
+      tgl_daftar::text ILIKE ${`%${query}%`}
+  `;
+
+    const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil total halaman pelanggan.");
+  }
+}
