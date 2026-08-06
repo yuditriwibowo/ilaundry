@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* grow membuat konten mengisi ruang tengah, p-6 memberi jarak agar tidak tertutup navigasi bawah */}
-      <div className="grow p-6 overflow-y-auto md:px-4 md:pt-4 pb-24 md:pb-12">
+      <div className="grow px-4 pt-2 overflow-y-auto md:px-4 md:pt-4 pb-2 md:pb-12">
         {children}
       </div>
 
