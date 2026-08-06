@@ -5,6 +5,7 @@ import {
   HomeIcon,
   DocumentDuplicateIcon,
   ArrowTrendingUpIcon,
+  Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,6 +26,7 @@ const links = [
     icon: UserGroupIcon,
   },
   { name: "Laporan", href: "/dashboard/laporan", icon: ArrowTrendingUpIcon },
+  { name: "Pengaturan", href: "/dashboard/pengaturan", icon: Cog6ToothIcon },
 ];
 
 export default function NavLinks() {
