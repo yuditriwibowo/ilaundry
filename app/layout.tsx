@@ -3,6 +3,7 @@ import { inter } from "@/app/ui/fonts";
 import IlaundryLogo from "./ui/ilaundry-logo";
 import Link from "next/link";
 import PWARegister from "@/app/ui/pwa-register";
+import ViewportHeightFix from "@/app/ui/viewport-height-fix";
 import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -29,11 +31,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      {/* h-[100dvh] mengunci tinggi tepat seukuran layar mobile, overflow-hidden mencegah scroll global */}
+      {/* --app-height di-set via JS agar tinggi viewport akurat di PWA mobile */}
       <body
-        className={`${inter.className} antialiased flex flex-col h-[100dvh] overflow-hidden`}
+        className={`${inter.className} antialiased flex flex-col h-[var(--app-height,100svh)] overflow-hidden`}
       >
         <PWARegister />
+        <ViewportHeightFix />
         {/* Header flex-none agar mengambil tinggi sesuai konten tanpa menggunakan fixed/margin-top */}
         <header className="flex-none pt-3 px-4 pb-2 z-50 flex justify-center">
           <Link
@@ -46,7 +49,7 @@ export default function RootLayout({
           </Link>
         </header>
         {/* flex-1 min-h-0 membuat main mengambil tepat sisa ruang viewport tanpa terdorong keluar layar */}
-        <main className="flex-1 min-h-0 flex flex-col justify-center overflow-hidden">
+        <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
           <div className="w-full h-full flex flex-col min-h-0">{children}</div>
         </main>
       </body>

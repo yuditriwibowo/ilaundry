@@ -8,13 +8,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <SideNav />
       </div>
 
-      {/* grow membuat konten mengisi ruang tengah, p-6 memberi jarak agar tidak tertutup navigasi bawah */}
-      <div className="grow px-4 pt-2 overflow-y-auto md:px-4 md:pt-4 pb-2 md:pb-12">
+      {/* pb-20 memberi ruang agar konten tidak tertutup navigasi bawah (fixed) */}
+      <div className="grow px-4 pt-2 overflow-y-auto md:px-4 md:pt-4 pb-20 md:pb-12">
         {children}
       </div>
 
-      {/* Navigasi mobile: diletakkan di akhir flex-col sehingga otomatis berada di paling bawah layar */}
-      <div className="w-full flex-none md:hidden">
+      {/* Navigasi mobile: fixed agar posisi konsisten di PWA portrait */}
+      <div className="fixed inset-x-0 bottom-0 z-50 md:hidden pb-[env(safe-area-inset-bottom,0px)]">
         <SideNav />
       </div>
     </div>

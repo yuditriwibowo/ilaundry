@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --app-height: 100svh;
+}
+
 input[type='number'] {
   -moz-appearance: textfield;
   appearance: textfield;
