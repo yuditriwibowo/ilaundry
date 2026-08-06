@@ -3,7 +3,7 @@ import Breadcrumbs from "@/app/ui/breadcrumbs";
 
 export default async function Page() {
   return (
-    <main>
+    <div>
       <Breadcrumbs
         breadcrumbs={[
           { label: "Pelanggan", href: "/dashboard/pelanggan" },
@@ -15,6 +15,6 @@ export default async function Page() {
         ]}
       />
       <Form />
-    </main>
+    </div>
   );
 }

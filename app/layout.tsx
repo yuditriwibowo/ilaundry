@@ -34,7 +34,8 @@ export default function RootLayout({
         className={`${inter.className} antialiased flex flex-col h-[100dvh] overflow-hidden`}
       >
         <PWARegister />
-        <div className="fixed top-3 left-0 w-full z-50 flex justify-center px-4">
+        {/* Header flex-none agar mengambil tinggi sesuai konten tanpa menggunakan fixed/margin-top */}
+        <header className="flex-none pt-3 px-4 pb-2 z-50 flex justify-center">
           <Link
             className="flex h-16 items-center justify-start rounded-xl bg-blue-600 p-4 md:h-20 w-full md:w-95/100 shadow-md"
             href="/"
@@ -43,10 +44,10 @@ export default function RootLayout({
               <IlaundryLogo />
             </div>
           </Link>
-        </div>
-        {/* flex-1 membuat main mengambil semua sisa ruang, overflow-auto mengizinkan scroll hanya di sini */}
-        <main className="flex-1 mt-24 md:mt-28 overflow-auto flex justify-center">
-          <div className="w-full">{children}</div>
+        </header>
+        {/* flex-1 min-h-0 membuat main mengambil tepat sisa ruang viewport tanpa terdorong keluar layar */}
+        <main className="flex-1 min-h-0 flex flex-col justify-center overflow-hidden">
+          <div className="w-full h-full flex flex-col min-h-0">{children}</div>
         </main>
       </body>
     </html>

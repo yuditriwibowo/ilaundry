@@ -6,7 +6,7 @@ export default async function Page() {
   const customers = await fetchCustomers();
 
   return (
-    <main>
+    <div>
       <Breadcrumbs
         breadcrumbs={[
           { label: "Pesanan", href: "/dashboard/pesanan" },
@@ -18,6 +18,6 @@ export default async function Page() {
         ]}
       />
       <Form customers={customers} />
-    </main>
+    </div>
   );
 }
