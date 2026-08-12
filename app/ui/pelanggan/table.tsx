@@ -22,32 +22,27 @@ export default async function PelangganTable({
                 key={pelanggan.id}
                 className="mb-2 w-full rounded-md bg-white p-4"
               >
-                <div className="flex items-center justify-between border-b pb-4">
-                  <div>
-                    <div className="mb-2 flex items-center">
-                      {pelanggan.image_url ? (
-                        <Image
-                          src={pelanggan.image_url}
-                          className="mr-2 rounded-full"
-                          width={28}
-                          height={28}
-                          alt={`${pelanggan.nama}'s profile picture`}
-                        />
-                      ) : null}
-                      <p className="font-medium">{pelanggan.nama}</p>
+                <div className="flex items-start justify-between gap-4 text-sm">
+                  <div className="flex gap-3">
+                    <div className="relative h-8 w-8 overflow-hidden rounded-full">
+                      <Image
+                        src={pelanggan.image_url}
+                        className="object-cover"
+                        fill
+                        alt={`${pelanggan.nama}'s profile picture`}
+                      />
                     </div>
-                    <p className="text-sm text-gray-500">{pelanggan.no_hp}</p>
+                    <div className="flex flex-col">
+                      <p className="font-medium text-base">{pelanggan.nama}</p>
+                      <p className="text-gray-500">{pelanggan.no_hp}</p>
+                      <p className="text-gray-500">{pelanggan.email || "-"}</p>
+                      <p className="text-gray-500">{pelanggan.alamat || "-"}</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {formatDateToLocal(pelanggan.tgl_daftar)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex w-full items-center justify-between pt-4 text-sm">
-                  <div>
-                    <p className="font-medium">{pelanggan.alamat || "-"}</p>
-                    <p className="text-gray-500">{pelanggan.email || "-"}</p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {formatDateToLocal(pelanggan.tgl_daftar)}
-                    </p>
-                  </div>
-                  <div className="flex justify-end gap-2">
+                  <div className="flex gap-2">
                     <UpdatePelanggan id={pelanggan.id} />
                     <DeletePelanggan id={pelanggan.id} />
                   </div>

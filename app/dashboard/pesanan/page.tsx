@@ -20,7 +20,7 @@ export default async function Page(props: {
 
   return (
     <div className="flex h-full w-full flex-col -mt-2">
-      <div className="sticky top-0 z-10 bg-blue-200 pb-4 px-4 pt-2 -mx-4 md:static md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0">
+      <div className="sticky top-0 z-10 bg-blue-200 pb-4 px-4 pt-2 -mx-4 rounded-b-xl md:static md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
         <div className="flex w-full items-center justify-between">
           <h1 className={`${lusitana.className} text-2xl`}>Pesanan</h1>
         </div>
