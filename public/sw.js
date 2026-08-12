@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ilaundry-cache-v1';
+const CACHE_NAME = 'ylaundry-cache-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/favicon.ico',

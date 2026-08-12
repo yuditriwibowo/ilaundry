@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'iLaundry Premium',
-    short_name: 'iLaundry',
+    name: 'yLaundry Premium',
+    short_name: 'yLaundry',
     description: 'Aplikasi Laundry Premium Terpercaya',
     start_url: '/',
     display: 'standalone',

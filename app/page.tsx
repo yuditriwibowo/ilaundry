@@ -1,4 +1,3 @@
-import IlaundryLogo from "@/app/ui/ilaundry-logo";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { lusitana } from "@/app/ui/fonts";
@@ -14,7 +13,7 @@ export default function Page() {
           >
             Selamat datang di{" "}
             <a href="https://nextjs.org/learn/" className="text-blue-500">
-              iLaundry
+              yLaundry
             </a>
             . Aplikasi Laundry <strong>terbaik</strong>.
           </p>
@@ -28,16 +27,16 @@ export default function Page() {
         <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
           {/* Add Hero Images Here */}
           <Image
-            src="/ilaundry-desktop.png"
-            alt="iLaundry image desktop version"
+            src="/ylaundry-desktop.png"
+            alt="yLaundry image desktop version"
             width={1000}
             height={760}
             className="hidden md:block"
             loading="eager"
           />
           <Image
-            src="/ilaundry-mobile.png"
-            alt="iLaundry image mobile version"
+            src="/ylaundry-mobile.png"
+            alt="yLaundry image mobile version"
             width={560}
             height={620}
             className="block md:hidden"

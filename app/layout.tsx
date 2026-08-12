@@ -1,17 +1,17 @@
 import "@/app/ui/global.css";
 import { inter } from "@/app/ui/fonts";
-import IlaundryLogo from "./ui/ilaundry-logo";
+import YlaundryLogo from "./ui/ylaundry-logo";
 import Link from "next/link";
 import PWARegister from "@/app/ui/pwa-register";
 import ViewportHeightFix from "@/app/ui/viewport-height-fix";
 import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
-  title: "iLaundry Premium",
+  title: "yLaundry Premium",
   description: "Aplikasi Laundry Premium Terpercaya",
   appleWebApp: {
     capable: true,
-    title: "iLaundry",
+    title: "yLaundry",
     statusBarStyle: "default",
   },
 };
@@ -44,7 +44,7 @@ export default function RootLayout({
             href="/"
           >
             <div className="w-full text-white">
-              <IlaundryLogo />
+              <YlaundryLogo />
             </div>
           </Link>
         </header>

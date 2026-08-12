@@ -26,7 +26,7 @@ export default function LaundryCard({
       {/* Bagian Atas / Header Card */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          {/* Ikon baju disesuaikan dengan tema ilaundry-logo [source: 2] */}
+          {/* Ikon disesuaikan dengan tema ylaundry-logo */}
           <DocumentDuplicateIcon className="h-10 w-10 text-white opacity-90" />
           <div>
             <h3 className="text-base font-medium leading-tight text-white">Pesanan</h3>
