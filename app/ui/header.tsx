@@ -13,7 +13,7 @@ export default function Header() {
   ].includes(pathname);
 
   return (
-    <header className={`flex-none pt-3 px-4 pb-2 z-50 flex justify-center ${hideOnMobile ? "hidden md:flex" : ""}`}>
+    <header className={`flex-none md:pt-3 px-4 pb-2 z-50 flex justify-center ${hideOnMobile ? "hidden md:flex" : ""}`}>
       <Link
         className="flex h-16 items-center justify-start rounded-xl bg-blue-600 p-4 md:h-20 w-full md:w-95/100 shadow-md"
         href="/"
