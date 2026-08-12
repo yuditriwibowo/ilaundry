@@ -69,3 +69,9 @@ export async function createPelanggan(formData: FormData) {
   revalidatePath("/dashboard/pelanggan");
   redirect("/dashboard/pelanggan");
 }
+
+import { fetchFilteredPelanggan } from "./data";
+
+export async function fetchMorePelanggan(query: string, page: number) {
+  return await fetchFilteredPelanggan(query, page);
+}
