@@ -24,14 +24,16 @@ export default async function PelangganTable({
               >
                 <div className="flex items-start justify-between gap-4 text-sm">
                   <div className="flex gap-3">
-                    <div className="relative h-8 w-8 overflow-hidden rounded-full">
-                      <Image
-                        src={pelanggan.image_url}
-                        className="object-cover"
-                        fill
-                        alt={`${pelanggan.nama}'s profile picture`}
-                      />
-                    </div>
+                    {pelanggan.image_url ? (
+                      <div className="relative h-8 w-8 overflow-hidden rounded-full">
+                        <Image
+                          src={pelanggan.image_url}
+                          className="object-cover"
+                          fill
+                          alt={`${pelanggan.nama}'s profile picture`}
+                        />
+                      </div>
+                    ) : null}
                     <div className="flex flex-col">
                       <p className="font-medium text-base">{pelanggan.nama}</p>
                       <p className="text-gray-500">{pelanggan.no_hp}</p>
