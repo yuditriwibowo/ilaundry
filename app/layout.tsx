@@ -1,6 +1,6 @@
 import "@/app/ui/global.css";
 import { inter } from "@/app/ui/fonts";
-import YlaundryLogo from "./ui/ylaundry-logo";
+import Header from "./ui/header";
 import Link from "next/link";
 import PWARegister from "@/app/ui/pwa-register";
 import ViewportHeightFix from "@/app/ui/viewport-height-fix";
@@ -38,16 +38,7 @@ export default function RootLayout({
         <PWARegister />
         <ViewportHeightFix />
         {/* Header flex-none agar mengambil tinggi sesuai konten tanpa menggunakan fixed/margin-top */}
-        <header className="flex-none pt-3 px-4 pb-2 z-50 flex justify-center">
-          <Link
-            className="flex h-16 items-center justify-start rounded-xl bg-blue-600 p-4 md:h-20 w-full md:w-95/100 shadow-md"
-            href="/"
-          >
-            <div className="w-full text-white">
-              <YlaundryLogo />
-            </div>
-          </Link>
-        </header>
+        <Header />
         {/* flex-1 min-h-0 membuat main mengambil tepat sisa ruang viewport tanpa terdorong keluar layar */}
         <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
           <div className="w-full h-full flex flex-col min-h-0">{children}</div>
