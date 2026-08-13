@@ -1,5 +1,5 @@
-import LaundryCard from "@/app/ui/dashboard/laundrycards";
-import RevenueChart from "@/app/ui/dashboard/revenue-chart";
+import LaundryCard from "@/app/ui/laundry/laundrycards";
+import RevenueChart from "@/app/ui/laundry/revenue-chart";
 import { Suspense } from "react";
 import { RevenueChartSkeleton } from "@/app/ui/skeletons";
 

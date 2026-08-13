@@ -6,11 +6,11 @@ import YlaundryLogo from "./ylaundry-logo";
 
 export default function Header() {
   const pathname = usePathname();
-  const showGapOnMobile = pathname === "/" || pathname === "/dashboard";
+  const showGapOnMobile = pathname === "/" || pathname === "/laundry";
   const hideOnMobile = [
-    "/dashboard/laporan",
-    "/dashboard/pelanggan",
-    "/dashboard/pesanan",
+    "/laundry/laporan",
+    "/laundry/pelanggan",
+    "/laundry/pesanan",
   ].includes(pathname);
 
   return (

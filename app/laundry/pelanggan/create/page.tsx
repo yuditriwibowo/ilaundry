@@ -6,10 +6,10 @@ export default async function Page() {
     <div>
       <Breadcrumbs
         breadcrumbs={[
-          { label: "Pelanggan", href: "/dashboard/pelanggan" },
-          {
-            label: "Tambah Pelanggan",
-            href: "/dashboard/pelanggan/create",
+           { label: "Pelanggan", href: "/laundry/pelanggan" },
+           {
+             label: "Tambah Pelanggan",
+             href: "/laundry/pelanggan/create",
             active: true,
           },
         ]}

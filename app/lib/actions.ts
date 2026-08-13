@@ -31,8 +31,8 @@ export async function createInvoice(formData: FormData) {
   INSERT INTO invoices (customer_id, amount, status, date)
   VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
   `;
-  revalidatePath("/dashboard/pesanan");
-  redirect("/dashboard/pesanan");
+  revalidatePath("/laundry/pesanan");
+  redirect("/laundry/pesanan");
 }
 
 const PelangganSchema = z.object({
@@ -66,8 +66,8 @@ export async function createPelanggan(formData: FormData) {
   INSERT INTO pelanggan (nama, no_hp, email, alamat, tgl_daftar, image_url)
   VALUES (${nama}, ${no_hp}, ${email}, ${alamat}, ${tgl_daftar}, ${image_url})
   `;
-  revalidatePath("/dashboard/pelanggan");
-  redirect("/dashboard/pelanggan");
+  revalidatePath("/laundry/pelanggan");
+  redirect("/laundry/pelanggan");
 }
 
 import { fetchFilteredPelanggan } from "./data";
