@@ -16,7 +16,7 @@ export function CreatePelanggan() {
 export function UpdatePelanggan({ id }: { id: string }) {
   return (
     <Link
-      href="/laundry/pelanggan"
+      href={`/laundry/pelanggan/${id}/edit`}
       className="rounded-md border p-2 hover:bg-gray-100"
     >
       <PencilIcon className="w-5" />

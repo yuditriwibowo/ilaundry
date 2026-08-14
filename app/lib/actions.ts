@@ -91,6 +91,31 @@ export async function createPelanggan(formData: FormData) {
   redirect("/laundry/pelanggan");
 }
 
+const UpdatePelanggan = PelangganSchema.omit({
+  id: true,
+  image_url: true,
+  tgl_daftar: true,
+});
+
+export async function updatePelanggan(id: string, formData: FormData) {
+  const rawFormData = {
+    nama: formData.get("nama"),
+    no_hp: formData.get("no_hp"),
+    email: formData.get("email"),
+    alamat: formData.get("alamat"),
+  };
+  const { nama, no_hp, email, alamat } = UpdatePelanggan.parse(rawFormData);
+
+  await sql`
+    UPDATE pelanggan
+    SET nama = ${nama}, no_hp = ${no_hp}, email = ${email}, alamat = ${alamat}
+    WHERE id = ${id}
+  `;
+
+  revalidatePath("/laundry/pelanggan");
+  redirect("/laundry/pelanggan");
+}
+
 import { fetchFilteredPelanggan } from "./data";
 
 export async function fetchMorePelanggan(query: string, page: number) {

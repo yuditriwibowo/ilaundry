@@ -251,6 +251,20 @@ export async function fetchFilteredPelanggan(
   }
 }
 
+export async function fetchPelangganById(id: string) {
+  try {
+    const data = await sql<Pelanggan[]>`
+      SELECT * FROM pelanggan
+      WHERE id = ${id};
+    `;
+
+    return data[0];
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch pelanggan.");
+  }
+}
+
 export async function fetchPelangganPages(query: string) {
   try {
     const data = await sql`SELECT COUNT(*)
