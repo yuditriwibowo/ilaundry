@@ -56,6 +56,11 @@ export async function updateInvoice(id: string, formData: FormData) {
   redirect("/laundry/pesanan");
 }
 
+export async function deleteInvoice(id: string) {
+  await sql`DELETE FROM invoices WHERE id = ${id}`;
+  revalidatePath("/laundry/pesanan");
+}
+
 const PelangganSchema = z.object({
   id: z.string(),
   nama: z.string(),
