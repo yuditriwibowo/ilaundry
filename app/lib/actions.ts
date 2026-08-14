@@ -35,6 +35,27 @@ export async function createInvoice(formData: FormData) {
   redirect("/laundry/pesanan");
 }
 
+const UpdateInvoice = InvoiceSchema.omit({ id: true, date: true });
+
+export async function updateInvoice(id: string, formData: FormData) {
+  const { customerId, amount, status } = UpdateInvoice.parse({
+    customerId: formData.get("customerId"),
+    amount: formData.get("amount"),
+    status: formData.get("status"),
+  });
+
+  const amountInCents = amount * 100;
+
+  await sql`
+    UPDATE invoices
+    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+    WHERE id = ${id}
+  `;
+
+  revalidatePath("/laundry/pesanan");
+  redirect("/laundry/pesanan");
+}
+
 const PelangganSchema = z.object({
   id: z.string(),
   nama: z.string(),

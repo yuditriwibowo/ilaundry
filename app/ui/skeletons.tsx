@@ -149,20 +149,20 @@ export function InvoicesMobileSkeleton() {
 export function PelangganMobileSkeleton() {
   return (
     <div className="mb-2 w-full rounded-md bg-white p-4">
-      <div className="flex items-center justify-between border-b pb-4">
-        <div>
-          <div className="mb-2 flex items-center">
-            <div className="mr-2 h-7 w-7 rounded-full bg-gray-100"></div>
-            <div className="h-6 w-32 rounded bg-gray-100"></div>
+      <div className="flex items-start justify-between gap-4 text-sm">
+        <div className="flex gap-3">
+          <div className="h-8 w-8 rounded-full bg-gray-100" />
+          <div className="flex flex-col">
+            <div className="h-5 w-32 rounded bg-gray-100 mb-1" />
+            <div className="h-4 w-24 rounded bg-gray-100 mb-1" />
+            <div className="h-4 w-28 rounded bg-gray-100 mb-1" />
+            <div className="h-4 w-36 rounded bg-gray-100 mb-1" />
+            <div className="h-3 w-20 rounded bg-gray-100 mt-1" />
           </div>
-          <div className="h-5 w-24 rounded bg-gray-100"></div>
         </div>
-      </div>
-      <div className="flex w-full items-center justify-between pt-4 text-sm">
-        <div>
-          <div className="h-5 w-40 rounded bg-gray-100"></div>
-          <div className="mt-2 h-5 w-32 rounded bg-gray-100"></div>
-          <div className="mt-2 h-4 w-20 rounded bg-gray-100"></div>
+        <div className="flex gap-2">
+          <div className="h-8 w-8 rounded bg-gray-100" />
+          <div className="h-8 w-8 rounded bg-gray-100" />
         </div>
       </div>
     </div>

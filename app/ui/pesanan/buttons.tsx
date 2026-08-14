@@ -16,7 +16,7 @@ export function CreatePesanan() {
 export function UpdatePesanan({ id }: { id: string }) {
   return (
     <Link
-      href="/laundry/pesanan"
+      href={`/laundry/pesanan/${id}/edit`}
       className="rounded-md border p-2 hover:bg-gray-100"
     >
       <PencilIcon className="w-5" />
