@@ -61,6 +61,11 @@ export async function deleteInvoice(id: string) {
   revalidatePath("/laundry/pesanan");
 }
 
+export async function deletePelanggan(id: string) {
+  await sql`DELETE FROM pelanggan WHERE id = ${id}`;
+  revalidatePath("/laundry/pelanggan");
+}
+
 const PelangganSchema = z.object({
   id: z.string(),
   nama: z.string(),
