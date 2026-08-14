@@ -10,17 +10,19 @@ export default async function Page(props: {params: Promise<{id: string}>}) {
     fetchCustomers(),
   ]);
   return (
-    <main>
-      <Breadcrumbs
-        breadcrumbs={[
-          { label: 'Pesanan', href: '/dashboard/pesanan' },
-          {
-            label: 'Edit Pesanan',
-            href: `/dashboard/pesanan/${id}/edit`,
-            active: true,
-          },
-        ]}
-      />
+     <main>
+       <div className="bg-blue-200 pb-4 px-4 pt-2 -mx-4 rounded-b-xl md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
+         <Breadcrumbs
+           breadcrumbs={[
+             { label: 'Pesanan', href: '/dashboard/pesanan' },
+             {
+               label: 'Edit Pesanan',
+               href: `/dashboard/pesanan/${id}/edit`,
+               active: true,
+             },
+           ]}
+         />
+       </div>
       <Form invoice={invoice} customers={customers} />
     </main>
   );
