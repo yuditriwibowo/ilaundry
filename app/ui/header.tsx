@@ -12,7 +12,7 @@ export default function Header() {
   return (
     <header className={`flex-none ${showGapOnMobile ? "pt-3" : "pt-0 md:pt-3"} px-4 pb-2 z-50 flex justify-center ${!showOnMobile ? "hidden md:flex" : ""}`}>
       <Link
-        className="flex h-16 items-center justify-start rounded-xl bg-blue-600 p-4 md:h-20 w-full md:w-95/100 shadow-md"
+        className="flex h-16 items-center justify-start rounded-xl bg-primary-600 p-4 md:h-20 w-full md:w-95/100 shadow-md"
         href="/"
       >
         <div className="w-full text-white">
