@@ -1,4 +1,3 @@
-import { lusitana } from '@/app/ui/fonts';
 
 function YlaundryIcon({ className }: { className?: string }) {
   return (

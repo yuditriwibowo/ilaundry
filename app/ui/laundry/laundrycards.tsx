@@ -1,5 +1,4 @@
 import { Shirt } from 'lucide-react'; // Menggunakan ikon baju yang sama dengan logo [source: 2]
-import { lusitana } from "@/app/ui/fonts";
 import { DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 
 interface LaundryCardProps {

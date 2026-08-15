@@ -2,7 +2,6 @@ import Pagination from "@/app/ui/pagination";
 import Search from "@/app/ui/search";
 import Table from "@/app/ui/pesanan/table";
 import { CreatePesanan } from "@/app/ui/pesanan/buttons";
-import { lusitana } from "@/app/ui/fonts";
 import { InvoicesTableSkeleton } from "@/app/ui/skeletons";
 import { Suspense } from "react";
 import { fetchInvoicesPages } from "@/app/lib/data";
@@ -22,7 +21,7 @@ export default async function Page(props: {
     <div className="flex h-full w-full flex-col -mt-2">
       <div className="sticky top-0 z-10 bg-primary-100 pb-4 px-4 pt-2 -mx-4 rounded-b-xl md:static md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
         <div className="flex w-full items-center justify-between">
-          <h1 className={`${lusitana.className} text-2xl`}>Pesanan</h1>
+           <h1 className={`text-2xl`}>Pesanan</h1>
         </div>
         <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
           <Search placeholder="Cari Pesanan..." />
