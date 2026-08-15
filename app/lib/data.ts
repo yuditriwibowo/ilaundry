@@ -155,6 +155,9 @@ export async function fetchInvoiceById(id: string) {
       FROM invoices
       WHERE invoices.id = ${id};
     `;
+    if (data.length === 0) {
+      return null; // <--- Kembalikan null, jangan throw error
+    }
 
     const invoice = data.map((invoice) => ({
       ...invoice,
@@ -258,6 +261,10 @@ export async function fetchPelangganById(id: string) {
       SELECT * FROM pelanggan
       WHERE id = ${id};
     `;
+
+    if (data.length === 0) {
+      return null;
+    }
 
     return data[0];
   } catch (error) {
