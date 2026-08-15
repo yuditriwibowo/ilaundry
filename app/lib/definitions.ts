@@ -97,3 +97,12 @@ export type Pelanggan = {
   tgl_daftar: string;
 };
 
+export type Toko = {
+  id: string;
+  nama_toko: string;
+  alamat_toko: string | null;
+  telephone: string | null;
+  wa_user_name: string | null;
+  created_at: string;
+};
+

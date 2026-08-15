@@ -7,6 +7,7 @@ import {
   LatestInvoiceRaw,
   Pelanggan,
   Revenue,
+  Toko,
 } from "./definitions";
 import { formatCurrency } from "./utils";
 
@@ -282,5 +283,15 @@ export async function fetchPelangganPages(query: string) {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Gagal mengambil total halaman pelanggan.");
+  }
+}
+
+export async function fetchToko() {
+  try {
+    const data = await sql<Toko[]>`SELECT * FROM toko ORDER BY nama_toko ASC`;
+    return data;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch stores.");
   }
 }
