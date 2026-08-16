@@ -1,8 +1,6 @@
 import LaundryCard from "@/app/ui/laundry/laundrycards";
-import RevenueChart from "@/app/ui/laundry/revenue-chart";
+import QuickActions from "@/app/ui/laundry/quick-actions";
 import SelectToko from "@/app/ui/laundry/select-toko";
-import { Suspense } from "react";
-import { RevenueChartSkeleton } from "@/app/ui/skeletons";
 import { fetchToko } from "@/app/lib/data";
 import { CreateToko } from "@/app/ui/button";
 
@@ -25,9 +23,7 @@ export default async function Page() {
           satuanPcs={12}
           meteranM={20}
         />
-        <Suspense fallback={<RevenueChartSkeleton />}>
-          <RevenueChart />
-        </Suspense>
+        <QuickActions />
       </div>
     </div>
   );
