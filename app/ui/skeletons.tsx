@@ -322,8 +322,8 @@ export function QuickActionsSkeleton() {
 export function TokoActionsSkeleton() {
   return (
     <div className="flex justify-end gap-4">
-      <div className={`${shimmer} relative overflow-hidden h-10 w-48 rounded-md bg-gray-200`} />
-      <div className={`${shimmer} relative overflow-hidden h-10 w-32 rounded-md bg-gray-200`} />
+      <div className={`${shimmer} relative overflow-hidden h-10 w-64 rounded-md bg-gray-200`} />
+      <div className={`${shimmer} relative overflow-hidden h-10 w-32 rounded-lg bg-gray-200`} />
     </div>
   );
 }
