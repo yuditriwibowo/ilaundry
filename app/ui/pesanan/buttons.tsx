@@ -6,7 +6,7 @@ export function CreatePesanan() {
   return (
     <Link
       href="/laundry/pesanan/create"
-      className="flex h-10 items-center rounded-lg bg-primary-600 px-4 text-sm font-medium text-white transition-colors hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+      className="flex h-10 items-center rounded-lg bg-white text-primary-600 md:bg-primary-600 md:text-white px-4 text-sm font-medium transition-colors hover:bg-primary-50 md:hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
     >
       <span className="hidden md:block">Tambah Pesanan</span>{" "}
       <PlusIcon className="h-5 md:ml-4" />

@@ -81,10 +81,10 @@ export default async function Page() {
     const stores = await fetchToko();
     return (
         <div className="flex h-full w-full flex-col -mt-2">
-            <div className="sticky top-0 z-10 bg-primary-100 pb-4 px-4 pt-2 -mx-4 rounded-b-xl md:static md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
+            <div className="sticky top-0 z-10 bg-gradient-to-b from-primary-400 to-primary-800 pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
                 <div className="flex w-full items-center justify-between gap-4">
-                         <h1 className={`text-2xl`}>Pengaturan</h1>
-                        <SelectToko stores={stores} />
+                         <h1 className={`text-2xl text-white md:text-black`}>Pengaturan</h1>
+                         <SelectToko stores={stores} />
                 </div>
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-hide md:overflow-visible">

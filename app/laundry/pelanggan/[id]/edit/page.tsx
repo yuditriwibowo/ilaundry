@@ -14,7 +14,7 @@ export default async function Page(props: {params: Promise<{id: string}>}) {
 
     return (
     <main>
-       <div className="bg-primary-100 px-4 -mx-4 rounded-b-xl flex items-center min-h-[90px] md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none md:min-h-0">
+       <div className="bg-gradient-to-b from-primary-400 to-primary-800 px-4 -mx-4 rounded-b-xl flex items-center min-h-[90px] md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none md:min-h-0">
         <Breadcrumbs
           breadcrumbs={[
             { label: 'Pelanggan', href: '/laundry/pelanggan' },
