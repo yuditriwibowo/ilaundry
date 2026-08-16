@@ -79,6 +79,7 @@ export function RevenueChartSkeleton() {
 export default function LaundrySkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+      <TokoActionsSkeleton />
       <LaundryCardSkeleton />
       <QuickActionsSkeleton />
     </div>
@@ -314,6 +315,15 @@ export function QuickActionsSkeleton() {
           <div className={`${shimmer} relative overflow-hidden h-4 w-20 rounded-md bg-gray-200`} />
         </div>
       ))}
+    </div>
+  );
+}
+
+export function TokoActionsSkeleton() {
+  return (
+    <div className="flex justify-end gap-4">
+      <div className={`${shimmer} relative overflow-hidden h-10 w-48 rounded-md bg-gray-200`} />
+      <div className={`${shimmer} relative overflow-hidden h-10 w-32 rounded-md bg-gray-200`} />
     </div>
   );
 }
