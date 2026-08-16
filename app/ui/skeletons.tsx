@@ -76,11 +76,11 @@ export function RevenueChartSkeleton() {
   );
 }
 
-export default function DashboardSkeleton() {
+export default function LaundrySkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
       <LaundryCardSkeleton />
-      <RevenueChartSkeleton />
+      <QuickActionsSkeleton />
     </div>
   );
 }
@@ -298,6 +298,22 @@ export function InvoicesTableSkeleton() {
           </table>
         </div>
       </div>
+    </div>
+  );
+}
+
+export function QuickActionsSkeleton() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div
+          key={i}
+          className="flex flex-col items-center justify-center p-4 bg-white border border-gray-200 rounded-xl gap-3 text-center shadow-sm"
+        >
+          <div className={`${shimmer} relative overflow-hidden w-12 h-12 bg-gray-100 rounded-full`} />
+          <div className={`${shimmer} relative overflow-hidden h-4 w-20 rounded-md bg-gray-200`} />
+        </div>
+      ))}
     </div>
   );
 }
