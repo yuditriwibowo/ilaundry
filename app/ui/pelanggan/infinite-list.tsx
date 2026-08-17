@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { UpdatePelanggan, DeletePelanggan } from "@/app/ui/pelanggan/buttons";
 import { formatDateToLocal } from "@/app/lib/utils";
@@ -20,22 +20,13 @@ export default function InfiniteList({
   const [pelangganList, setPelangganList] = useState<Pelanggan[]>(initialPelanggan);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const pageRef = useRef(1);
+
   const { ref, inView } = useInView();
 
-  useEffect(() => {
-    setPelangganList(initialPelanggan);
-    setPage(1);
-  }, [initialPelanggan]);
-
-  useEffect(() => {
-    if (inView && page < totalPages && !isLoading) {
-      loadMore();
-    }
-  }, [inView, page, totalPages, isLoading]);
-
-  async function loadMore() {
+  const loadMore = useCallback(async () => {
     setIsLoading(true);
-    const nextPage = page + 1;
+    const nextPage = pageRef.current + 1;
     try {
       const morePelanggan = await fetchMorePelanggan(query, nextPage);
       setPelangganList((prev) => {
@@ -43,12 +34,19 @@ export default function InfiniteList({
         return Array.from(new Map(combined.map(item => [item.id, item])).values());
       });
       setPage(nextPage);
+      pageRef.current = nextPage;
     } catch (error) {
       console.error("Failed to fetch more pelanggan:", error);
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [query]);
+
+  useEffect(() => {
+    if (inView && pageRef.current < totalPages && !isLoading) {
+      loadMore();
+    }
+  }, [inView, totalPages, isLoading, loadMore]);
 
   return (
     <>

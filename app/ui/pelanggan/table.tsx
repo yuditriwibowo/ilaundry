@@ -20,6 +20,7 @@ export default async function PelangganTable({
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
             <InfiniteList 
+              key={query}
               initialPelanggan={pelangganList} 
               query={query} 
               totalPages={totalPages} 
