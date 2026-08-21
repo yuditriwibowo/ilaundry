@@ -27,6 +27,10 @@ export type State = {
     customerId?: string[];
     amount?: string[];
     status?: string[];
+    nama?: string[];
+    no_hp?: string[];
+    email?: string[];
+    alamat?: string[];
   };
   message?: string | null;
 };
@@ -126,24 +130,40 @@ const CreatePelanggan = PelangganSchema.omit({
   id: true,
   image_url: true,
   tgl_daftar: true,
+}).extend({
+  nama: z.string().min(1, { message: "Nama pelanggan wajib diisi." }),
+  no_hp: z.string().min(1, { message: "Nomor HP wajib diisi." }),
 });
 
-export async function createPelanggan(formData: FormData) {
-  const rawFormData = {
+export async function createPelanggan(prevState: State, formData: FormData) {
+  const validatedFields = CreatePelanggan.safeParse({
     nama: formData.get("nama"),
     no_hp: formData.get("no_hp"),
     email: formData.get("email"),
     alamat: formData.get("alamat"),
-  };
-  const { nama, no_hp, email, alamat } = CreatePelanggan.parse(rawFormData);
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Beberapa field tidak valid. Gagal menambah pelanggan.",
+    };
+  }
+
+  const { nama, no_hp, email, alamat } = validatedFields.data;
   const tgl_daftar = new Date().toISOString().split("T")[0];
   const image_url = "/pelanggan/avatar.png";
 
-  console.log({ nama, no_hp, email, alamat, tgl_daftar, image_url });
-  await sql`
-  INSERT INTO pelanggan (nama, no_hp, email, alamat, tgl_daftar, image_url)
-  VALUES (${nama}, ${no_hp}, ${email}, ${alamat}, ${tgl_daftar}, ${image_url})
-  `;
+  try {
+    await sql`
+    INSERT INTO pelanggan (nama, no_hp, email, alamat, tgl_daftar, image_url)
+    VALUES (${nama}, ${no_hp}, ${email}, ${alamat}, ${tgl_daftar}, ${image_url})
+    `;
+  } catch (error) {
+    return {
+      message: "Database Error: Gagal menambah pelanggan.",
+    };
+  }
   revalidatePath("/laundry/pelanggan");
   redirect("/laundry/pelanggan");
 }
