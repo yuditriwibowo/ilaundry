@@ -11,7 +11,7 @@ import { createPelanggan, State } from "@/app/lib/actions";
 import { useActionState } from "react";
 
 export default function Form() {
-  const initialState: State = { message: null, errors: {} };
+  const initialState: State = { message: "", errors: {} };
   const [state, formAction] = useActionState(createPelanggan, initialState);
 
   return (

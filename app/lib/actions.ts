@@ -32,7 +32,7 @@ export type State = {
     email?: string[];
     alamat?: string[];
   };
-  message?: string | null;
+  message: string;
 };
 
 export async function createInvoice(prevState: State,formData: FormData) {

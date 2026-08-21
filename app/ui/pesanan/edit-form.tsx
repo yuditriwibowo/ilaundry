@@ -18,7 +18,7 @@ export default function EditInvoiceForm({
   invoice: InvoiceForm;
   customers: CustomerField[];
 }) {
-  const initialState: State = { message: null, errors: {} };
+  const initialState: State = { message: "", errors: {} };
   const [state, formAction] = useActionState(updateInvoice.bind(null, invoice.id), initialState);
   return (
     <form action={formAction}>
