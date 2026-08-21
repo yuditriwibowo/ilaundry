@@ -172,22 +172,39 @@ const UpdatePelanggan = PelangganSchema.omit({
   id: true,
   image_url: true,
   tgl_daftar: true,
+}).extend({
+  nama: z.string().min(1, { message: "Nama pelanggan wajib diisi." }),
+  no_hp: z.string().min(1, { message: "Nomor HP wajib diisi." }),
 });
 
-export async function updatePelanggan(id: string, formData: FormData) {
-  const rawFormData = {
+export async function updatePelanggan(id: string, prevState: State, formData: FormData) {
+  const validatedFields = UpdatePelanggan.safeParse({
     nama: formData.get("nama"),
     no_hp: formData.get("no_hp"),
     email: formData.get("email"),
     alamat: formData.get("alamat"),
-  };
-  const { nama, no_hp, email, alamat } = UpdatePelanggan.parse(rawFormData);
+  });
 
-  await sql`
-    UPDATE pelanggan
-    SET nama = ${nama}, no_hp = ${no_hp}, email = ${email}, alamat = ${alamat}
-    WHERE id = ${id}
-  `;
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Beberapa field tidak valid. Gagal memperbarui pelanggan.",
+    };
+  }
+
+  const { nama, no_hp, email, alamat } = validatedFields.data;
+
+  try {
+    await sql`
+      UPDATE pelanggan
+      SET nama = ${nama}, no_hp = ${no_hp}, email = ${email}, alamat = ${alamat}
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return {
+      message: "Database Error: Gagal memperbarui pelanggan.",
+    };
+  }
 
   revalidatePath("/laundry/pelanggan");
   redirect("/laundry/pelanggan");

@@ -41,9 +41,7 @@ export default async function PelangganTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   Alamat
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Tgl Daftar
-                </th>
+
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">Edit</span>
                 </th>
@@ -78,9 +76,7 @@ export default async function PelangganTable({
                   <td className="whitespace-nowrap px-3 py-3">
                     {pelanggan.alamat || "-"}
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {formatDateToLocal(pelanggan.tgl_daftar)}
-                  </td>
+
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
                       <UpdatePelanggan id={pelanggan.id} />

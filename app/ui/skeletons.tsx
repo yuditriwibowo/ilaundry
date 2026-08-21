@@ -158,7 +158,7 @@ export function PelangganMobileSkeleton() {
             <div className="h-4 w-24 rounded bg-gray-100 mb-1" />
             <div className="h-4 w-28 rounded bg-gray-100 mb-1" />
             <div className="h-4 w-36 rounded bg-gray-100 mb-1" />
-            <div className="h-3 w-20 rounded bg-gray-100 mt-1" />
+
           </div>
         </div>
         <div className="flex gap-2">
@@ -193,9 +193,12 @@ export function PelangganTableRowSkeleton() {
       <td className="whitespace-nowrap px-3 py-3">
         <div className="h-6 w-40 rounded bg-gray-100"></div>
       </td>
-      {/* Tgl Daftar */}
-      <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-24 rounded bg-gray-100"></div>
+      {/* Actions */}
+      <td className="whitespace-nowrap py-3 pl-6 pr-3">
+        <div className="flex justify-end gap-3">
+          <div className="h-8 w-8 rounded bg-gray-100"></div>
+          <div className="h-8 w-8 rounded bg-gray-100"></div>
+        </div>
       </td>
     </tr>
   );
@@ -229,9 +232,7 @@ export function PelangganTableSkeleton() {
                 <th scope="col" className="px-3 py-5 font-medium">
                   Alamat
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Tgl Daftar
-                </th>
+
               </tr>
             </thead>
             <tbody className="bg-white">

@@ -74,9 +74,7 @@ export default function InfiniteList({
                 <p className="text-gray-500">{pelanggan.no_hp}</p>
                 <p className="text-gray-500">{pelanggan.email || "-"}</p>
                 <p className="text-gray-500">{pelanggan.alamat || "-"}</p>
-                <p className="text-xs text-gray-400 mt-1">
-                  {formatDateToLocal(pelanggan.tgl_daftar)}
-                </p>
+
               </div>
             </div>
             <div className="flex gap-2">
