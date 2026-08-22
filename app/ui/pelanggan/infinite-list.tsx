@@ -83,7 +83,8 @@ export default function InfiniteList({
             </div>
              <div className="flex gap-2">
                <UpdatePelanggan id={pelanggan.id} />
-               <DeletePelanggan id={pelanggan.id} onDelete={handleDelete} />
+                <DeletePelanggan id={pelanggan.id} onDeleteAction={handleDelete} />
+
              </div>
 
           </div>

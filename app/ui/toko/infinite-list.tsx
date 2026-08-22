@@ -71,7 +71,8 @@ export default function InfiniteList({
             </div>
              <div className="flex gap-2">
                <UpdateToko id={toko.id} />
-               <DeleteToko id={toko.id} onDelete={handleDelete} />
+                <DeleteToko id={toko.id} onDeleteAction={handleDelete} />
+
              </div>
 
           </div>

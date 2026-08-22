@@ -29,15 +29,15 @@ export function UpdateToko({ id }: { id: string }) {
 
 export function DeleteToko({ 
   id, 
-  onDelete 
+  onDeleteAction 
 }: { 
   id: string; 
-  onDelete?: (id: string) => void; 
+  onDeleteAction?: (id: string) => void; 
 }) {
   async function handleDelete(formData: FormData) {
     await deleteToko(id);
-    if (onDelete) {
-      onDelete(id);
+    if (onDeleteAction) {
+      onDeleteAction(id);
     }
   }
 

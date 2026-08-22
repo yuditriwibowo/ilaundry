@@ -29,15 +29,15 @@ export function UpdatePelanggan({ id }: { id: string }) {
 
 export function DeletePelanggan({ 
   id, 
-  onDelete 
+  onDeleteAction 
 }: { 
   id: string; 
-  onDelete?: (id: string) => void; 
+  onDeleteAction?: (id: string) => void; 
 }) {
   async function handleDelete(formData: FormData) {
     await deletePelanggan(id);
-    if (onDelete) {
-      onDelete(id);
+    if (onDeleteAction) {
+      onDeleteAction(id);
     }
   }
 
