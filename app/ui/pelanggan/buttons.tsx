@@ -1,3 +1,5 @@
+"use client";
+
 import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { deletePelanggan } from "@/app/lib/actions";
@@ -25,10 +27,22 @@ export function UpdatePelanggan({ id }: { id: string }) {
   );
 }
 
-export function DeletePelanggan({ id }: { id: string }) {
-  const deletePelangganWithId = deletePelanggan.bind(null, id);
+export function DeletePelanggan({ 
+  id, 
+  onDelete 
+}: { 
+  id: string; 
+  onDelete?: (id: string) => void; 
+}) {
+  async function handleDelete(formData: FormData) {
+    await deletePelanggan(id);
+    if (onDelete) {
+      onDelete(id);
+    }
+  }
+
   return (
-    <form action={deletePelangganWithId}>
+    <form action={handleDelete}>
       <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">
         <span className="sr-only">Hapus</span>
         <TrashIcon className="w-5" />

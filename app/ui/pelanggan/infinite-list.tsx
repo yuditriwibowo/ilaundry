@@ -22,6 +22,10 @@ export default function InfiniteList({
   const [isLoading, setIsLoading] = useState(false);
   const pageRef = useRef(1);
 
+  const handleDelete = useCallback((id: string) => {
+    setPelangganList((prev) => prev.filter((pelanggan) => pelanggan.id !== id));
+  }, []);
+
   const { ref, inView } = useInView();
 
   const loadMore = useCallback(async () => {
@@ -77,10 +81,11 @@ export default function InfiniteList({
 
               </div>
             </div>
-            <div className="flex gap-2">
-              <UpdatePelanggan id={pelanggan.id} />
-              <DeletePelanggan id={pelanggan.id} />
-            </div>
+             <div className="flex gap-2">
+               <UpdatePelanggan id={pelanggan.id} />
+               <DeletePelanggan id={pelanggan.id} onDelete={handleDelete} />
+             </div>
+
           </div>
         </div>
       ))}

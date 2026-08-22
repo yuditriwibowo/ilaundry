@@ -1,5 +1,8 @@
+"use client";
+
 import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { deleteToko } from "@/app/lib/actions";
 
 export function CreateToko() {
   return (
@@ -24,9 +27,22 @@ export function UpdateToko({ id }: { id: string }) {
   );
 }
 
-export function DeleteToko({ id }: { id: string }) {
+export function DeleteToko({ 
+  id, 
+  onDelete 
+}: { 
+  id: string; 
+  onDelete?: (id: string) => void; 
+}) {
+  async function handleDelete(formData: FormData) {
+    await deleteToko(id);
+    if (onDelete) {
+      onDelete(id);
+    }
+  }
+
   return (
-    <form>
+    <form action={handleDelete}>
       <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">
         <span className="sr-only">Hapus</span>
         <TrashIcon className="w-5" />

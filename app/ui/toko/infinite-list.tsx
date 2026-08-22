@@ -21,6 +21,10 @@ export default function InfiniteList({
   const [isLoading, setIsLoading] = useState(false);
   const pageRef = useRef(1);
 
+  const handleDelete = useCallback((id: string) => {
+    setTokoList((prev) => prev.filter((toko) => toko.id !== id));
+  }, []);
+
   const { ref, inView } = useInView();
 
   const loadMore = useCallback(async () => {
@@ -65,10 +69,11 @@ export default function InfiniteList({
                 <p className="text-gray-500">{toko.alamat_toko || "-"}</p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <UpdateToko id={toko.id} />
-              <DeleteToko id={toko.id} />
-            </div>
+             <div className="flex gap-2">
+               <UpdateToko id={toko.id} />
+               <DeleteToko id={toko.id} onDelete={handleDelete} />
+             </div>
+
           </div>
         </div>
       ))}

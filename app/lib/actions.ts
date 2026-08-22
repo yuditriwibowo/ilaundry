@@ -116,6 +116,15 @@ export async function deleteInvoice(id: string) {
  revalidatePath("/laundry/pesanan");
 }
 
+export async function deleteToko(id: string) {
+  try {
+    await sql`DELETE FROM toko WHERE id = ${id}`;
+  } catch (error) {
+    throw new Error("Database Error: Failed to Delete Toko.");
+  }
+  revalidatePath("/laundry/pengaturan/toko");
+}
+
 export async function deletePelanggan(id: string) {
   await sql`DELETE FROM pelanggan WHERE id = ${id}`;
   revalidatePath("/laundry/pelanggan");
