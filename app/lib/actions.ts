@@ -211,10 +211,14 @@ export async function updatePelanggan(id: string, prevState: State, formData: Fo
   redirect("/laundry/pelanggan");
 }
 
-import { fetchFilteredPelanggan } from "./data";
+import { fetchFilteredPelanggan, fetchFilteredToko } from "./data";
 
 export async function fetchMorePelanggan(query: string, page: number) {
   return await fetchFilteredPelanggan(query, page);
+}
+
+export async function fetchMoreToko(query: string, page: number) {
+  return await fetchFilteredToko(query, page);
 }
 
 export async function setSelectedTokoAction(tokoId: string) {

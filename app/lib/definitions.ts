@@ -102,7 +102,7 @@ export type Toko = {
   nama_toko: string;
   alamat_toko: string | null;
   telephone: string | null;
-  wa_user_name: string | null;
-  created_at: string;
+  update_by: string | null;
+  last_update: string;
 };
 

@@ -23,10 +23,10 @@ const menuItems = [
         href: "/laundry/pengaturan/akun",
     },
     {
-        title: "Pengaturan Outlet",
+        title: "Pengaturan Toko",
         description: "Tambah, ubah, hapus outlet laundry",
         icon: Store,
-        href: "/laundry/pengaturan/outlet",
+        href: "/laundry/pengaturan/toko",
     },
     {
         title: "Pengaturan Durasi Layanan",
