@@ -343,7 +343,7 @@ export async function fetchTokoPages(query: string) {
       alamat_toko ILIKE ${`%${query}%`} OR
       telephone ILIKE ${`%${query}%`}
   `;
-
+ 
     const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
@@ -351,3 +351,22 @@ export async function fetchTokoPages(query: string) {
     throw new Error("Gagal mengambil total halaman toko.");
   }
 }
+
+export async function fetchTokoById(id: string) {
+  try {
+    const data = await sql<Toko[]>`
+      SELECT * FROM toko
+      WHERE id = ${id};
+    `;
+ 
+    if (data.length === 0) {
+      return null;
+    }
+ 
+    return data[0];
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch toko.");
+  }
+}
+

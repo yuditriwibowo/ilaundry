@@ -138,6 +138,14 @@ const CreateToko = TokoSchema.omit({
   nama_toko: z.string().min(1, { message: "Nama toko wajib diisi." }),
 });
 
+const UpdateToko = TokoSchema.omit({
+  id: true,
+  update_by: true,
+  last_update: true,
+}).extend({
+  nama_toko: z.string().min(1, { message: "Nama toko wajib diisi." }),
+});
+
 export async function createToko(prevState: State, formData: FormData) {
   const validatedFields = CreateToko.safeParse({
     nama_toko: formData.get("nama_toko"),
@@ -164,6 +172,38 @@ export async function createToko(prevState: State, formData: FormData) {
       message: "Database Error: Gagal menambah toko.",
     };
   }
+  revalidatePath("/laundry/pengaturan/toko");
+  redirect("/laundry/pengaturan/toko");
+}
+
+export async function updateToko(id: string, prevState: State, formData: FormData) {
+  const validatedFields = UpdateToko.safeParse({
+    nama_toko: formData.get("nama_toko"),
+    alamat_toko: formData.get("alamat_toko"),
+    telephone: formData.get("telephone"),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Beberapa field tidak valid. Gagal memperbarui toko.",
+    };
+  }
+
+  const { nama_toko, alamat_toko, telephone } = validatedFields.data;
+
+  try {
+    await sql`
+      UPDATE toko
+      SET nama_toko = ${nama_toko}, alamat_toko = ${alamat_toko}, telephone = ${telephone}
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return {
+      message: "Database Error: Gagal memperbarui toko.",
+    };
+  }
+
   revalidatePath("/laundry/pengaturan/toko");
   redirect("/laundry/pengaturan/toko");
 }
