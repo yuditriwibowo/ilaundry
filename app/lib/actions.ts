@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import postgres from "postgres";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
@@ -215,3 +216,19 @@ import { fetchFilteredPelanggan } from "./data";
 export async function fetchMorePelanggan(query: string, page: number) {
   return await fetchFilteredPelanggan(query, page);
 }
+
+export async function setSelectedTokoAction(tokoId: string) {
+  const cookieStore = await cookies();
+  if (tokoId) {
+    cookieStore.set("selected_toko", tokoId, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 30, // 30 hari
+    });
+  } else {
+    cookieStore.delete("selected_toko");
+  }
+}
+

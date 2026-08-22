@@ -1,12 +1,46 @@
-import { BuildingStorefrontIcon } from "@heroicons/react/24/outline";
+"use client";
 
-export default function SelectToko({ stores }: { stores: any[] }) {
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { BuildingStorefrontIcon } from "@heroicons/react/24/outline";
+import { setSelectedTokoAction } from "@/app/lib/actions";
+
+export default function SelectToko({
+  stores,
+  selectedToko = "",
+}: {
+  stores: any[];
+  selectedToko?: string;
+}) {
+  const router = useRouter();
+  const [selected, setSelected] = useState(selectedToko);
+  const [prevSelectedToko, setPrevSelectedToko] = useState(selectedToko);
+  const [, startTransition] = useTransition();
+
+  if (selectedToko !== prevSelectedToko) {
+    setPrevSelectedToko(selectedToko);
+    setSelected(selectedToko);
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = e.target.value;
+    setSelected(newValue);
+    startTransition(async () => {
+      await setSelectedTokoAction(newValue);
+      router.refresh();
+    });
+  };
+
   return (
     <div className="relative w-full max-w-xs">
-      <select className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500 bg-white text-black">
+      <select
+        value={selected}
+        onChange={handleChange}
+        className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500 bg-white text-black"
+      >
         <option value="">Pilih Toko</option>
         {stores.map((store) => (
-          <option key={store.id} value={store.id}>
+          <option key={store.id} value={String(store.id)}>
             {store.nama_toko}
           </option>
         ))}
@@ -15,3 +49,4 @@ export default function SelectToko({ stores }: { stores: any[] }) {
     </div>
   );
 }
+
