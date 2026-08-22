@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        'short-screen': { raw: '(max-height: 500px)' },
+      },
       gridTemplateColumns: {
         '13': 'repeat(13, minmax(0, 1fr))',
       },

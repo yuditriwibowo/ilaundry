@@ -22,16 +22,16 @@ export default async function Page(props: {
           <div className="flex w-full items-center justify-between">
              <h1 className={`text-2xl text-white md:text-black`}>Pelanggan</h1>
           </div>
-          <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+          <div className="mt-4 flex items-center justify-between gap-2 md:mt-6 short-screen:mt-2">
             <Search placeholder="Cari Pelanggan..." />
             <CreatePelanggan />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto scrollbar-hide md:overflow-visible">
+        <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0">
           <Suspense key={query + currentPage} fallback={<PelangganTableSkeleton />}>
             <Table query={query} currentPage={currentPage} />
           </Suspense>
-          <div className="mt-5 hidden w-full justify-center md:flex">
+          <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">
             <Pagination totalPages={totalPages} />
           </div>
         </div>
