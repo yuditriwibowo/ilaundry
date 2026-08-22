@@ -104,5 +104,6 @@ export type Toko = {
   telephone: string | null;
   update_by: string | null;
   last_update: string;
+  created_at: string | null;
 };
 

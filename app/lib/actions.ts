@@ -170,11 +170,14 @@ export async function createToko(prevState: State, formData: FormData) {
   }
 
   const { nama_toko, alamat_toko, telephone } = validatedFields.data;
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("user_id")?.value ?? null;
+  const now = new Date().toISOString();
 
   try {
     await sql`
-      INSERT INTO toko (nama_toko, alamat_toko, telephone)
-      VALUES (${nama_toko}, ${alamat_toko}, ${telephone})
+      INSERT INTO toko (nama_toko, alamat_toko, telephone, created_at, last_update, update_by)
+      VALUES (${nama_toko}, ${alamat_toko}, ${telephone}, ${now}, ${now}, ${userId})
     `;
   } catch (error) {
     return {
@@ -200,11 +203,14 @@ export async function updateToko(id: string, prevState: State, formData: FormDat
   }
 
   const { nama_toko, alamat_toko, telephone } = validatedFields.data;
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("user_id")?.value ?? null;
+  const now = new Date().toISOString();
 
   try {
     await sql`
       UPDATE toko
-      SET nama_toko = ${nama_toko}, alamat_toko = ${alamat_toko}, telephone = ${telephone}
+      SET nama_toko = ${nama_toko}, alamat_toko = ${alamat_toko}, telephone = ${telephone}, last_update = ${now}, update_by = ${userId}
       WHERE id = ${id}
     `;
   } catch (error) {
@@ -318,6 +324,17 @@ export async function fetchMorePelanggan(query: string, page: number) {
 
 export async function fetchMoreToko(query: string, page: number) {
   return await fetchFilteredToko(query, page);
+}
+
+export async function setSessionUserId() {
+  const cookieStore = await cookies();
+  cookieStore.set("user_id", "410544b2-4001-4271-9855-fec4b6a6442a", {
+    path: "/",
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 30, // 30 hari
+  });
 }
 
 export async function setSelectedTokoAction(tokoId: string) {
