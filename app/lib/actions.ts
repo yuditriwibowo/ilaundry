@@ -171,7 +171,7 @@ export async function createToko(prevState: State, formData: FormData) {
 
   const { nama_toko, alamat_toko, telephone } = validatedFields.data;
   const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value ?? null;
+  const userId = cookieStore.get("user_id")?.value || null;
   const now = new Date().toISOString();
 
   try {
@@ -204,7 +204,7 @@ export async function updateToko(id: string, prevState: State, formData: FormDat
 
   const { nama_toko, alamat_toko, telephone } = validatedFields.data;
   const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value ?? null;
+  const userId = cookieStore.get("user_id")?.value || null;
   const now = new Date().toISOString();
 
   try {
@@ -332,7 +332,7 @@ export async function setSessionUserId() {
     path: "/",
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: true, 
     maxAge: 60 * 60 * 24 * 30, // 30 hari
   });
 }

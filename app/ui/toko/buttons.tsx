@@ -34,7 +34,7 @@ export function DeleteToko({
   id: string; 
   onDeleteAction?: (id: string) => void; 
 }) {
-  async function handleDelete(formData: FormData) {
+  async function handleDelete() {
     await deleteToko(id);
     if (onDeleteAction) {
       onDeleteAction(id);
@@ -42,11 +42,14 @@ export function DeleteToko({
   }
 
   return (
-    <form action={handleDelete}>
-      <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">
-        <span className="sr-only">Hapus</span>
-        <TrashIcon className="w-5" />
-      </button>
-    </form>
+    <button 
+      onClick={async () => {
+        await handleDelete();
+      }}
+      className="rounded-md border p-2 hover:bg-gray-100"
+    >
+      <span className="sr-only">Hapus</span>
+      <TrashIcon className="w-5" />
+    </button>
   );
 }
