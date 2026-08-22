@@ -32,6 +32,9 @@ export type State = {
     no_hp?: string[];
     email?: string[];
     alamat?: string[];
+    nama_toko?: string[];
+    telephone?: string[];
+    alamat_toko?: string[];
   };
   message: string;
 };
@@ -116,6 +119,53 @@ export async function deleteInvoice(id: string) {
 export async function deletePelanggan(id: string) {
   await sql`DELETE FROM pelanggan WHERE id = ${id}`;
   revalidatePath("/laundry/pelanggan");
+}
+
+const TokoSchema = z.object({
+  id: z.string(),
+  nama_toko: z.string(),
+  alamat_toko: z.string().nullable(),
+  telephone: z.string().nullable(),
+  update_by: z.string().nullable(),
+  last_update: z.string(),
+});
+
+const CreateToko = TokoSchema.omit({
+  id: true,
+  update_by: true,
+  last_update: true,
+}).extend({
+  nama_toko: z.string().min(1, { message: "Nama toko wajib diisi." }),
+});
+
+export async function createToko(prevState: State, formData: FormData) {
+  const validatedFields = CreateToko.safeParse({
+    nama_toko: formData.get("nama_toko"),
+    alamat_toko: formData.get("alamat_toko"),
+    telephone: formData.get("telephone"),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Beberapa field tidak valid. Gagal menambah toko.",
+    };
+  }
+
+  const { nama_toko, alamat_toko, telephone } = validatedFields.data;
+
+  try {
+    await sql`
+      INSERT INTO toko (nama_toko, alamat_toko, telephone)
+      VALUES (${nama_toko}, ${alamat_toko}, ${telephone})
+    `;
+  } catch (error) {
+    return {
+      message: "Database Error: Gagal menambah toko.",
+    };
+  }
+  revalidatePath("/laundry/pengaturan/toko");
+  redirect("/laundry/pengaturan/toko");
 }
 
 const PelangganSchema = z.object({
