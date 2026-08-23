@@ -24,13 +24,13 @@ const menuItems = [
     },
     {
         title: "Pengaturan Toko",
-        description: "Tambah, ubah, hapus outlet laundry",
+        description: "Tambah, ubah, hapus toko/outlet laundry",
         icon: Store,
         href: "/laundry/pengaturan/toko",
     },
     {
-        title: "Pengaturan Durasi Layanan",
-        description: "Tambah, ubah, hapus durasi layanan",
+        title: "Pengaturan Tipe & Durasi Layanan",
+        description: "Tambah, ubah, hapus Tipe & durasi layanan",
         icon: Timer,
         href: "/laundry/pengaturan/durasi",
     },

@@ -6,6 +6,7 @@ import { UpdateDurasi, DeleteDurasi } from "@/app/ui/durasi/buttons";
 import { fetchMoreDurasi } from "@/app/lib/actions";
 import { Durasi } from "@/app/lib/definitions";
 import { useInView } from "react-intersection-observer";
+import NotFound from "@/app/laundry/pengaturan/not-found";
 
 export default function InfiniteList({
   initialDurasi,
@@ -53,31 +54,38 @@ export default function InfiniteList({
 
   return (
     <>
-      {durasiList.map((durasi) => (
-        <div
-          key={durasi.id}
-          className="mb-2 w-full rounded-md bg-white p-4"
-        >
-          <div className="flex items-start justify-between gap-4 text-sm">
-            <div className="flex gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600">
-                <ClockIcon className="h-5 w-5 text-white" />
-              </div>
-<div className="flex flex-col">
-                  <p className="font-medium text-base">{durasi.nama_durasi}</p>
-                  <p className="text-gray-500">Lama Durasi: {durasi.lama_durasi ? `${durasi.lama_durasi} jam` : "-"}</p>
+      {durasiList.length === 0 ? (
+        <NotFound />
+      ) : (
+        <>
+          {durasiList.map((durasi) => (
+            <div
+              key={durasi.id}
+              className="mb-2 w-full rounded-md bg-white p-4"
+            >
+              <div className="flex items-start justify-between gap-4 text-sm">
+                <div className="flex gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600">
+                    <ClockIcon className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="font-medium text-base">{durasi.nama_durasi}</p>
+                    <p className="text-gray-500">Lama Durasi: {durasi.lama_durasi ? `${durasi.lama_durasi} jam` : "-"}</p>
+                  </div>
                 </div>
+                <div className="flex gap-2">
+                  <UpdateDurasi id={durasi.id} />
+                  <DeleteDurasi id={durasi.id} onDeleteAction={handleDelete} />
+                </div>
+              </div>
             </div>
-             <div className="flex gap-2">
-               <UpdateDurasi id={durasi.id} />
-                 <DeleteDurasi id={durasi.id} onDeleteAction={handleDelete} />
-            </div>
+          ))}
+          <div ref={ref} className="h-10 flex items-center justify-center">
+            {isLoading && <p className="text-sm text-gray-500">Loading more...</p>}
           </div>
-        </div>
-      ))}
-      <div ref={ref} className="h-10 flex items-center justify-center">
-        {isLoading && <p className="text-sm text-gray-500">Loading more...</p>}
-      </div>
+        </>
+      )}
     </>
   );
+
 }
