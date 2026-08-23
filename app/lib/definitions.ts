@@ -107,3 +107,14 @@ export type Toko = {
   created_at: string | null;
 };
 
+export type Durasi = {
+  id: string;
+  nama_durasi: string | null;
+  lama_durasi: number;
+  toko_id: string | null;
+  last_update: string;
+  update_by: string | null;
+  created_at: string | null;
+};
+
+
