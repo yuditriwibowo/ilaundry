@@ -70,7 +70,7 @@ export default function InfiniteList({
                   </div>
                   <div className="flex flex-col">
                     <p className="font-medium text-base">{layanan.nama_layanan}</p>
-                    <p className="text-gray-500">{layanan.nama_tipe} • {layanan.nama_durasi || "-"} • Rp {layanan.harga.toLocaleString('id-ID')}</p>
+                    <p className="text-gray-500">{layanan.nama_tipe} • {layanan.nama_durasi ? `${layanan.nama_durasi}${layanan.lama_durasi ? ` - ${layanan.lama_durasi} Jam` : ""}` : "-"} • Rp {layanan.harga.toLocaleString('id-ID')}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">

@@ -5,7 +5,7 @@ import LayananFilters from "@/app/ui/layanan/filters";
 import { CreateLayanan } from "@/app/ui/layanan/buttons";
 import { fetchLayananPages, fetchTipeLayanan, fetchDurasiForFilter } from "@/app/lib/data";
 import { Suspense } from "react";
-import { DurasiTableSkeleton } from "@/app/ui/skeletons";
+import { LayananTableSkeleton } from "@/app/ui/skeletons";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -40,7 +40,7 @@ export default async function Page(props: {
              </div>
           </div>
           <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0">
-            <Suspense key={query + currentPage + tipe + durasi} fallback={<DurasiTableSkeleton />}>
+            <Suspense key={query + currentPage + tipe + durasi} fallback={<LayananTableSkeleton />}>
               <Table query={query} currentPage={currentPage} tipeId={tipe} durasiNama={durasi} />
             </Suspense>
             <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">

@@ -468,7 +468,7 @@ export async function fetchTipeLayanan() {
 
 export async function fetchDurasiForFilter() {
   try {
-    const data = await sql`SELECT id, nama_durasi as nama FROM durasi ORDER BY nama_durasi ASC`;
+    const data = await sql`SELECT id, nama_durasi as nama, lama_durasi FROM durasi ORDER BY nama_durasi ASC`;
     return data;
   } catch (error) {
     console.error("Database Error:", error);
@@ -494,6 +494,7 @@ export async function fetchFilteredLayanan(
         l.harga, 
         tl.nama_tipe, 
         d.nama_durasi, 
+        d.lama_durasi,
         t.nama_toko
       FROM layanan l
       JOIN tipe_layanan tl ON l.tipe_id = tl.id

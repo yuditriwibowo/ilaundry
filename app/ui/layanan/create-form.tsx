@@ -69,7 +69,7 @@ export default function Form({
               <option value="">Pilih Durasi Layanan</option>
               {optionsDurasi.map((option) => (
                 <option key={option.id} value={option.id}>
-                  {option.nama}
+                  {option.nama}{option.lama_durasi ? ` - ${option.lama_durasi} Jam` : ""}
                 </option>
               ))}
             </select>

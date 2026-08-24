@@ -72,7 +72,7 @@ export default async function LayananTable({
                         {layanan.nama_tipe}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
-                        {layanan.nama_durasi || "-"}
+                        {layanan.nama_durasi ? `${layanan.nama_durasi}${layanan.lama_durasi ? ` - ${layanan.lama_durasi} Jam` : ""}` : "-"}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
                         Rp {layanan.harga.toLocaleString('id-ID')}

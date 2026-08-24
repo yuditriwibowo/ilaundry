@@ -143,6 +143,7 @@ export type TabelLayanan = {
   harga: number;
   nama_tipe: string;
   nama_durasi: string | null;
+  lama_durasi?: number | null;
   nama_toko: string | null;
 };
 
