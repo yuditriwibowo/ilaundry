@@ -117,4 +117,33 @@ export type Durasi = {
   created_at: string | null;
 };
 
+export type TipeLayanan = {
+  id: string;
+  nama_tipe: string;
+  created_at: string;
+  last_update: string | null;
+  update_by: string | null;
+};
+
+export type Layanan = {
+  id: string;
+  tipe_id: string;
+  durasi_id: string;
+  nama_layanan: string;
+  harga: number;
+  created_at: string;
+  last_update: string | null;
+  update_by: string | null;
+  toko_id: string | null;
+};
+
+export type TabelLayanan = {
+  id: string;
+  nama_layanan: string;
+  harga: number;
+  nama_tipe: string;
+  nama_durasi: string | null;
+  nama_toko: string | null;
+};
+
 

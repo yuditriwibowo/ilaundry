@@ -35,9 +35,14 @@ export type State = {
     nama_toko?: string[];
     telephone?: string[];
     alamat_toko?: string[];
-    nama_durasi?: string[];
-    lama_durasi?: string[];
-    toko_id?: string[];
+  nama_durasi?: string[];
+  lama_durasi?: string[];
+  nama_layanan?: string[];
+  harga?: string[];
+  tipe_id?: string[];
+  durasi_id?: string[];
+  toko_id?: string[];
+
   };
   message: string;
 };
@@ -135,6 +140,15 @@ export async function deleteDurasi(id: string) {
     throw new Error("Database Error: Failed to Delete Durasi.");
   }
   revalidatePath("/laundry/pengaturan/durasi");
+}
+
+export async function deleteLayanan(id: string) {
+  try {
+    await sql`DELETE FROM layanan WHERE id = ${id}`;
+  } catch (error) {
+    throw new Error("Database Error: Failed to Delete Layanan.");
+  }
+  revalidatePath("/laundry/pengaturan/layanan");
 }
 
 export async function deletePelanggan(id: string) {
@@ -345,6 +359,115 @@ const PelangganSchema = z.object({
   image_url: z.string(),
   tgl_daftar: z.string(),
 });
+
+const LayananSchema = z.object({
+  id: z.string(),
+  tipe_id: z.string(),
+  durasi_id: z.string(),
+  nama_layanan: z.string(),
+  harga: z.coerce.number(),
+  toko_id: z.string().nullable(),
+  update_by: z.string().nullable(),
+  last_update: z.string(),
+});
+
+const CreateLayanan = LayananSchema.omit({
+  id: true,
+  update_by: true,
+  last_update: true,
+}).extend({
+  nama_layanan: z.string().min(1, { message: "Nama layanan wajib diisi." }),
+  harga: z.coerce.number().gt(0, { message: "Harga harus lebih dari 0." }),
+  tipe_id: z.string().min(1, { message: "Tipe layanan wajib dipilih." }),
+  durasi_id: z.string().min(1, { message: "Durasi layanan wajib dipilih." }),
+});
+
+const UpdateLayanan = LayananSchema.omit({
+  id: true,
+  update_by: true,
+  last_update: true,
+}).extend({
+  nama_layanan: z.string().min(1, { message: "Nama layanan wajib diisi." }),
+  harga: z.coerce.number().gt(0, { message: "Harga harus lebih dari 0." }),
+  tipe_id: z.string().min(1, { message: "Tipe layanan wajib dipilih." }),
+  durasi_id: z.string().min(1, { message: "Durasi layanan wajib dipilih." }),
+});
+
+export async function createLayanan(prevState: State, formData: FormData) {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value || null;
+
+  const validatedFields = CreateLayanan.safeParse({
+    nama_layanan: formData.get("nama_layanan"),
+    harga: formData.get("harga"),
+    tipe_id: formData.get("tipe_id"),
+    durasi_id: formData.get("durasi_id"),
+    toko_id: selectedToko,
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Beberapa field tidak valid. Gagal menambah layanan.",
+    };
+  }
+
+  const { nama_layanan, harga, tipe_id, durasi_id, toko_id } = validatedFields.data;
+  const userId = cookieStore.get("user_id")?.value || null;
+  const now = new Date().toISOString();
+
+  try {
+    await sql`
+      INSERT INTO layanan (nama_layanan, harga, tipe_id, durasi_id, toko_id, created_at, last_update, update_by)
+      VALUES (${nama_layanan}, ${harga}, ${tipe_id}, ${durasi_id}, ${toko_id}, ${now}, ${now}, ${userId})
+    `;
+  } catch (error) {
+    return {
+      message: "Database Error: Gagal menambah layanan.",
+    };
+  }
+  revalidatePath("/laundry/pengaturan/layanan");
+  redirect("/laundry/pengaturan/layanan");
+}
+
+export async function updateLayanan(id: string, prevState: State, formData: FormData) {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value || null;
+
+  const validatedFields = UpdateLayanan.safeParse({
+    nama_layanan: formData.get("nama_layanan"),
+    harga: formData.get("harga"),
+    tipe_id: formData.get("tipe_id"),
+    durasi_id: formData.get("durasi_id"),
+    toko_id: selectedToko,
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Beberapa field tidak valid. Gagal memperbarui layanan.",
+    };
+  }
+
+  const { nama_layanan, harga, tipe_id, durasi_id, toko_id } = validatedFields.data;
+  const userId = cookieStore.get("user_id")?.value || null;
+  const now = new Date().toISOString();
+
+  try {
+    await sql`
+      UPDATE layanan
+      SET nama_layanan = ${nama_layanan}, harga = ${harga}, tipe_id = ${tipe_id}, durasi_id = ${durasi_id}, toko_id = ${toko_id}, last_update = ${now}, update_by = ${userId}
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return {
+      message: "Database Error: Gagal memperbarui layanan.",
+    };
+  }
+
+  revalidatePath("/laundry/pengaturan/layanan");
+  redirect("/laundry/pengaturan/layanan");
+}
 const CreatePelanggan = PelangganSchema.omit({
   id: true,
   image_url: true,
@@ -429,7 +552,7 @@ export async function updatePelanggan(id: string, prevState: State, formData: Fo
   redirect("/laundry/pelanggan");
 }
 
-import { fetchFilteredPelanggan, fetchFilteredToko, fetchFilteredDurasi } from "./data";
+import { fetchFilteredPelanggan, fetchFilteredToko, fetchFilteredDurasi, fetchFilteredLayanan } from "./data";
 
 export async function fetchMorePelanggan(query: string, page: number) {
   return await fetchFilteredPelanggan(query, page);
@@ -441,6 +564,10 @@ export async function fetchMoreToko(query: string, page: number) {
 
 export async function fetchMoreDurasi(query: string, page: number) {
   return await fetchFilteredDurasi(query, page);
+}
+
+export async function fetchMoreLayanan(query: string, page: number) {
+  return await fetchFilteredLayanan(query, page);
 }
 
 export async function setSessionUserId() {
