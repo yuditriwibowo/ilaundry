@@ -29,8 +29,8 @@ const menuItems = [
         href: "/laundry/pengaturan/toko",
     },
     {
-        title: "Pengaturan Tipe & Durasi Layanan",
-        description: "Tambah, ubah, hapus Tipe & durasi layanan",
+        title: "Pengaturan Durasi Layanan",
+        description: "Tambah, ubah, hapus durasi layanan",
         icon: Timer,
         href: "/laundry/pengaturan/durasi",
     },

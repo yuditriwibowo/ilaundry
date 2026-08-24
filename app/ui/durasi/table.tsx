@@ -34,7 +34,7 @@ export default async function DurasiTable({
                 <thead className="rounded-lg text-left text-sm font-normal">
                   <tr className="border-b">
                     <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                      Nama Tipe Layanan
+                      Nama Durasi
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
                       Lama Durasi

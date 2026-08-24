@@ -19,14 +19,14 @@ export default function EditDurasiForm({
         {/* Nama Durasi */}
         <div className="mb-4">
           <label htmlFor="nama_durasi" className="mb-2 block text-sm font-medium">
-            Nama Tipe Layanan
+            Nama Durasi Layanan
           </label>
           <div className="relative">
             <input
               id="nama_durasi"
               name="nama_durasi"
               defaultValue={durasi.nama_durasi || ''}
-              placeholder="Masukkan nama tipe layanan"
+              placeholder="Masukkan nama durasi layanan"
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="nama_durasi-error"
             />
