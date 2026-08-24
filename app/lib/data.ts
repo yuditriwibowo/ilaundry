@@ -10,6 +10,7 @@ import {
   Revenue,
   Toko,
   Durasi,
+  Layanan,
   TabelLayanan,
 } from "./definitions";
 import { formatCurrency } from "./utils";
@@ -535,6 +536,24 @@ export async function fetchLayananPages(query: string, tipeId?: string, durasiNa
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Gagal mengambil total halaman layanan.");
+  }
+}
+
+export async function fetchLayananById(id: string) {
+  try {
+    const data = await sql<Layanan[]>`
+      SELECT * FROM layanan
+      WHERE id = ${id};
+    `;
+  
+    if (data.length === 0) {
+      return null;
+    }
+  
+    return data[0];
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch layanan.");
   }
 }
 

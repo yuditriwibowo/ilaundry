@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { PackageIcon } from "lucide-react";
+import { UpdateLayanan, DeleteLayanan } from "@/app/ui/layanan/buttons";
 import { fetchMoreLayanan } from "@/app/lib/actions";
 import { TabelLayanan } from "@/app/lib/definitions";
 import { useInView } from "react-intersection-observer";
@@ -20,6 +21,10 @@ export default function InfiniteList({
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const pageRef = useRef(1);
+
+  const handleDelete = useCallback((id: string) => {
+    setLayananList((prev) => prev.filter((layanan) => layanan.id !== id));
+  }, []);
 
   const { ref, inView } = useInView();
 
@@ -69,7 +74,8 @@ export default function InfiniteList({
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  {/* Buttons will be added if requested later */}
+                  <UpdateLayanan id={layanan.id} />
+                  <DeleteLayanan id={layanan.id} onDeleteAction={handleDelete} />
                 </div>
               </div>
             </div>

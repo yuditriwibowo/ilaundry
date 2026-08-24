@@ -1,4 +1,5 @@
 import { PackageIcon } from "lucide-react";
+import { UpdateLayanan, DeleteLayanan } from "@/app/ui/layanan/buttons";
 import { fetchFilteredLayanan, fetchLayananPages } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/layanan/infinite-list";
 import NotFound from "@/app/laundry/pengaturan/not-found";
@@ -78,7 +79,8 @@ export default async function LayananTable({
                       </td>
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">
                         <div className="flex justify-end gap-3">
-                          {/* Buttons will be added if requested later */}
+                          <UpdateLayanan id={layanan.id} />
+                          <DeleteLayanan id={layanan.id} />
                         </div>
                       </td>
                     </tr>
