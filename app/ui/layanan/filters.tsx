@@ -27,14 +27,14 @@ export default function LayananFilters({
   };
 
   return (
-    <div className="flex flex-row items-center gap-3">
+    <div className="flex w-full flex-row items-center gap-2">
       <select 
         value={tipe} 
         onChange={(e) => {
           setTipe(e.target.value);
           handleFilterChange("tipe", e.target.value);
         }}
-        className="block w-full min-w-[200px] cursor-pointer rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500 bg-white text-black"
+        className="block flex-1 min-w-0 w-full cursor-pointer rounded-md border border-gray-200 py-2 px-2.5 text-sm outline-none bg-white text-black truncate focus:border-blue-500"
       >
         <option value="">Semua Tipe</option>
         {optionsTipe.map((item) => (
@@ -48,7 +48,7 @@ export default function LayananFilters({
           setDurasi(e.target.value);
           handleFilterChange("durasi", e.target.value);
         }}
-        className="block w-full min-w-[200px] cursor-pointer rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500 bg-white text-black"
+        className="block flex-1 min-w-0 w-full cursor-pointer rounded-md border border-gray-200 py-2 px-2.5 text-sm outline-none bg-white text-black truncate focus:border-blue-500"
       >
         <option value="">Semua Durasi</option>
         {optionsDurasi.map((item) => (

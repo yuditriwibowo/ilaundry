@@ -35,7 +35,7 @@ export default async function Page(props: {
                <Search placeholder="Cari Layanan..." />
                <CreateLayanan />
              </div>
-             <div className="mt-2 flex items-center gap-2">
+             <div className="mt-2 flex w-full items-center gap-2">
                <LayananFilters optionsTipe={optionsTipe} optionsDurasi={optionsDurasi} />
              </div>
           </div>
