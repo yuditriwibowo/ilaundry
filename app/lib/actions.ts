@@ -142,6 +142,15 @@ export async function deleteDurasi(id: string) {
   revalidatePath("/laundry/pengaturan/durasi");
 }
 
+export async function deleteParfum(id: string) {
+  try {
+    await sql`DELETE FROM parfum WHERE id = ${id}`;
+  } catch (error) {
+    throw new Error("Database Error: Failed to Delete Parfum.");
+  }
+  revalidatePath("/laundry/pengaturan/parfum");
+}
+
 export async function deleteLayanan(id: string) {
   try {
     await sql`DELETE FROM layanan WHERE id = ${id}`;
@@ -206,6 +215,35 @@ const UpdateDurasi = DurasiSchema.omit({
 }).extend({
   nama_durasi: z.string().min(1, { message: "Nama durasi wajib diisi." }),
   lama_durasi: z.coerce.number().gt(0, { message: "Lama durasi harus lebih dari 0." }),
+});
+
+const ParfumSchema = z.object({
+  id: z.string(),
+  nama_parfum: z.string(),
+  toko_id: z.string(),
+  created_at: z.string(),
+  last_update: z.string().nullable(),
+  update_by: z.string().nullable(),
+});
+
+const CreateParfum = ParfumSchema.omit({
+  id: true,
+  created_at: true,
+  last_update: true,
+  update_by: true,
+}).extend({
+  nama_parfum: z.string().min(1, { message: "Nama parfum wajib diisi." }),
+  toko_id: z.string().min(1, { message: "Pilih toko terlebih dahulu." }),
+});
+
+const UpdateParfum = ParfumSchema.omit({
+  id: true,
+  created_at: true,
+  last_update: true,
+  update_by: true,
+}).extend({
+  nama_parfum: z.string().min(1, { message: "Nama parfum wajib diisi." }),
+  toko_id: z.string().min(1, { message: "Pilih toko terlebih dahulu." }),
 });
 
 export async function updateDurasi(id: string, prevState: State, formData: FormData) {
@@ -313,6 +351,76 @@ export async function createDurasi(prevState: State, formData: FormData) {
   }
   revalidatePath("/laundry/pengaturan/durasi");
   redirect("/laundry/pengaturan/durasi");
+}
+
+export async function updateParfum(id: string, prevState: State, formData: FormData) {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value || null;
+
+  const validatedFields = UpdateParfum.safeParse({
+    nama_parfum: formData.get("nama_parfum"),
+    toko_id: selectedToko,
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Beberapa field tidak valid. Gagal memperbarui parfum.",
+    };
+  }
+
+  const { nama_parfum, toko_id } = validatedFields.data;
+  const userId = cookieStore.get("user_id")?.value || null;
+  const now = new Date().toISOString();
+
+  try {
+    await sql`
+      UPDATE parfum
+      SET nama_parfum = ${nama_parfum}, toko_id = ${toko_id}, last_update = ${now}, update_by = ${userId}
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return {
+      message: "Database Error: Gagal memperbarui parfum.",
+    };
+  }
+
+  revalidatePath("/laundry/pengaturan/parfum");
+  redirect("/laundry/pengaturan/parfum");
+}
+
+export async function createParfum(prevState: State, formData: FormData) {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value || null;
+
+  const validatedFields = CreateParfum.safeParse({
+    nama_parfum: formData.get("nama_parfum"),
+    toko_id: selectedToko,
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Beberapa field tidak valid. Gagal menambah parfum.",
+    };
+  }
+
+  const { nama_parfum, toko_id } = validatedFields.data;
+  const userId = cookieStore.get("user_id")?.value || null;
+  const now = new Date().toISOString();
+
+  try {
+    await sql`
+      INSERT INTO parfum (nama_parfum, toko_id, created_at, last_update, update_by)
+      VALUES (${nama_parfum}, ${toko_id}, ${now}, ${now}, ${userId})
+    `;
+  } catch (error) {
+    return {
+      message: "Database Error: Gagal menambah parfum.",
+    };
+  }
+  revalidatePath("/laundry/pengaturan/parfum");
+  redirect("/laundry/pengaturan/parfum");
 }
 
 export async function updateToko(id: string, prevState: State, formData: FormData) {
@@ -552,7 +660,7 @@ export async function updatePelanggan(id: string, prevState: State, formData: Fo
   redirect("/laundry/pelanggan");
 }
 
-import { fetchFilteredPelanggan, fetchFilteredToko, fetchFilteredDurasi, fetchFilteredLayanan } from "./data";
+import { fetchFilteredPelanggan, fetchFilteredToko, fetchFilteredDurasi, fetchFilteredLayanan, fetchFilteredParfum } from "./data";
 
 export async function fetchMorePelanggan(query: string, page: number) {
   return await fetchFilteredPelanggan(query, page);
@@ -568,6 +676,10 @@ export async function fetchMoreDurasi(query: string, page: number) {
 
 export async function fetchMoreLayanan(query: string, page: number) {
   return await fetchFilteredLayanan(query, page);
+}
+
+export async function fetchMoreParfum(query: string, page: number) {
+  return await fetchFilteredParfum(query, page);
 }
 
 export async function setSessionUserId() {

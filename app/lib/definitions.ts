@@ -147,4 +147,14 @@ export type TabelLayanan = {
   nama_toko: string | null;
 };
 
+export type Parfum = {
+  id: string;
+  nama_parfum: string;
+  toko_id: string;
+  created_at: string;
+  last_update: string | null;
+  update_by: string | null;
+};
+
+
 
