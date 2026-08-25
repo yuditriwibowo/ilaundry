@@ -27,7 +27,7 @@ export default async function Page(props: {
   
   return (
       <div className="flex h-full w-full flex-col -mt-2">
-        <div className="sticky top-0 z-10 bg-gradient-to-b from-primary-400 to-primary-800 pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
+        <div className="sticky top-0 z-10 bg-gradient-to-b from-primary-400 to-primary-800 pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none short-screen:pb-3 short-screen:pt-3">
           <div className="flex w-full items-center justify-between">
                <h1 className={`text-2xl text-white md:text-black`}>Pengaturan Layanan</h1>
             </div>
@@ -35,7 +35,7 @@ export default async function Page(props: {
                <Search placeholder="Cari Layanan..." />
                <CreateLayanan />
              </div>
-             <div className="mt-2 flex w-full items-center gap-2">
+             <div className="mt-2 flex w-full items-center gap-2 short-screen:mt-1">
                <LayananFilters optionsTipe={optionsTipe} optionsDurasi={optionsDurasi} />
              </div>
           </div>
