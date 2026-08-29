@@ -156,5 +156,16 @@ export type Parfum = {
   update_by: string | null;
 };
 
+export type Diskon = {
+  id: string;
+  nama_diskon: string;
+  tipe_diskon: 'Persentase' | 'Nominal';
+  nilai_diskon: number;
+  toko_id: string | null;
+  created_at: string;
+  last_update: string | null;
+  update_by: string | null;
+};
+
 
 

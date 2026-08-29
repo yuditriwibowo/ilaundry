@@ -519,6 +519,89 @@ export function ParfumTableSkeleton() {
   );
 }
 
+export function DiskonMobileSkeleton() {
+  return (
+    <div className="mb-2 w-full rounded-md bg-white p-4">
+      <div className="flex items-start justify-between gap-4 text-sm">
+        <div className="flex gap-3">
+          <div className="h-8 w-8 rounded-lg bg-gray-200" />
+          <div className="flex flex-col">
+            <div className="h-5 w-32 rounded bg-gray-100 mb-1" />
+            <div className="h-4 w-24 rounded bg-gray-100 mb-1" />
+            <div className="h-4 w-28 rounded bg-gray-100 mb-1" />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <div className="h-8 w-8 rounded bg-gray-100" />
+          <div className="h-8 w-8 rounded bg-gray-100" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function DiskonTableRowSkeleton() {
+  return (
+    <tr className="w-full border-b border-gray-100 py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
+      <td className="whitespace-nowrap py-3 pl-6 pr-3">
+        <div className="flex items-center gap-3">
+          <div className="h-7 w-7 rounded-lg bg-gray-200"></div>
+          <div className="h-6 w-32 rounded bg-gray-100"></div>
+        </div>
+      </td>
+      <td className="whitespace-nowrap px-3 py-3">
+        <div className="h-6 w-24 rounded bg-gray-100"></div>
+      </td>
+      <td className="whitespace-nowrap px-3 py-3">
+        <div className="h-6 w-24 rounded bg-gray-100"></div>
+      </td>
+      <td className="whitespace-nowrap py-3 pl-6 pr-3">
+        <div className="flex justify-end gap-3">
+          <div className="h-8 w-8 rounded bg-gray-100"></div>
+          <div className="h-8 w-8 rounded bg-gray-100"></div>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+export function DiskonTableSkeleton() {
+  return (
+    <div className="mt-6 flow-root">
+      <div className="inline-block min-w-full align-middle">
+        <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
+          <div className="md:hidden">
+            <DiskonMobileSkeleton />
+            <DiskonMobileSkeleton />
+            <DiskonMobileSkeleton />
+            <DiskonMobileSkeleton />
+            <DiskonMobileSkeleton />
+            <DiskonMobileSkeleton />
+          </div>
+          <table className="hidden min-w-full text-gray-900 md:table">
+            <thead className="rounded-lg text-left text-sm font-normal">
+              <tr className="border-b">
+                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">Nama Diskon</th>
+                <th scope="col" className="px-3 py-5 font-medium">Tipe</th>
+                <th scope="col" className="px-3 py-5 font-medium">Nilai</th>
+                <th scope="col" className="relative py-3 pl-6 pr-3"><span className="sr-only">Edit</span></th>
+              </tr>
+            </thead>
+            <tbody className="bg-white">
+              <DiskonTableRowSkeleton />
+              <DiskonTableRowSkeleton />
+              <DiskonTableRowSkeleton />
+              <DiskonTableRowSkeleton />
+              <DiskonTableRowSkeleton />
+              <DiskonTableRowSkeleton />
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function TokoActionsSkeleton() {
   return (
     <div className="flex justify-end gap-4">
