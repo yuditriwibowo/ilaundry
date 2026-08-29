@@ -897,7 +897,7 @@ export async function updatePelanggan(id: string, prevState: State, formData: Fo
   redirect("/laundry/pelanggan");
 }
 
-import { fetchFilteredPelanggan, fetchFilteredToko, fetchFilteredDurasi, fetchFilteredLayanan, fetchFilteredParfum, fetchFilteredDiskon, fetchFilteredAntarJemput } from "./data";
+import { fetchFilteredPelanggan, fetchFilteredToko, fetchFilteredDurasi, fetchFilteredLayanan, fetchFilteredParfum, fetchFilteredDiskon, fetchFilteredAntarJemput, fetchFilteredUserToko } from "./data";
 
 export async function fetchMorePelanggan(query: string, page: number) {
   return await fetchFilteredPelanggan(query, page);
@@ -925,6 +925,10 @@ export async function fetchMoreDiskon(query: string, page: number) {
 
 export async function fetchMoreAntarJemput(query: string, page: number) {
   return await fetchFilteredAntarJemput(query, page);
+}
+
+export async function fetchMoreUserToko(query: string, page: number) {
+  return await fetchFilteredUserToko(query, page);
 }
 
 export async function setSessionUserId() {

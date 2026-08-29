@@ -59,10 +59,10 @@ const menuItems = [
         href: "/laundry/pengaturan/antar-jemput",
     },
     {
-        title: "Pengaturan Kasir",
-        description: "Atur, tambah, ubah, hapus kasir",
+        title: "Pengaturan User Toko",
+        description: "Atur, tambah, ubah, hapus user toko",
         icon: UserCog,
-        href: "/laundry/pengaturan/kasir",
+        href: "/laundry/pengaturan/usertoko",
     },
     {
         title: "Pengaturan Pelanggan",

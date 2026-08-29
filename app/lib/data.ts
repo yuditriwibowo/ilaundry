@@ -15,6 +15,7 @@ import {
   Parfum,
   Diskon,
   AntarJemput,
+  TabelUserToko,
 } from "./definitions";
 import { formatCurrency } from "./utils";
 
@@ -782,5 +783,67 @@ export async function fetchAntarJemputById(id: string) {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch antar-jemput.");
+  }
+}
+
+export async function fetchFilteredUserToko(
+  query: string,
+  currentPage: number,
+) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  try {
+    const userToko = await sql<TabelUserToko[]>`
+      SELECT
+        ut.id,
+        u.name,
+        t.nama_toko,
+        ut.peran
+      FROM public.user_toko AS ut
+      JOIN public.users AS u
+        ON u.id = ut.user_id
+      JOIN public.toko AS t
+        ON t.id = ut.toko_id
+      WHERE
+        ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=1`} AND
+        (u.name ILIKE ${`%${query}%`} OR
+         t.nama_toko ILIKE ${`%${query}%`} OR
+         ut.peran ILIKE ${`%${query}%`})
+      ORDER BY u.name ASC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return userToko;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch user toko.");
+  }
+}
+
+export async function fetchUserTokoPages(query: string) {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+  try {
+    const data = await sql`
+      SELECT COUNT(*)
+      FROM public.user_toko AS ut
+      JOIN public.users AS u
+        ON u.id = ut.user_id
+      JOIN public.toko AS t
+        ON t.id = ut.toko_id
+      WHERE
+        ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=1`} AND
+        (u.name ILIKE ${`%${query}%`} OR
+         t.nama_toko ILIKE ${`%${query}%`} OR
+         ut.peran ILIKE ${`%${query}%`})
+    `;
+
+    const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil total halaman user toko.");
   }
 }

@@ -176,3 +176,20 @@ export type AntarJemput = {
   last_update: string | null;
   update_by: string | null;
 };
+
+export type UserToko = {
+  id: string;
+  user_id: string;
+  toko_id: string;
+  peran: 'Administrator' | 'Manager' | 'Kasir';
+  created_at: string;
+  last_update: string | null;
+  update_by: string | null;
+};
+
+export type TabelUserToko = {
+  id?: string;
+  name: string;
+  nama_toko: string;
+  peran: 'Administrator' | 'Manager' | 'Kasir';
+};

@@ -785,3 +785,80 @@ export function LayananTableSkeleton() {
   );
 }
 
+export function UserTokoMobileSkeleton() {
+  return (
+    <div className="mb-2 w-full rounded-md bg-white p-4">
+      <div className="flex items-start justify-between gap-4 text-sm">
+        <div className="flex gap-3">
+          <div className="h-8 w-8 shrink-0 rounded-lg bg-gray-200" />
+          <div className="flex flex-col gap-1">
+            <div className="h-5 w-32 rounded bg-gray-100" />
+            <div className="h-4 w-44 rounded bg-gray-100" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function UserTokoTableRowSkeleton() {
+  return (
+    <tr className="w-full border-b border-gray-100 py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
+      <td className="whitespace-nowrap py-3 pl-6 pr-3">
+        <div className="flex items-center gap-3">
+          <div className="h-7 w-7 rounded-lg bg-gray-200"></div>
+          <div className="h-6 w-36 rounded bg-gray-100"></div>
+        </div>
+      </td>
+      <td className="whitespace-nowrap px-3 py-3">
+        <div className="h-6 w-28 rounded bg-gray-100"></div>
+      </td>
+      <td className="whitespace-nowrap px-3 py-3">
+        <div className="h-6 w-24 rounded bg-gray-100"></div>
+      </td>
+    </tr>
+  );
+}
+
+export function UserTokoTableSkeleton() {
+  return (
+    <div className="mt-6 flow-root">
+      <div className="w-full">
+        <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
+          <div className="md:hidden">
+            <UserTokoMobileSkeleton />
+            <UserTokoMobileSkeleton />
+            <UserTokoMobileSkeleton />
+            <UserTokoMobileSkeleton />
+            <UserTokoMobileSkeleton />
+            <UserTokoMobileSkeleton />
+          </div>
+          <table className="hidden w-full text-gray-900 md:table">
+            <thead className="rounded-lg text-left text-sm font-normal">
+              <tr className="border-b">
+                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
+                  Nama User
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Nama Toko
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Peran
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white">
+              <UserTokoTableRowSkeleton />
+              <UserTokoTableRowSkeleton />
+              <UserTokoTableRowSkeleton />
+              <UserTokoTableRowSkeleton />
+              <UserTokoTableRowSkeleton />
+              <UserTokoTableRowSkeleton />
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
