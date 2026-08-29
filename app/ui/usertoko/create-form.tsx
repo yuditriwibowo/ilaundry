@@ -9,41 +9,81 @@ import { createUserToko, State } from "@/app/lib/actions";
 import { useActionState } from "react";
 import { UserTokoDetail } from "@/app/lib/definitions";
 
-export default function Form({ 
-  optionsUsers 
-}: { 
-  optionsUsers: UserTokoDetail[]; 
-}) {
+export default function Form() {
   const initialState: State = { message: "", errors: {} };
   const [state, formAction] = useActionState(createUserToko, initialState);
 
   return (
     <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        {/* Nama User */}
+        {/* Nama */}
         <div className="mb-4">
-          <label htmlFor="id" className="mb-2 block text-sm font-medium">
+          <label htmlFor="name" className="mb-2 block text-sm font-medium">
             Nama User
           </label>
           <div className="relative">
-            <select
-              id="id"
-              name="id"
+            <input
+              id="name"
+              name="name"
+              type="text"
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              aria-describedby="id-error"
-            >
-              <option value="">Pilih User</option>
-              {optionsUsers.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name} ({user.email})
-                </option>
-              ))}
-            </select>
+              placeholder="Masukkan nama user"
+            />
             <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
           </div>
-          <div id="id-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.id &&
-              state.errors.id.map((error: string) => (
+          <div id="name-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.name &&
+              state.errors.name.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
+        {/* Email */}
+        <div className="mb-4">
+          <label htmlFor="email" className="mb-2 block text-sm font-medium">
+            Email
+          </label>
+          <div className="relative">
+            <input
+              id="email"
+              name="email"
+              type="email"
+              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              placeholder="contoh@email.com"
+            />
+            <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+          </div>
+          <div id="email-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.email &&
+              state.errors.email.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
+        {/* Password */}
+        <div className="mb-4">
+          <label htmlFor="password" className="mb-2 block text-sm font-medium">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              placeholder="Masukkan password"
+            />
+            <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+          </div>
+          <div id="password-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.password &&
+              state.errors.password.map((error: string) => (
                 <p className="mt-2 text-sm text-red-500" key={error}>
                   {error}
                 </p>

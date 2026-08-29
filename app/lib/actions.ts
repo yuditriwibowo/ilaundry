@@ -959,22 +959,37 @@ export async function setSelectedTokoAction(tokoId: string) {
   }
 }
 
-const UserTokoSchema = z.object({
-  id: z.string().min(1, { message: "User wajib dipilih." }),
+const UserSchema = z.object({
+  name: z.string().min(1, { message: "Nama wajib diisi." }),
+  email: z.string().email({ message: "Email tidak valid." }).min(1, { message: "Email wajib diisi." }),
+  password: z.string().min(6, { message: "Password minimal 6 karakter." }),
+});
+
+const CreateUserTokoSchema = z.object({
+  name: z.string().min(1, { message: "Nama wajib diisi." }),
+  email: z.string().email({ message: "Email tidak valid." }).min(1, { message: "Email wajib diisi." }),
+  password: z.string().min(6, { message: "Password minimal 6 karakter." }),
   peran: z.enum(['Administrator', 'Manager', 'Kasir'], {
     message: "Peran wajib dipilih.",
   }),
 });
 
-const CreateUserToko = UserTokoSchema;
-
 export async function createUserToko(prevState: State, formData: FormData) {
   const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId_operator = cookieStore.get("user_id")?.value || null;
+  const tokoId = cookieStore.get("selected_toko")?.value || null;
   const now = new Date().toISOString();
 
-  const validatedFields = CreateUserToko.safeParse({
-    id: formData.get("id"),
+  if (!tokoId) {
+    return {
+      message: "Toko belum dipilih. Silakan pilih toko terlebih dahulu.",
+    };
+  }
+
+  const validatedFields = CreateUserTokoSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    password: formData.get("password"),
     peran: formData.get("peran"),
   });
 
@@ -985,18 +1000,25 @@ export async function createUserToko(prevState: State, formData: FormData) {
     };
   }
 
-  const { id, peran } = validatedFields.data;
+  const { name, email, password, peran } = validatedFields.data;
+  const newUserId = crypto.randomUUID();
+  const newUserTokoId = crypto.randomUUID();
 
   try {
-    await sql`
-      UPDATE user_toko
-      SET peran = ${peran}, last_update = ${now}, update_by = ${userId}
-      WHERE id = ${id}
-    `;
+    await sql.begin(async (sql) => {
+      await sql`
+        INSERT INTO users (id, name, email, password)
+        VALUES (${newUserId}, ${name}, ${email}, ${password})
+      `;
+      await sql`
+        INSERT INTO user_toko (id, user_id, toko_id, peran, created_at, last_update, update_by)
+        VALUES (${newUserTokoId}, ${newUserId}, ${tokoId}, ${peran}, ${now}, ${now}, ${userId_operator})
+      `;
+    });
   } catch (error) {
     console.error("Database Error:", error);
     return {
-      message: "Database Error: Gagal menambah user toko.",
+      message: "Database Error: Gagal menambah user toko. Email mungkin sudah terdaftar.",
     };
   }
 
@@ -1009,7 +1031,10 @@ export async function updateUserToko(id: string, prevState: State, formData: For
   const userId = cookieStore.get("user_id")?.value || null;
   const now = new Date().toISOString();
 
-  const validatedFields = CreateUserToko.safeParse({
+  const validatedFields = z.object({
+    id: z.string(),
+    peran: z.enum(['Administrator', 'Manager', 'Kasir']),
+  }).safeParse({
     id: id,
     peran: formData.get("peran"),
   });
