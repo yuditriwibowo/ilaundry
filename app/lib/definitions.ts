@@ -181,7 +181,7 @@ export type UserToko = {
   id: string;
   user_id: string;
   toko_id: string;
-  peran: 'Administrator' | 'Manager' | 'Kasir';
+  peran: 'Administrator' | 'Manager' | 'Kasir' | null;
   created_at: string;
   last_update: string | null;
   update_by: string | null;
@@ -191,5 +191,14 @@ export type TabelUserToko = {
   id?: string;
   name: string;
   nama_toko: string;
-  peran: 'Administrator' | 'Manager' | 'Kasir';
+  peran: 'Administrator' | 'Manager' | 'Kasir' | null;
+};
+
+export type UserTokoDetail = {
+  id: string;
+  user_id: string;
+  toko_id: string;
+  peran: 'Administrator' | 'Manager' | 'Kasir' | null;
+  name: string;
+  email: string;
 };

@@ -2,6 +2,7 @@
 
 import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { deleteUserToko } from "@/app/lib/actions";
 
 export function CreateUserToko() {
   return (
@@ -34,6 +35,7 @@ export function DeleteUserToko({
   onDeleteAction?: (id: string) => void; 
 }) {
   async function handleDelete() {
+    await deleteUserToko(id);
     if (onDeleteAction) {
       onDeleteAction(id);
     }

@@ -48,6 +48,8 @@ export type State = {
   tipe_id?: string[];
   durasi_id?: string[];
   toko_id?: string[];
+  id?: string[];
+  peran?: string[];
 
   };
   message: string;
@@ -955,5 +957,95 @@ export async function setSelectedTokoAction(tokoId: string) {
   } else {
     cookieStore.delete("selected_toko");
   }
+}
+
+const UserTokoSchema = z.object({
+  id: z.string().min(1, { message: "User wajib dipilih." }),
+  peran: z.enum(['Administrator', 'Manager', 'Kasir'], {
+    message: "Peran wajib dipilih.",
+  }),
+});
+
+const CreateUserToko = UserTokoSchema;
+
+export async function createUserToko(prevState: State, formData: FormData) {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("user_id")?.value || null;
+  const now = new Date().toISOString();
+
+  const validatedFields = CreateUserToko.safeParse({
+    id: formData.get("id"),
+    peran: formData.get("peran"),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Beberapa field tidak valid. Gagal menambah user toko.",
+    };
+  }
+
+  const { id, peran } = validatedFields.data;
+
+  try {
+    await sql`
+      UPDATE user_toko
+      SET peran = ${peran}, last_update = ${now}, update_by = ${userId}
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    console.error("Database Error:", error);
+    return {
+      message: "Database Error: Gagal menambah user toko.",
+    };
+  }
+
+  revalidatePath("/laundry/pengaturan/usertoko");
+  redirect("/laundry/pengaturan/usertoko");
+}
+
+export async function updateUserToko(id: string, prevState: State, formData: FormData) {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("user_id")?.value || null;
+  const now = new Date().toISOString();
+
+  const validatedFields = CreateUserToko.safeParse({
+    id: id,
+    peran: formData.get("peran"),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Beberapa field tidak valid. Gagal memperbarui user toko.",
+    };
+  }
+
+  const { peran } = validatedFields.data;
+
+  try {
+    await sql`
+      UPDATE user_toko
+      SET peran = ${peran}, last_update = ${now}, update_by = ${userId}
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    console.error("Database Error:", error);
+    return {
+      message: "Database Error: Gagal memperbarui user toko.",
+    };
+  }
+
+  revalidatePath("/laundry/pengaturan/usertoko");
+  redirect("/laundry/pengaturan/usertoko");
+}
+
+export async function deleteUserToko(id: string) {
+  try {
+    await sql`DELETE FROM user_toko WHERE id = ${id}`;
+  } catch (error) {
+    throw new Error("Database Error: Failed to Delete User Toko.");
+  }
+  revalidatePath("/laundry/pengaturan/usertoko");
 }
 

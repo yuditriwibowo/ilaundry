@@ -16,6 +16,8 @@ import {
   Diskon,
   AntarJemput,
   TabelUserToko,
+  UserTokoDetail,
+  UserToko,
 } from "./definitions";
 import { formatCurrency } from "./utils";
 
@@ -808,6 +810,7 @@ export async function fetchFilteredUserToko(
         ON t.id = ut.toko_id
       WHERE
         ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=1`} AND
+        ut.peran IS NOT NULL AND
         (u.name ILIKE ${`%${query}%`} OR
          t.nama_toko ILIKE ${`%${query}%`} OR
          ut.peran ILIKE ${`%${query}%`})
@@ -835,6 +838,7 @@ export async function fetchUserTokoPages(query: string) {
         ON t.id = ut.toko_id
       WHERE
         ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=1`} AND
+        ut.peran IS NOT NULL AND
         (u.name ILIKE ${`%${query}%`} OR
          t.nama_toko ILIKE ${`%${query}%`} OR
          ut.peran ILIKE ${`%${query}%`})
@@ -845,5 +849,62 @@ export async function fetchUserTokoPages(query: string) {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Gagal mengambil total halaman user toko.");
+  }
+}
+
+export async function fetchUnassignedUserToko() {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  if (!selectedToko) {
+    return [];
+  }
+
+  try {
+    const data = await sql<UserTokoDetail[]>`
+      SELECT
+        ut.id,
+        ut.user_id,
+        ut.toko_id,
+        ut.peran,
+        u.name,
+        u.email
+      FROM public.user_toko AS ut
+      JOIN public.users AS u
+        ON u.id = ut.user_id
+      WHERE 
+        ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=1`}
+        AND ut.peran IS NULL
+      ORDER BY u.name ASC
+    `;
+    return data;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch unassigned user toko.");
+  }
+}
+
+export async function fetchUserTokoById(id: string) {
+  try {
+    const data = await sql<UserTokoDetail[]>`
+      SELECT
+        ut.id,
+        ut.user_id,
+        ut.toko_id,
+        ut.peran,
+        u.name,
+        u.email
+      FROM public.user_toko AS ut
+      JOIN public.users AS u
+        ON u.id = ut.user_id
+      WHERE ut.id = ${id};
+    `;
+    if (data.length === 0) {
+      return null;
+    }
+    return data[0];
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch user toko.");
   }
 }
