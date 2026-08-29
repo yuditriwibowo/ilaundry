@@ -167,5 +167,12 @@ export type Diskon = {
   update_by: string | null;
 };
 
-
-
+export type AntarJemput = {
+  id: string;
+  nama_antar_jemput: string;
+  harga_antar_jemput: number;
+  toko_id: string | null;
+  created_at: string;
+  last_update: string | null;
+  update_by: string | null;
+};
