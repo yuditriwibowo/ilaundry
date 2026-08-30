@@ -27,7 +27,7 @@ export default async function Page(props: {
             <CreatePelanggan />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0">
+        <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0 portrait:pb-4">
           <Suspense key={query + currentPage} fallback={<PelangganTableSkeleton />}>
             <Table query={query} currentPage={currentPage} />
           </Suspense>

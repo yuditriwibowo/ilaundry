@@ -91,7 +91,7 @@ export default async function Page() {
                          <SelectToko stores={stores} selectedToko={selectedToko} />
                 </div>
             </div>
-            <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0">
+            <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0 portrait:pb-4">
                 <div className="flex flex-col gap-3 p-4">
                     {menuItems.map((item, index) => (
                         <Link 
