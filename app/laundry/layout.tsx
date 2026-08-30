@@ -14,7 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Navigasi mobile: fixed agar posisi konsisten di PWA portrait */}
-      <div className="fixed inset-x-0 bottom-0 z-50 md:hidden portrait:block landscape:hidden pb-[env(safe-area-inset-bottom,0px)]">
+      <div className="fixed inset-x-0 bottom-0 z-50 md:hidden portrait:block landscape:hidden bg-gray-100 pb-[env(safe-area-inset-bottom,0px)]">
         <SideNav />
       </div>
     </div>
