@@ -49,11 +49,9 @@ function YlaundryIcon({ className }: { className?: string }) {
 
 export default function YlaundryLogo() {
   return (
-    <div
-      className="flex flex-row items-center gap-2 leading-none text-white font-sans"
-    >
-      <YlaundryIcon className="h-10 w-10 md:h-12 md:w-12 shrink-0" />
-      <p className="text-[32px] md:text-[44px]">yLaundry</p>
+    <div className="flex flex-row items-center gap-2 leading-none text-white font-sans">
+      <YlaundryIcon className="h-8 w-8 md:h-12 md:w-12 shrink-0" />
+      <p className="text-[24px] md:text-[44px] italic">yLaundry</p>
     </div>
   );
 }

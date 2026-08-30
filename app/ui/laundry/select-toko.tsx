@@ -32,7 +32,7 @@ export default function SelectToko({
   };
 
   return (
-    <div className="relative w-full max-w-xs">
+    <div className="relative w-full">
       <select
         value={selected}
         onChange={handleChange}
