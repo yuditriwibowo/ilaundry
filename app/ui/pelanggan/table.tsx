@@ -27,9 +27,9 @@ export default async function PelangganTable({
             />
           </div>
           <div className="overflow-x-auto w-full">
-            <table className="hidden min-w-[650px] w-full text-gray-900 md:table">
+            <table className="hidden min-w-[750px] w-full text-gray-900 md:table">
               <thead className="rounded-lg text-left text-sm font-normal">
-                <tr>
+                <tr className="border-b">
                   <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
                     Nama
                   </th>

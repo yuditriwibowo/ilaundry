@@ -20,7 +20,8 @@ export const viewport: Viewport = {
   themeColor: "#60a5fa",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5,
+  userScalable: true,
   viewportFit: "cover",
 };
 
@@ -30,18 +31,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full w-full overflow-hidden">
       {/* --app-height di-set via JS agar tinggi viewport akurat di PWA mobile */}
       <body
-        className={`${inter.className} antialiased flex flex-col h-[var(--app-height,100svh)] overflow-hidden`}
+        className={`${inter.className} antialiased flex flex-col h-[var(--app-height,100svh)] w-full max-w-[100vw] overflow-hidden`}
       >
         <PWARegister />
         <ViewportHeightFix />
         {/* Header flex-none agar mengambil tinggi sesuai konten tanpa menggunakan fixed/margin-top */}
         <Header />
         {/* flex-1 min-h-0 membuat main mengambil tepat sisa ruang viewport tanpa terdorong keluar layar */}
-        <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <div className="w-full h-full flex flex-col min-h-0">{children}</div>
+        <main className="flex-1 min-h-0 w-full max-w-full flex flex-col overflow-hidden">
+          <div className="w-full h-full flex flex-col min-h-0 overflow-hidden">{children}</div>
         </main>
       </body>
     </html>

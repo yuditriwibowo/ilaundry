@@ -8,8 +8,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <SideNav />
       </div>
 
-      {/* pb-20 memberi ruang agar konten tidak tertutup navigasi bawah (fixed) */}
-      <div className="grow min-h-0 px-4 pt-0 overflow-y-auto md:px-4 md:pt-4 pb-20 md:pb-12 short-screen:pb-4">
+      {/* pb-16 / pb-20 memberi ruang agar konten tidak tertutup navigasi bawah (fixed) */}
+      <div className="grow min-w-0 min-h-0 px-4 pt-0 overflow-y-auto md:px-4 md:pt-4 portrait:pb-16 landscape:pb-20 md:pb-12 short-screen:pb-4">
         {children}
       </div>
 

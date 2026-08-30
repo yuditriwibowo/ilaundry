@@ -35,19 +35,27 @@ export default function NavLinks() {
     <>
       {links.map((link) => {
         const LinkIcon = link.icon;
+        const isActive = pathname === link.href;
+
         return (
           <Link
             key={link.name}
             href={link.href}
             className={clsx(
-              "flex h-auto grow flex-col items-center justify-center gap-1 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-row md:h-auto md:w-full md:justify-start md:gap-2 md:p-2 md:px-3",
-              {
-                "bg-sky-100 text-blue-600": pathname === link.href,
-              },
+              "flex h-auto grow flex-col items-center justify-center rounded-md font-medium transition-colors hover:bg-sky-100 hover:text-blue-600 md:flex-row md:w-full md:justify-start md:gap-2 md:p-2 md:px-3 md:text-sm",
+              // Portrait mobile: padding dan gap lebih ringkas untuk mencapai ~75% tinggi
+              "portrait:py-1.5 portrait:px-1 portrait:gap-0.5",
+              // Landscape mobile: padding dan gap standar
+              "landscape:p-3 landscape:gap-1 landscape:text-sm",
+              isActive
+                ? "bg-sky-100 text-blue-600"
+                : "bg-transparent text-gray-700 landscape:bg-gray-50 md:bg-gray-50",
             )}
           >
-            <LinkIcon className="w-6" />
-            <p className="block text-[10px] md:text-sm">{link.name}</p>
+            <LinkIcon className="w-6 portrait:w-5 portrait:h-5 landscape:w-6 md:w-6 flex-shrink-0" />
+            <p className="block text-[10px] md:text-sm leading-tight md:leading-normal">
+              {link.name}
+            </p>
           </Link>
         );
       })}
