@@ -320,14 +320,14 @@ export function InvoicesTableSkeleton() {
 
 export function QuickActionsSkeleton() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-4 gap-2 md:gap-4">
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="flex flex-col items-center justify-center p-4 bg-white border border-gray-200 rounded-xl gap-3 text-center shadow-sm"
+          className="aspect-square flex flex-col items-center justify-center p-2 md:p-4 bg-white border border-gray-200 rounded-xl gap-1 md:gap-3 text-center shadow-sm"
         >
-          <div className={`${shimmer} relative overflow-hidden w-12 h-12 bg-gray-100 rounded-full`} />
-          <div className={`${shimmer} relative overflow-hidden h-4 w-20 rounded-md bg-gray-200`} />
+          <div className={`${shimmer} relative overflow-hidden w-8 h-8 md:w-12 md:h-12 bg-gray-100 rounded-full`} />
+          <div className={`${shimmer} relative overflow-hidden h-3 w-12 md:h-4 md:w-20 rounded-md bg-gray-200`} />
         </div>
       ))}
     </div>
