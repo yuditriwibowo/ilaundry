@@ -1,5 +1,5 @@
-import { Shirt } from 'lucide-react'; // Menggunakan ikon baju yang sama dengan logo [source: 2]
-import { DocumentDuplicateIcon } from '@heroicons/react/24/outline';
+import { Shirt } from "lucide-react"; // Menggunakan ikon baju yang sama dengan logo [source: 2]
+import { DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 
 interface LaundryCardProps {
   totalRp?: number;
@@ -18,58 +18,60 @@ export default function LaundryCard({
 }: LaundryCardProps) {
   return (
     <div className="w-full h-full">
-      
-      
-    {/*Mengubah background menjadi biru (bg-blue-600) dan teks menjadi putih (text-white) agar kontras */}
-    <div className="w-full h-full rounded-xl bg-gradient-to-br from-primary-400 to-primary-800 p-5 text-white shadow-md font-sans flex flex-col justify-between">
-      {/* Bagian Atas / Header Card */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          {/* Ikon disesuaikan dengan tema ylaundry-logo */}
-          <DocumentDuplicateIcon className="h-10 w-10 text-white opacity-90" />
-          <div>
-            <h3 className="text-base font-medium leading-tight text-white">Pesanan</h3>
-            <p className="text-sm text-primary-100 italic">Hari Ini</p>
+      {/*Mengubah background menjadi biru (bg-blue-600) dan teks menjadi putih (text-white) agar kontras */}
+      <div className="w-full h-full rounded-xl bg-gradient-to-br from-primary-400 to-primary-800 p-5 text-white shadow-md font-sans flex flex-col justify-between">
+        {/* Bagian Atas / Header Card */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            {/* Ikon disesuaikan dengan tema ylaundry-logo */}
+            <DocumentDuplicateIcon className="h-10 w-10 text-white opacity-90" />
+            <div>
+              <h3 className="text-base font-medium leading-tight text-white">
+                Pesanan
+              </h3>
+              <p className="text-sm text-primary-100 italic">Hari Ini</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-lg font-semibold text-white">
+              Rp {totalRp.toLocaleString("id-ID")}
+            </p>
+            <p className="text-sm text-primary-100 italic">
+              {totalPesanan} Pesanan
+            </p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-lg font-semibold text-white">
-            Rp {totalRp.toLocaleString('id-ID')}
-          </p>
-          <p className="text-sm text-primary-100 italic">{totalPesanan} Pesanan</p>
+
+        {/* Garis Pembatas Horisontal */}
+        <hr className="border-white/30 my-4" />
+
+        {/* Bagian Bawah / Detail Metrik */}
+        <div className="grid grid-cols-3 text-center mt-2">
+          {/* Kiloan */}
+          <div>
+            <p className="text-xl font-bold text-white">
+              {kiloanKg} <span className="text-base font-normal">kg</span>
+            </p>
+            <p className="text-sm text-primary-100 italic mt-1">Kiloan</p>
+          </div>
+
+          {/* Satuan */}
+          <div className="border-x border-primary-400/30">
+            <p className="text-xl font-bold text-white">
+              {satuanPcs} <span className="text-base font-normal">pcs</span>
+            </p>
+            <p className="text-sm text-primary-100 italic mt-1">Satuan</p>
+          </div>
+
+          {/* Meteran */}
+          <div>
+            <p className="text-xl font-bold text-white">
+              {meteranM} <span className="text-base font-normal">m</span>
+            </p>
+            <p className="text-sm text-primary-100 italic mt-1">Meteran</p>
+          </div>
         </div>
       </div>
-
-      {/* Garis Pembatas Horisontal */}
-      <hr className="border-white/30 my-4" />
-
-      {/* Bagian Bawah / Detail Metrik */}
-      <div className="grid grid-cols-3 text-center mt-2">
-        {/* Kiloan */}
-        <div>
-          <p className="text-3xl font-bold text-white">
-            {kiloanKg} <span className="text-base font-normal">kg</span>
-          </p>
-          <p className="text-sm text-primary-100 italic mt-1">Kiloan</p>
-        </div>
-
-        {/* Satuan */}
-        <div className="border-x border-primary-400/30">
-          <p className="text-3xl font-bold text-white">
-            {satuanPcs} <span className="text-base font-normal">pcs</span>
-          </p>
-          <p className="text-sm text-primary-100 italic mt-1">Satuan</p>
-        </div>
-
-        {/* Meteran */}
-        <div>
-          <p className="text-3xl font-bold text-white">
-            {meteranM} <span className="text-base font-normal">m</span>
-          </p>
-          <p className="text-sm text-primary-100 italic mt-1">Meteran</p>
-        </div>
-      </div>
-    </div>
     </div>
   );
 }
