@@ -68,7 +68,7 @@ const menuItems = [
         title: "Pengaturan Pelanggan",
         description: "Tambah, ubah, hapus pelanggan",
         icon: Users,
-        href: "/laundry/pengaturan/pelanggan",
+        href: "/laundry/pelanggan",
     },
     {
         title: "Pengaturan Nota",
