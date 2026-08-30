@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Aplikasi Laundry Premium Terpercaya',
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
+    background_color: '#f3f4f6', // Gray-100 Tailwind to match SideNav
     theme_color: '#2563eb', // Blue-600 Tailwind
     icons: [
       {
