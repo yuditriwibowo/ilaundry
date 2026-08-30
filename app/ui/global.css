@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
   --app-height: 100svh;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
