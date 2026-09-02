@@ -7,14 +7,25 @@ import {
 import { Button } from "@/app/ui/button";
 import { createUserToko, State } from "@/app/lib/actions";
 import { useActionState } from "react";
-import { UserTokoDetail } from "@/app/lib/definitions";
 
 export default function Form() {
   const initialState: State = { message: "", errors: {} };
   const [state, formAction] = useActionState(createUserToko, initialState);
+  const isExistingUser = state.conflict === "existing_user";
+  const isExistingUserToko = state.conflict === "existing_user_toko";
+  const fieldsLocked = isExistingUser || isExistingUserToko;
 
   return (
-    <form action={formAction}>
+    <form action={formAction} key={state.conflict ?? "create"}>
+      {isExistingUser && state.existingUser && (
+        <input type="hidden" name="existing_user_id" value={state.existingUser.id} />
+      )}
+      {fieldsLocked && state.existingUser && (
+        <>
+          <input type="hidden" name="name" value={state.existingUser.name} />
+          <input type="hidden" name="email" value={state.existingUser.email} />
+        </>
+      )}
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Nama */}
         <div className="mb-4">
@@ -24,9 +35,11 @@ export default function Form() {
           <div className="relative">
             <input
               id="name"
-              name="name"
+              name={fieldsLocked ? undefined : "name"}
               type="text"
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              defaultValue={state.existingUser?.name ?? ""}
+              disabled={fieldsLocked}
+              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500 disabled:bg-gray-100 disabled:text-gray-700"
               placeholder="Masukkan nama user"
             />
             <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
@@ -49,9 +62,11 @@ export default function Form() {
           <div className="relative">
             <input
               id="email"
-              name="email"
+              name={fieldsLocked ? undefined : "email"}
               type="email"
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              defaultValue={state.existingUser?.email ?? ""}
+              disabled={fieldsLocked}
+              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500 disabled:bg-gray-100 disabled:text-gray-700"
               placeholder="contoh@email.com"
             />
             <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
@@ -74,9 +89,11 @@ export default function Form() {
           <div className="relative">
             <input
               id="password"
-              name="password"
+              name={fieldsLocked ? undefined : "password"}
               type="password"
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              defaultValue=""
+              disabled={fieldsLocked}
+              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500 disabled:bg-gray-100 disabled:text-gray-700"
               placeholder="Masukkan password"
             />
             <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
@@ -100,7 +117,9 @@ export default function Form() {
             <select
               id="peran"
               name="peran"
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              defaultValue={state.peran ?? ""}
+              disabled={isExistingUserToko}
+              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500 disabled:bg-gray-100 disabled:text-gray-700"
               aria-describedby="peran-error"
             >
               <option value="">Pilih Peran</option>
@@ -121,20 +140,46 @@ export default function Form() {
         </div>
       </div>
 
-      <div className="mt-6 flex justify-end gap-4">
-        <Link
-          href="/laundry/pengaturan/usertoko"
-          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
-        >
-          Batal
-        </Link>
-        <Button type="submit">Tambah User Toko</Button>
-      </div>
-
-      {/* General Form Message */}
-      <div className="mt-4 text-center">
-        {state.message && (
+      {state.message && (
+        <div className="mt-4 text-center">
           <p className="text-sm text-red-500">{state.message}</p>
+        </div>
+      )}
+
+      <div className="mt-6 flex justify-end gap-4">
+        {isExistingUser && (
+          <>
+            <Link
+              href="/laundry/pengaturan/usertoko"
+              className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+            >
+              Tidak
+            </Link>
+            <Button type="submit" name="intent" value="confirm_existing">
+              Ya
+            </Button>
+          </>
+        )}
+
+        {isExistingUserToko && (
+          <Link
+            href="/laundry/pengaturan/usertoko"
+            className="flex h-10 items-center rounded-lg bg-primary-500 px-4 text-sm font-medium text-white transition-colors hover:bg-primary-400"
+          >
+            OK
+          </Link>
+        )}
+
+        {!fieldsLocked && (
+          <>
+            <Link
+              href="/laundry/pengaturan/usertoko"
+              className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+            >
+              Batal
+            </Link>
+            <Button type="submit">Tambah User Toko</Button>
+          </>
         )}
       </div>
     </form>
