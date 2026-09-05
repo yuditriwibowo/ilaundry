@@ -837,10 +837,10 @@ export function PesananTableRowSkeleton() {
         <div className="h-6 w-32 rounded bg-gray-100"></div>
       </td>
       <td className="whitespace-nowrap px-3 py-3">
-        <div className="flex flex-col gap-1">
-          <div className="h-5 w-28 rounded bg-gray-100"></div>
-          <div className="h-4 w-24 rounded bg-gray-100"></div>
-        </div>
+        <div className="h-5 w-28 rounded bg-gray-100"></div>
+      </td>
+      <td className="whitespace-nowrap px-3 py-3">
+        <div className="h-6 w-32 rounded bg-gray-100"></div>
       </td>
       <td className="whitespace-nowrap px-3 py-3">
         <div className="h-6 w-32 rounded bg-gray-100"></div>
@@ -849,17 +849,13 @@ export function PesananTableRowSkeleton() {
         <div className="h-6 w-20 rounded bg-gray-100"></div>
       </td>
       <td className="whitespace-nowrap px-3 py-3">
-        <div className="flex flex-col gap-1.5">
-          <div className="h-5 w-20 rounded-full bg-gray-100"></div>
-          <div className="h-5 w-16 rounded-full bg-gray-100"></div>
-        </div>
+        <div className="h-5 w-20 rounded-full bg-gray-100"></div>
+      </td>
+      <td className="whitespace-nowrap px-3 py-3">
+        <div className="h-5 w-16 rounded-full bg-gray-100"></div>
       </td>
       <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex justify-end gap-1.5">
-          <div className="h-8 w-8 rounded-full bg-gray-100"></div>
-          <div className="h-8 w-8 rounded-full bg-gray-100"></div>
-          <div className="h-8 w-8 rounded-full bg-gray-100"></div>
-          <div className="h-8 w-8 rounded-full bg-gray-100"></div>
+        <div className="flex justify-end">
           <div className="h-8 w-8 rounded-full bg-gray-100"></div>
         </div>
       </td>
@@ -890,13 +886,19 @@ export function PesananTableSkeleton() {
                   Pelanggan
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Tanggal & Estimasi
+                  Tanggal Masuk
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Estimasi Selesai
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Total Bayar
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Status
+                  Status Pesanan
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Status Bayar
                 </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">Aksi</span>

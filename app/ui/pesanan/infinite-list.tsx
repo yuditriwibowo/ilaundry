@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { PhoneIcon } from "lucide-react";
-import {
-  ViewPesananDetail,
-  KirimWaPesanan,
-  PrintPesanan,
-  UpdatePesanan,
-  DeletePesanan,
-} from "@/app/ui/pesanan/buttons";
+import { PesananActionMenu } from "@/app/ui/pesanan/buttons";
 import {
   StatusPesananBadge,
   StatusPembayaranBadge,
@@ -97,12 +90,10 @@ export default function InfiniteList({
                   <div className="flex min-w-0 flex-col">
                     <p className="truncate text-base font-medium text-gray-900">
                       {pesanan.nama_pelanggan ?? "-"}
-                      {pesanan.nomor_pesanan ? ` - ${pesanan.nomor_pesanan}` : ""}
                     </p>
-                    {pesanan.no_hp ? (
+                    {pesanan.nomor_pesanan ? (
                       <p className="flex items-center gap-1 truncate text-gray-500">
-                        <PhoneIcon className="h-3.5 w-3.5" />
-                        {pesanan.no_hp}
+                        {pesanan.nomor_pesanan}
                       </p>
                     ) : null}
                   </div>
@@ -114,27 +105,16 @@ export default function InfiniteList({
               </div>
               <div className="mt-3 flex items-end justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-xl font-semibold text-gray-900">
+                  <p className="truncate text-base font-semibold text-gray-900">
                     {formatRupiah(pesanan.total_bayar)}
                   </p>
                   <p className="truncate text-xs text-gray-500">
                     {formatDateTimeToLocal(pesanan.tgl_pesanan)}
                   </p>
                 </div>
-                <div className="flex shrink-0 gap-1.5">
-                  <ViewPesananDetail id={pesanan.id} />
-                  <KirimWaPesanan
-                    noHp={pesanan.no_hp}
-                    nama={pesanan.nama_pelanggan}
-                    nomorPesanan={pesanan.nomor_pesanan}
-                    totalBayar={pesanan.total_bayar}
-                    statusPesanan={pesanan.status_pesanan}
-                    statusPembayaran={pesanan.status_pembayaran}
-                  />
-                  <PrintPesanan pesanan={pesanan} />
-                  <UpdatePesanan id={pesanan.id} />
-                  <DeletePesanan
-                    id={pesanan.id}
+                <div className="flex shrink-0">
+                  <PesananActionMenu
+                    pesanan={pesanan}
                     onDeleteAction={handleDelete}
                   />
                 </div>

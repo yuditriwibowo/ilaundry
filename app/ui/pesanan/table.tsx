@@ -1,10 +1,4 @@
-import {
-  ViewPesananDetail,
-  KirimWaPesanan,
-  PrintPesanan,
-  UpdatePesanan,
-  DeletePesanan,
-} from "@/app/ui/pesanan/buttons";
+import { PesananActionMenu } from "@/app/ui/pesanan/buttons";
 import {
   StatusPesananBadge,
   StatusPembayaranBadge,
@@ -57,13 +51,19 @@ export default async function PesananTable({
                       Pelanggan
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
-                      Tanggal & Estimasi
+                      Tanggal Masuk
+                    </th>
+                    <th scope="col" className="px-3 py-5 font-medium">
+                      Estimasi Selesai
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
                       Total Bayar
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
-                      Status
+                      Status Pesanan
+                    </th>
+                    <th scope="col" className="px-3 py-5 font-medium">
+                      Status Bayar
                     </th>
                     <th scope="col" className="relative py-3 pl-6 pr-3">
                       <span className="sr-only">Aksi</span>
@@ -80,44 +80,28 @@ export default async function PesananTable({
                         {pesanan.nomor_pesanan ?? "-"}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
-                        <div className="flex flex-col">
-                          <p className="font-medium">{pesanan.nama_pelanggan ?? "-"}</p>
-                          <p className="text-gray-500">{pesanan.no_hp ?? "-"}</p>
-                        </div>
+                        <p className="font-medium">{pesanan.nama_pelanggan ?? "-"}</p>
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
-                        <div className="flex flex-col">
-                          <p>{formatDateTimeToLocal(pesanan.tgl_pesanan)}</p>
-                          {pesanan.tgl_estimasi_selesai ? (
-                            <p className="text-gray-500">
-                              Estimasi: {formatDateTimeToLocal(pesanan.tgl_estimasi_selesai)}
-                            </p>
-                          ) : null}
-                        </div>
+                        {formatDateTimeToLocal(pesanan.tgl_pesanan)}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        {pesanan.tgl_estimasi_selesai
+                          ? formatDateTimeToLocal(pesanan.tgl_estimasi_selesai)
+                          : "-"}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3 font-medium">
                         {formatRupiah(pesanan.total_bayar)}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
-                        <div className="flex flex-col items-start gap-1.5">
-                          <StatusPesananBadge status={pesanan.status_pesanan} />
-                          <StatusPembayaranBadge status={pesanan.status_pembayaran} />
-                        </div>
+                        <StatusPesananBadge status={pesanan.status_pesanan} />
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        <StatusPembayaranBadge status={pesanan.status_pembayaran} />
                       </td>
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex justify-end gap-1.5">
-                          <ViewPesananDetail id={pesanan.id} />
-                          <KirimWaPesanan
-                            noHp={pesanan.no_hp}
-                            nama={pesanan.nama_pelanggan}
-                            nomorPesanan={pesanan.nomor_pesanan}
-                            totalBayar={pesanan.total_bayar}
-                            statusPesanan={pesanan.status_pesanan}
-                            statusPembayaran={pesanan.status_pembayaran}
-                          />
-                          <PrintPesanan pesanan={pesanan} />
-                          <UpdatePesanan id={pesanan.id} />
-                          <DeletePesanan id={pesanan.id} />
+                        <div className="flex justify-end">
+                          <PesananActionMenu pesanan={pesanan} />
                         </div>
                       </td>
                     </tr>
