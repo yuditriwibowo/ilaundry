@@ -5,7 +5,7 @@ import {
 } from "@/app/ui/pesanan/status";
 import { fetchFilteredPesanan, fetchPesananPages } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/pesanan/infinite-list";
-import { formatDateTimeToLocal, formatRupiah } from "@/app/lib/utils";
+import { formatDateTimeToLocal, formatEstimasiJam, formatRupiah } from "@/app/lib/utils";
 import { TabelPesanan } from "@/app/lib/definitions";
 import NotFound from "@/app/laundry/pengaturan/not-found";
 
@@ -86,9 +86,22 @@ export default async function PesananTable({
                         {formatDateTimeToLocal(pesanan.tgl_pesanan)}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
-                        {pesanan.tgl_estimasi_selesai
-                          ? formatDateTimeToLocal(pesanan.tgl_estimasi_selesai)
-                          : "-"}
+                        {(() => {
+                          const estimasi = formatEstimasiJam(pesanan.tgl_estimasi_selesai);
+                          if (!estimasi) return "-";
+                          return (
+                            <span
+                              className={estimasi.terlambat ? "font-medium text-red-600" : "text-gray-500"}
+                              title={
+                                pesanan.tgl_estimasi_selesai
+                                  ? formatDateTimeToLocal(pesanan.tgl_estimasi_selesai)
+                                  : undefined
+                              }
+                            >
+                              {estimasi.text}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3 font-medium">
                         {formatRupiah(pesanan.total_bayar)}

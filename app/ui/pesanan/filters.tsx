@@ -46,7 +46,7 @@ export default function PesananFilters() {
         aria-label="Filter Status Pesanan"
         className="block flex-1 min-w-0 w-full cursor-pointer rounded-md border border-gray-200 py-2 px-2.5 text-sm outline-none bg-white text-gray-900 truncate focus:border-blue-500"
       >
-        <option value="">Semua Status Pesanan</option>
+        <option value="">Semua St Pesanan</option>
         {statusPesananOptions.map((item) => (
           <option key={item.value} value={item.value}>
             {item.label}
@@ -63,7 +63,7 @@ export default function PesananFilters() {
         aria-label="Filter Status Pembayaran"
         className="block flex-1 min-w-0 w-full cursor-pointer rounded-md border border-gray-200 py-2 px-2.5 text-sm outline-none bg-white text-gray-900 truncate focus:border-blue-500"
       >
-        <option value="">Semua Status Bayar</option>
+        <option value="">Semua St Bayar</option>
         {statusPembayaranOptions.map((item) => (
           <option key={item.value} value={item.value}>
             {item.label}

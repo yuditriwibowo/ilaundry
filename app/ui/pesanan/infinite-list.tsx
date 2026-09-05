@@ -9,7 +9,7 @@ import {
 import { fetchMorePesanan } from "@/app/lib/actions";
 import { TabelPesanan } from "@/app/lib/definitions";
 import { useInView } from "react-intersection-observer";
-import { formatDateTimeToLocal, formatRupiah } from "@/app/lib/utils";
+import { formatDateTimeToLocal, formatEstimasiJam, formatRupiah } from "@/app/lib/utils";
 import NotFound from "@/app/laundry/pengaturan/not-found";
 
 function getInitials(nama: string | null) {
@@ -98,7 +98,7 @@ export default function InfiniteList({
                     ) : null}
                   </div>
                 </div>
-                <div className="flex shrink-0 flex-col items-end gap-1.5">
+                <div className="flex shrink-0 items-center gap-1.5">
                   <StatusPesananBadge status={pesanan.status_pesanan} />
                   <StatusPembayaranBadge status={pesanan.status_pembayaran} />
                 </div>
@@ -108,8 +108,23 @@ export default function InfiniteList({
                   <p className="truncate text-base font-semibold text-gray-900">
                     {formatRupiah(pesanan.total_bayar)}
                   </p>
-                  <p className="truncate text-xs text-gray-500">
-                    {formatDateTimeToLocal(pesanan.tgl_pesanan)}
+                  <p className="truncate text-[11px] text-gray-500">
+                    Masuk : {formatDateTimeToLocal(pesanan.tgl_pesanan)}
+                    {(() => {
+                      const estimasi = formatEstimasiJam(pesanan.tgl_estimasi_selesai);
+                      return (
+                        <span
+                          className={estimasi?.terlambat ? "font-medium text-red-600" : ""}
+                          title={
+                            pesanan.tgl_estimasi_selesai
+                              ? formatDateTimeToLocal(pesanan.tgl_estimasi_selesai)
+                              : undefined
+                          }
+                        >
+                          {" • "}Estimasi : {estimasi ? estimasi.text : "-"}
+                        </span>
+                      );
+                    })()}
                   </p>
                 </div>
                 <div className="flex shrink-0">
