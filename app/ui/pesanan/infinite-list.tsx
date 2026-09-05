@@ -121,7 +121,7 @@ export default function InfiniteList({
                               : undefined
                           }
                         >
-                          {" • "}Estimasi : {estimasi ? estimasi.text : "-"}
+                          {" • "}Est : {estimasi ? estimasi.text : "-"}
                         </span>
                       );
                     })()}
