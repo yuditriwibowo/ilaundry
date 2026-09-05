@@ -66,6 +66,26 @@ html.dark {
 .dark .text-black {
   color: #f1f5f9;
 }
+/*
+  Form controls (input, select, textarea): @tailwindcss/forms memberi background
+  putih default pada elemen form. Di mode gelap, warna teks halaman menjadi terang
+  sehingga teks di dalam input tidak terlihat. Override agar:
+  - teks cukup kontras dengan background input (teks terang di atas surface gelap)
+  - border input terlihat jelas dibanding background page (#0f172a)
+*/
+.dark input:not([type='checkbox']):not([type='radio']),
+.dark select,
+.dark textarea {
+  background-color: #1e293b; /* slate-800: surface input */
+  border-color: #475569; /* slate-600: border terlihat di atas bg page #0f172a */
+  color: #f1f5f9; /* slate-100: teks kontras dengan surface input */
+}
+
+.dark input:not([type='checkbox']):not([type='radio'])::placeholder,
+.dark textarea::placeholder {
+  color: #94a3b8; /* slate-400: placeholder terbaca di atas surface gelap */
+  opacity: 1;
+}
 
 input[type='number'] {
   -moz-appearance: textfield;
