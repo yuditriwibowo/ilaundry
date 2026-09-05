@@ -966,7 +966,9 @@ export async function fetchFilteredPesanan(
          pl.nama ILIKE ${`%${query}%`} OR
          pl.no_hp ILIKE ${`%${query}%`} OR
          u.name ILIKE ${`%${query}%`})
-      ORDER BY p.tgl_pesanan DESC
+      ORDER BY
+        p.tgl_estimasi_selesai ASC NULLS LAST,
+        p.tgl_pesanan ASC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
 
