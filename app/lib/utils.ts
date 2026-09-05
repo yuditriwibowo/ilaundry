@@ -29,6 +29,14 @@ export const formatDateToLocal = (
   return formatter.format(date);
 };
 
+export const formatDateTimeToLocal = (dateStr: string) => {
+  const date = new Date(dateStr);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate(),
+  )} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
+
 export const generateYAxis = (revenue: Revenue[]) => {
   // Calculate what labels we need to display on the y-axis
   // based on highest record and in 1000s

@@ -202,3 +202,78 @@ export type UserTokoDetail = {
   name: string;
   email: string;
 };
+
+// Status pesanan mengikuti alur kerja laundry:
+// baru -> diproses -> selesai -> diambil (sesuai kolom tgl_selesai & tgl_diambil)
+export type StatusPesanan = 'baru' | 'diproses' | 'selesai' | 'diambil';
+
+export type StatusPembayaran = 'belum_bayar'| 'DP' | 'lunas';
+
+export type MetodePembayaran = 'tunai' | 'transfer' | 'qris';
+
+export type Pesanan = {
+  id: string;
+  toko_id: string;
+  pelanggan_id: string;
+  kasir_id: string;
+  nomor_pesanan: string | null;
+  status_pesanan: StatusPesanan;
+  tgl_pesanan: string;
+  tgl_estimasi_selesai: string | null;
+  tgl_selesai: string | null;
+  tgl_diambil: string | null;
+  nama_antar_jemput_snapshot: string | null;
+  total_layanan: number;
+  biaya_antar_jemput: number;
+  nilai_diskon: number;
+  total_bayar: number;
+  status_pembayaran: StatusPembayaran;
+  metode_pembayaran: MetodePembayaran | null;
+  jumlah_bayar: number;
+  kurang_bayar: number;
+  catatan: string | null;
+  created_at: string;
+  last_update: string | null;
+  update_by: string | null;
+  antar_jemput_yt: 'ya' | 'tidak' | null;
+};
+
+// Hasil query tabel pesanan dengan LEFT JOIN ke toko, pelanggan, users.
+// Kolom join bisa null karena LEFT JOIN.
+export type TabelPesanan = Pesanan & {
+  nama_toko: string | null;
+  nama_pelanggan: string | null;
+  no_hp: string | null;
+  nama_user: string | null;
+};
+
+// Status item pesanan mengikuti alur kerja laundry per item:
+// diproses -> selesai -> diambil (kolom status_item, default 'diproses')
+export type StatusItem = 'diproses' | 'selesai' | 'diambil';
+
+export type ItemPesanan = {
+  id: string;
+  pesanan_id: string;
+  nama_parfum_snapshot: string | null;
+  nomor_item_pesanan: string | null;
+  nama_layanan_snapshot: string;
+  tipe_layanan_snapshot: string | null;
+  durasi_snapshot: string | null;
+  harga_satuan: number;
+  // numeric(10, 2) di database, dikembalikan sebagai number oleh postgres.js
+  jumlah: number;
+  satuan: string;
+  subtotal: number;
+  catatan_item: string | null;
+  status_item: StatusItem;
+  created_at: string;
+  last_update: string | null;
+  update_by: string | null;
+  diskon_id: string | null;
+  nilai_diskon: number | null;
+  tgl_item_pesanan: string | null;
+  nilai_durasi: number | null;
+  tgl_estimasi_selesai: string | null;
+  tgl_selesai: string | null;
+  subtotal_final: number | null;
+};

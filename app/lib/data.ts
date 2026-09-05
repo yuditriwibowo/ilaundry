@@ -18,6 +18,7 @@ import {
   TabelUserToko,
   UserTokoDetail,
   UserToko,
+  TabelPesanan,
 } from "./definitions";
 import { formatCurrency } from "./utils";
 
@@ -906,5 +907,105 @@ export async function fetchUserTokoById(id: string) {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch user toko.");
+  }
+}
+
+export async function fetchFilteredPesanan(
+  query: string,
+  currentPage: number,
+  statusPesanan?: string,
+  statusPembayaran?: string,
+) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  try {
+    const pesanan = await sql<TabelPesanan[]>`
+      SELECT
+        p.id,
+        p.toko_id,
+        p.pelanggan_id,
+        p.kasir_id,
+        p.nomor_pesanan,
+        p.status_pesanan,
+        p.tgl_pesanan,
+        p.tgl_estimasi_selesai,
+        p.tgl_selesai,
+        p.tgl_diambil,
+        p.nama_antar_jemput_snapshot,
+        p.total_layanan,
+        p.biaya_antar_jemput,
+        p.nilai_diskon,
+        p.total_bayar,
+        p.status_pembayaran,
+        p.metode_pembayaran,
+        p.jumlah_bayar,
+        p.kurang_bayar,
+        p.catatan,
+        p.created_at,
+        p.last_update,
+        p.update_by,
+        p.antar_jemput_yt,
+        t.nama_toko,
+        pl.nama AS nama_pelanggan,
+        pl.no_hp,
+        u.name AS nama_user
+      FROM public.pesanan AS p
+      LEFT JOIN public.toko AS t
+        ON t.id = p.toko_id
+      LEFT JOIN public.pelanggan AS pl
+        ON pl.id = p.pelanggan_id
+      LEFT JOIN public.users AS u
+        ON u.id = p.kasir_id
+      WHERE
+        ${selectedToko ? sql`p.toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${statusPesanan ? sql`p.status_pesanan = ${statusPesanan}` : sql`1=1`} AND
+        ${statusPembayaran ? sql`p.status_pembayaran = ${statusPembayaran}` : sql`1=1`} AND
+        (p.nomor_pesanan ILIKE ${`%${query}%`} OR
+         pl.nama ILIKE ${`%${query}%`} OR
+         pl.no_hp ILIKE ${`%${query}%`} OR
+         u.name ILIKE ${`%${query}%`})
+      ORDER BY p.tgl_pesanan DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return pesanan;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch pesanan.");
+  }
+}
+
+export async function fetchPesananPages(
+  query: string,
+  statusPesanan?: string,
+  statusPembayaran?: string,
+) {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+  try {
+    const data = await sql`
+      SELECT COUNT(*)
+      FROM public.pesanan AS p
+      LEFT JOIN public.pelanggan AS pl
+        ON pl.id = p.pelanggan_id
+      LEFT JOIN public.users AS u
+        ON u.id = p.kasir_id
+      WHERE
+        ${selectedToko ? sql`p.toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${statusPesanan ? sql`p.status_pesanan = ${statusPesanan}` : sql`1=1`} AND
+        ${statusPembayaran ? sql`p.status_pembayaran = ${statusPembayaran}` : sql`1=1`} AND
+        (p.nomor_pesanan ILIKE ${`%${query}%`} OR
+         pl.nama ILIKE ${`%${query}%`} OR
+         pl.no_hp ILIKE ${`%${query}%`} OR
+         u.name ILIKE ${`%${query}%`})
+    `;
+
+    const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil total halaman pesanan.");
   }
 }

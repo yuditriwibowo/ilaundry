@@ -201,6 +201,15 @@ export async function deletePelanggan(id: string) {
   revalidatePath("/laundry/pelanggan");
 }
 
+export async function deletePesanan(id: string) {
+  try {
+    await sql`DELETE FROM pesanan WHERE id = ${id}`;
+  } catch (error) {
+    throw new Error("Database Error: Failed to Delete Pesanan.");
+  }
+  revalidatePath("/laundry/pesanan");
+}
+
 const TokoSchema = z.object({
   id: z.string(),
   nama_toko: z.string(),
@@ -909,7 +918,7 @@ export async function updatePelanggan(id: string, prevState: State, formData: Fo
   redirect("/laundry/pelanggan");
 }
 
-import { fetchFilteredPelanggan, fetchFilteredToko, fetchFilteredDurasi, fetchFilteredLayanan, fetchFilteredParfum, fetchFilteredDiskon, fetchFilteredAntarJemput, fetchFilteredUserToko } from "./data";
+import { fetchFilteredPelanggan, fetchFilteredToko, fetchFilteredDurasi, fetchFilteredLayanan, fetchFilteredParfum, fetchFilteredDiskon, fetchFilteredAntarJemput, fetchFilteredUserToko, fetchFilteredPesanan } from "./data";
 
 export async function fetchMorePelanggan(query: string, page: number) {
   return await fetchFilteredPelanggan(query, page);
@@ -941,6 +950,15 @@ export async function fetchMoreAntarJemput(query: string, page: number) {
 
 export async function fetchMoreUserToko(query: string, page: number) {
   return await fetchFilteredUserToko(query, page);
+}
+
+export async function fetchMorePesanan(
+  query: string,
+  page: number,
+  statusPesanan?: string,
+  statusPembayaran?: string,
+) {
+  return await fetchFilteredPesanan(query, page, statusPesanan, statusPembayaran);
 }
 
 export async function setSessionUserId() {
