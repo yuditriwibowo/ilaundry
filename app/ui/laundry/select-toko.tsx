@@ -36,7 +36,7 @@ export default function SelectToko({
       <select
         value={selected}
         onChange={handleChange}
-        className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500 bg-white text-black"
+        className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500 bg-white text-gray-900"
       >
         <option value="">Pilih Toko</option>
         {stores.map((store) => (

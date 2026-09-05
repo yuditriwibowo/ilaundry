@@ -34,7 +34,7 @@ export default function LayananFilters({
           setTipe(e.target.value);
           handleFilterChange("tipe", e.target.value);
         }}
-        className="block flex-1 min-w-0 w-full cursor-pointer rounded-md border border-gray-200 py-2 px-2.5 text-sm outline-none bg-white text-black truncate focus:border-blue-500"
+        className="block flex-1 min-w-0 w-full cursor-pointer rounded-md border border-gray-200 py-2 px-2.5 text-sm outline-none bg-white text-gray-900 truncate focus:border-blue-500"
       >
         <option value="">Semua Tipe</option>
         {optionsTipe.map((item) => (
@@ -48,7 +48,7 @@ export default function LayananFilters({
           setDurasi(e.target.value);
           handleFilterChange("durasi", e.target.value);
         }}
-        className="block flex-1 min-w-0 w-full cursor-pointer rounded-md border border-gray-200 py-2 px-2.5 text-sm outline-none bg-white text-black truncate focus:border-blue-500"
+        className="block flex-1 min-w-0 w-full cursor-pointer rounded-md border border-gray-200 py-2 px-2.5 text-sm outline-none bg-white text-gray-900 truncate focus:border-blue-500"
       >
         <option value="">Semua Durasi</option>
         {optionsDurasi.map((item) => (

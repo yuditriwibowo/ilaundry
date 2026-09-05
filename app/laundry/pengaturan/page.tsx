@@ -1,4 +1,5 @@
 import SelectToko from "@/app/ui/laundry/select-toko";
+import DisplayModeSetting from "@/app/ui/pengaturan/display-mode-setting";
 import { fetchToko } from "@/app/lib/data";
 import Link from "next/link";
 import { cookies } from "next/headers";
@@ -12,7 +13,8 @@ import {
     Truck, 
     UserCog, 
     Users, 
-    FileText 
+    FileText,
+    SunMoon 
 } from "lucide-react";
 
 const menuItems = [
@@ -87,23 +89,38 @@ export default async function Page() {
         <div className="flex h-full w-full flex-col -mt-2">
             <div className="sticky top-0 z-10 bg-gradient-to-b from-primary-400 to-primary-800 pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
                 <div className="flex w-full items-center justify-between gap-4">
-                         <h1 className={`text-2xl text-white md:text-black`}>Pengaturan</h1>
+                         <h1 className={`text-2xl text-white md:text-gray-900`}>Pengaturan</h1>
                          <SelectToko stores={stores} selectedToko={selectedToko} />
                 </div>
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0 portrait:pb-4">
                 <div className="flex flex-col gap-3 p-4">
+                    {/* Pengaturan Mode Display: terang / gelap / sesuai system */}
+                    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-200">
+                        <div className="mb-1 flex items-center gap-3">
+                            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary-500 text-white shrink-0 shadow-md">
+                                <SunMoon size={22} />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="font-bold text-gray-700">Mode Display</span>
+                                <span className="text-xs text-gray-500 leading-tight">Pilih tampilan aplikasi: terang, gelap, atau sesuai system</span>
+                            </div>
+                        </div>
+                        <div className="mt-3">
+                            <DisplayModeSetting />
+                        </div>
+                    </div>
                     {menuItems.map((item, index) => (
                         <Link 
                             key={index} 
                             href={item.href} 
-                            className="group flex items-center gap-4 p-3 rounded-2xl hover:bg-primary-50 transition-all duration-200 ease-in-out"
+                            className="group flex items-center gap-4 p-3 rounded-2xl hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-all duration-200 ease-in-out"
                         >
                             <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary-500 text-white shrink-0 shadow-md group-hover:scale-110 transition-transform duration-200">
                                 <item.icon size={22} />
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-bold text-gray-700 group-hover:text-primary-600 transition-colors duration-200">{item.title}</span>
+                                <span className="font-bold text-gray-700 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">{item.title}</span>
                                 <span className="text-xs text-gray-500 leading-tight">{item.description}</span>
                             </div>
                         </Link>
