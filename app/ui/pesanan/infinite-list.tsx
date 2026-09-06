@@ -10,7 +10,7 @@ import { fetchMorePesanan } from "@/app/lib/actions";
 import { TabelPesanan } from "@/app/lib/definitions";
 import { useInView } from "react-intersection-observer";
 import { formatDateTimeToLocal, formatEstimasiJam, formatRupiah } from "@/app/lib/utils";
-import NotFound from "@/app/laundry/pengaturan/not-found";
+import NotFound from "@/app/laundry/pesanan/not-found";
 
 function getInitials(nama: string | null) {
   if (!nama) return "?";

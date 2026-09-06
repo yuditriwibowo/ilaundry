@@ -7,7 +7,7 @@ import { fetchFilteredPesanan, fetchPesananPages } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/pesanan/infinite-list";
 import { formatDateTimeToLocal, formatEstimasiJam, formatRupiah } from "@/app/lib/utils";
 import { TabelPesanan } from "@/app/lib/definitions";
-import NotFound from "@/app/laundry/pengaturan/not-found";
+import NotFound from "@/app/laundry/pesanan/not-found";
 
 export default async function PesananTable({
   query,
