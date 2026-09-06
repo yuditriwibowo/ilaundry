@@ -918,7 +918,7 @@ export async function updatePelanggan(id: string, prevState: State, formData: Fo
   redirect("/laundry/pelanggan");
 }
 
-import { fetchFilteredPelanggan, fetchFilteredToko, fetchFilteredDurasi, fetchFilteredLayanan, fetchFilteredParfum, fetchFilteredDiskon, fetchFilteredAntarJemput, fetchFilteredUserToko, fetchFilteredPesanan } from "./data";
+import { fetchFilteredPelanggan, fetchFilteredToko, fetchFilteredDurasi, fetchFilteredLayanan, fetchFilteredParfum, fetchFilteredDiskon, fetchFilteredAntarJemput, fetchFilteredUserToko, fetchFilteredPesanan, fetchItemPesananByPesananId } from "./data";
 
 export async function fetchMorePelanggan(query: string, page: number) {
   return await fetchFilteredPelanggan(query, page);
@@ -960,6 +960,21 @@ export async function fetchMorePesanan(
 ) {
   return await fetchFilteredPesanan(query, page, statusPesanan, statusPembayaran);
 }
+
+export async function fetchMoreItemPesanan(pesananId: string, page: number) {
+  return await fetchItemPesananByPesananId(pesananId, page);
+}
+
+export async function deleteItemPesanan(id: string, pesananId: string) {
+  try {
+    await sql`DELETE FROM public.item_pesanan WHERE id = ${id}`;
+  } catch (error) {
+    throw new Error("Database Error: Failed to Delete Item Pesanan.");
+  }
+  revalidatePath(`/laundry/pesanan/${pesananId}/detail`);
+  revalidatePath("/laundry/pesanan");
+}
+
 
 export async function setSessionUserId() {
   const cookieStore = await cookies();

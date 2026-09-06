@@ -11,7 +11,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { MessageCircleIcon } from "lucide-react";
 import Link from "next/link";
-import { deletePesanan } from "@/app/lib/actions";
+import { useRouter } from "next/navigation";
+import { deletePesanan, deleteItemPesanan } from "@/app/lib/actions";
 import { TabelPesanan, StatusPesanan, StatusPembayaran } from "@/app/lib/definitions";
 import { formatDateTimeToLocal, formatRupiah } from "@/app/lib/utils";
 
@@ -57,7 +58,7 @@ function normalizePhoneNumber(noHp: string) {
 export function ViewPesananDetail({ id }: { id: string }) {
   return (
     <Link
-      href={`/laundry/pesanan/${id}`}
+      href={`/laundry/pesanan/${id}/detail`}
       title="Lihat Detail"
       className={`${actionButtonClass} border-gray-200 text-gray-600`}
     >
@@ -302,7 +303,7 @@ export function PesananActionMenu({
           className="absolute right-0 z-20 mt-1 w-48 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
         >
           <Link
-            href={`/laundry/pesanan/${pesanan.id}`}
+            href={`/laundry/pesanan/${pesanan.id}/detail`}
             role="menuitem"
             className={menuItemClass}
             onClick={() => setOpen(false)}
@@ -365,5 +366,143 @@ export function PesananActionMenu({
     </div>
   );
 }
+
+export function PesananDetailActionButtons({
+  pesanan,
+  onDeleteSuccessAction,
+}: {
+  pesanan: TabelPesanan;
+  onDeleteSuccessAction?: () => void;
+}) {
+  const router = useRouter();
+
+  async function handleDelete() {
+    if (confirm("Apakah Anda yakin ingin menghapus pesanan ini?")) {
+      await deletePesanan(pesanan.id);
+      if (onDeleteSuccessAction) {
+        onDeleteSuccessAction();
+      } else {
+        router.push("/laundry/pesanan");
+      }
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      {/* WhatsApp */}
+      <button
+        type="button"
+        onClick={() =>
+          kirimWa({
+            noHp: pesanan.no_hp,
+            nama: pesanan.nama_pelanggan,
+            nomorPesanan: pesanan.nomor_pesanan,
+            totalBayar: pesanan.total_bayar,
+            statusPesanan: pesanan.status_pesanan,
+            statusPembayaran: pesanan.status_pembayaran,
+          })
+        }
+        title="Kirim WhatsApp"
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-green-200 bg-green-50 text-green-600 transition-colors hover:bg-green-100 shadow-sm"
+      >
+        <span className="sr-only">Kirim WhatsApp</span>
+        <MessageCircleIcon className="h-5 w-5" />
+      </button>
+
+      {/* Print */}
+      <button
+        type="button"
+        onClick={() => printStruk(pesanan)}
+        title="Print Struk"
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition-colors hover:bg-gray-100 shadow-sm"
+      >
+        <span className="sr-only">Print</span>
+        <PrinterIcon className="h-5 w-5" />
+      </button>
+
+      {/* Edit */}
+      <Link
+        href={`/laundry/pesanan/${pesanan.id}/edit`}
+        title="Edit Pesanan"
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition-colors hover:bg-gray-100 shadow-sm"
+      >
+        <span className="sr-only">Edit</span>
+        <PencilIcon className="h-5 w-5" />
+      </Link>
+
+      {/* Delete */}
+      <button
+        type="button"
+        onClick={handleDelete}
+        title="Hapus Pesanan"
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-red-200 bg-white text-red-600 transition-colors hover:bg-red-50 shadow-sm"
+      >
+        <span className="sr-only">Hapus</span>
+        <TrashIcon className="h-5 w-5" />
+      </button>
+    </div>
+  );
+}
+
+export function CreateItemPesananButton({ pesananId }: { pesananId: string }) {
+  return (
+    <Link
+      href={`/laundry/pesanan/${pesananId}/item/create`}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-primary-600 bg-primary-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+    >
+      <PlusIcon className="h-4 w-4" />
+      <span>Tambah Item Pesanan</span>
+    </Link>
+  );
+}
+
+export function UpdateItemPesananButton({
+  pesananId,
+  itemId,
+}: {
+  pesananId: string;
+  itemId: string;
+}) {
+  return (
+    <Link
+      href={`/laundry/pesanan/${pesananId}/item/${itemId}/edit`}
+      title="Edit Item"
+      className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+    >
+      <span className="sr-only">Edit Item</span>
+      <PencilIcon className="h-3.5 w-3.5" />
+    </Link>
+  );
+}
+
+export function DeleteItemPesananButton({
+  pesananId,
+  itemId,
+  onDeleteAction,
+}: {
+  pesananId: string;
+  itemId: string;
+  onDeleteAction?: (id: string) => void;
+}) {
+  async function handleDelete() {
+    if (confirm("Apakah Anda yakin ingin menghapus item ini?")) {
+      await deleteItemPesanan(itemId, pesananId);
+      onDeleteAction?.(itemId);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleDelete}
+      title="Hapus Item"
+      className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600"
+    >
+      <span className="sr-only">Hapus Item</span>
+      <TrashIcon className="h-3.5 w-3.5" />
+    </button>
+  );
+}
+
 
 

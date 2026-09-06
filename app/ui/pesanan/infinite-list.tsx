@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { PesananActionMenu } from "@/app/ui/pesanan/buttons";
 import {
   StatusPesananBadge,
@@ -12,7 +13,7 @@ import { useInView } from "react-intersection-observer";
 import { formatDateTimeToLocal, formatEstimasiJam, formatRupiah } from "@/app/lib/utils";
 import NotFound from "@/app/laundry/pesanan/not-found";
 
-function getInitials(nama: string | null) {
+export function getInitials(nama: string | null) {
   if (!nama) return "?";
   return nama
     .split(" ")
@@ -36,6 +37,7 @@ export default function InfiniteList({
   bayar: string;
   totalPages: number;
 }) {
+  const router = useRouter();
   const [pesananList, setPesananList] = useState<TabelPesanan[]>(initialPesanan);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,7 +82,8 @@ export default function InfiniteList({
           {pesananList.map((pesanan) => (
             <div
               key={pesanan.id}
-              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm"
+              onClick={() => router.push(`/laundry/pesanan/${pesanan.id}/detail`)}
+              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm cursor-pointer transition-colors hover:bg-gray-50 active:scale-[0.99]"
             >
               <div className="flex items-start justify-between gap-2 text-sm">
                 <div className="flex min-w-0 gap-3">
@@ -127,7 +130,7 @@ export default function InfiniteList({
                     })()}
                   </p>
                 </div>
-                <div className="flex shrink-0">
+                <div className="flex shrink-0" onClick={(e) => e.stopPropagation()}>
                   <PesananActionMenu
                     pesanan={pesanan}
                     onDeleteAction={handleDelete}
