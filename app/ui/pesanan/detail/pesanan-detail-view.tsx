@@ -334,7 +334,7 @@ export default function PesananDetailView({
 
         {/* 2.1 Kolom Kanan: Sidebar Kolom */}
         <div className="landscape:col-span-5 md:col-span-5 lg:col-span-4">
-          <fieldset className="sticky top-2 md:top-4 rounded-xl border border-primary-200 bg-primary-50/60 p-4 md:p-5 short-screen:p-3 shadow-sm transition">
+          <fieldset className="rounded-xl border border-primary-200 bg-primary-50/60 p-4 md:p-5 short-screen:p-3 shadow-sm transition">
             <legend className="px-2 text-sm font-semibold text-primary-900">
               Ringkasan Pesanan
             </legend>
