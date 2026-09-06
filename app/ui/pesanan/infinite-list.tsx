@@ -82,6 +82,8 @@ export default function InfiniteList({
           {pesananList.map((pesanan) => (
             <div
               key={pesanan.id}
+              role="button"
+              aria-label={`Lihat detail pesanan ${pesanan.nomor_pesanan ?? ''}`}
               onClick={() => router.push(`/laundry/pesanan/${pesanan.id}/detail`)}
               className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm cursor-pointer transition-colors hover:bg-gray-50 active:scale-[0.99]"
             >

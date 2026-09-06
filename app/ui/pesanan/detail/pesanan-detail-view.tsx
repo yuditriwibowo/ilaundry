@@ -41,7 +41,7 @@ export default function PesananDetailView({
       {/* ========================================================================= */}
       <div className="block md:hidden landscape:hidden">
         {/* 1.1 Header Sticky: Card ringkasan seperti item di infinite-list.tsx */}
-        <div className="sticky top-0 z-20 -mx-4 bg-gray-50/95 px-4 pt-1 pb-3 backdrop-blur-sm border-b border-gray-200">
+        <div className="sticky top-0 z-20 -mx-4 header-gradient px-4 pt-1 pb-3 backdrop-blur-sm border-b border-gray-200">
           <div className="w-full rounded-lg bg-white p-4 shadow-sm border border-gray-100">
             <div className="flex items-start justify-between gap-2 text-sm">
               <div className="flex min-w-0 gap-3">
@@ -93,7 +93,7 @@ export default function PesananDetailView({
 
         {/* 1.2 Di bawah header sticky: Icon buttons WhatsApp, Print, Edit, Delete */}
         <div className="mt-4 flex items-center justify-center rounded-lg bg-white p-3 shadow-sm border border-gray-100">
-          <PesananDetailActionButtons pesanan={pesanan} />
+          <div className="flex gap-2 btn-animate"><PesananDetailActionButtons pesanan={pesanan} /></div>
         </div>
 
         {/* 1.3 Fieldset Informasi Pesanan Tambahan */}
@@ -220,11 +220,11 @@ export default function PesananDetailView({
       {/* ========================================================================= */}
       {/* 2. LANDSCAPE / DESKTOP VIEW (Tampilan landscape & desktop)                */}
       {/* ========================================================================= */}
-      <div className="hidden md:grid landscape:grid grid-cols-1 md:grid-cols-12 gap-6">
-        {/* 2.2 Kolom Kiri: Kolom Utama (Col span 7 atau 8) */}
-        <div className="md:col-span-7 lg:col-span-8 space-y-6">
+      <div className="hidden md:grid landscape:grid grid-cols-1 landscape:grid-cols-12 md:grid-cols-12 gap-4 md:gap-6 short-screen:gap-3">
+        {/* 2.2 Kolom Kiri: Kolom Utama */}
+        <div className="landscape:col-span-7 md:col-span-7 lg:col-span-8 space-y-4 md:space-y-6 short-screen:space-y-3">
           {/* 2.3 Fieldset Informasi Pesanan yang belum ditampilkan di kolom kanan */}
-          <fieldset className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <fieldset className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
             <legend className="px-2 text-sm font-semibold text-gray-700">
               Informasi Tambahan Pesanan
             </legend>
@@ -332,9 +332,9 @@ export default function PesananDetailView({
           </fieldset>
         </div>
 
-        {/* 2.1 Kolom Kanan: Sidebar Kolom (Col span 5 atau 4) */}
-        <div className="md:col-span-5 lg:col-span-4">
-          <fieldset className="sticky top-4 rounded-xl border border-primary-200 bg-primary-50/60 p-5 shadow-sm transition">
+        {/* 2.1 Kolom Kanan: Sidebar Kolom */}
+        <div className="landscape:col-span-5 md:col-span-5 lg:col-span-4">
+          <fieldset className="sticky top-2 md:top-4 rounded-xl border border-primary-200 bg-primary-50/60 p-4 md:p-5 short-screen:p-3 shadow-sm transition">
             <legend className="px-2 text-sm font-semibold text-primary-900">
               Ringkasan Pesanan
             </legend>
