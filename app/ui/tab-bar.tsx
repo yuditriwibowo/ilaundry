@@ -1,5 +1,7 @@
-"use client";
-
+// Catatan: file ini tidak memakai "use client" karena hanya diimpor oleh
+// komponen client (mis. filters.tsx). Tanpa direktif, warning TS71007
+// ("Props must be serializable...") tidak muncul dan hooks tetap valid
+// karena modul ini menjadi bagian dari client bundle lewat importernya.
 import { useEffect, useRef } from "react";
 
 export type Tab = { key: string; label: string };
