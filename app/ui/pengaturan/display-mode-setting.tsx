@@ -71,7 +71,7 @@ export default function DisplayModeSetting() {
             <div className="flex min-w-0 flex-col">
               <span
                 className={clsx(
-                  "flex items-center gap-1 font-bold",
+                  "flex items-center gap-1 font-medium",
                   isActive ? "text-primary-600" : "text-gray-700",
                 )}
               >

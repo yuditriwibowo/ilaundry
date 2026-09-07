@@ -102,7 +102,7 @@ export default async function Page() {
                                 <SunMoon size={22} />
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-bold text-gray-700">Mode Display</span>
+                                <span className="font-medium text-gray-700">Mode Display</span>
                                 <span className="text-xs text-gray-500 leading-tight">Pilih tampilan aplikasi: terang, gelap, atau sesuai system</span>
                             </div>
                         </div>
@@ -120,7 +120,7 @@ export default async function Page() {
                                 <item.icon size={22} />
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-bold text-gray-700 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">{item.title}</span>
+                                <span className="font-medium text-gray-700 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">{item.title}</span>
                                 <span className="text-xs text-gray-500 leading-tight">{item.description}</span>
                             </div>
                         </Link>
