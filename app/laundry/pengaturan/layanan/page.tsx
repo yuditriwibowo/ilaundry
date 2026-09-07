@@ -27,18 +27,22 @@ export default async function Page(props: {
   
   return (
       <div className="flex h-full w-full flex-col -mt-2">
-        <div className="sticky top-0 z-10 bg-gradient-to-b from-primary-400 to-primary-800 pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none short-screen:pb-3 short-screen:pt-3">
-          <div className="flex w-full items-center justify-between">
-               <h1 className={`text-2xl text-white md:text-gray-900`}>Pengaturan Layanan</h1>
+        <div className="sticky top-0 z-10 md:static md:bg-gray-50">
+          {/* Header biru: hanya membungkus judul + Search, rounded-b di bawah Search */}
+          <div className="bg-gradient-to-b from-primary-400 to-primary-800 pb-3 px-4 pt-6 -mx-4 rounded-b-xl md:bg-none md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none short-screen:pb-2 short-screen:pt-3">
+            <div className="flex w-full items-center justify-between">
+              <h1 className={`text-2xl text-white md:text-gray-900`}>Pengaturan Layanan</h1>
             </div>
-<div className="mt-4 flex items-center justify-between gap-2 md:mt-6 short-screen:mt-2">
-               <Search placeholder="Cari Layanan..." />
-               <CreateLayanan />
-             </div>
-             <div className="mt-2 flex w-full items-center gap-2 short-screen:mt-1">
-               <LayananFilters optionsTipe={optionsTipe} optionsDurasi={optionsDurasi} />
-             </div>
+            <div className="mt-4 flex items-center justify-between gap-2 md:mt-6 short-screen:mt-2">
+              <Search placeholder="Cari Layanan..." />
+              <CreateLayanan />
+            </div>
           </div>
+          {/* Filters tetap sticky (berada di dalam wrapper sticky), bg solid agar konten tidak tembus di belakangnya */}
+          <div className="mt-2 w-full bg-white px-4 pb-3 -mx-4 md:mt-2 md:bg-transparent md:px-0 md:pb-0 md:mx-0 short-screen:mt-1 short-screen:pb-2">
+            <LayananFilters optionsTipe={optionsTipe} optionsDurasi={optionsDurasi} />
+          </div>
+        </div>
           <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar">
             <Suspense key={query + currentPage + tipe + durasi} fallback={<LayananTableSkeleton />}>
               <Table query={query} currentPage={currentPage} tipeId={tipe} durasiNama={durasi} />

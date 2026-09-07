@@ -25,15 +25,19 @@ export default async function Page(props: {
 
   return (
     <div className="flex h-full w-full flex-col -mt-2">
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-primary-400 to-primary-800 pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none short-screen:pb-3 short-screen:pt-3">
-        <div className="flex w-full items-center justify-between">
-          <h1 className={`text-2xl text-white md:text-gray-900`}>Pesanan</h1>
+      <div className="sticky top-0 z-10 md:static md:bg-gray-50">
+        {/* Header biru: hanya membungkus judul + Search, rounded-b di bawah Search */}
+        <div className="bg-gradient-to-b from-primary-400 to-primary-800 pb-3 px-4 pt-6 -mx-4 rounded-b-xl md:bg-none md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none short-screen:pb-2 short-screen:pt-3">
+          <div className="flex w-full items-center justify-between">
+            <h1 className={`text-2xl text-white md:text-gray-900`}>Pesanan</h1>
+          </div>
+          <div className="mt-4 flex items-center justify-between gap-2 md:mt-6 short-screen:mt-2">
+            <Search placeholder="Cari Pesanan..." />
+            <CreatePesanan />
+          </div>
         </div>
-        <div className="mt-4 flex items-center justify-between gap-2 md:mt-6 short-screen:mt-2">
-          <Search placeholder="Cari Pesanan..." />
-          <CreatePesanan />
-        </div>
-        <div className="mt-2 flex w-full items-center gap-2 short-screen:mt-1">
+        {/* Filters tetap sticky (berada di dalam wrapper sticky), bg solid agar konten tidak tembus di belakangnya */}
+        <div className="mt-2 w-full bg-white px-4 pb-3 -mx-4 md:mt-2 md:bg-transparent md:px-0 md:pb-0 md:mx-0 short-screen:mt-1 short-screen:pb-2">
           <PesananFilters />
         </div>
       </div>
