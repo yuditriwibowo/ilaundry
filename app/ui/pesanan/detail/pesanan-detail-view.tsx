@@ -41,7 +41,8 @@ export default function PesananDetailView({
       {/* ========================================================================= */}
       <div className="block md:hidden landscape:hidden">
         {/* 1.1 Header Sticky: Card ringkasan seperti item di infinite-list.tsx */}
-        <div className="sticky top-0 z-20 -mx-4 header-gradient px-4 pt-1 pb-3 backdrop-blur-sm border-b border-gray-200">
+        {/* top-[58px] = tinggi header biru (breadcrumbs) yang juga sticky di atasnya */}
+        <div className="sticky top-[58px] z-20 -mx-4 header-gradient px-4 pt-1 pb-3 backdrop-blur-sm border-b border-gray-200">
           <div className="w-full rounded-lg bg-white p-4 shadow-sm border border-gray-100">
             <div className="flex items-start justify-between gap-2 text-sm">
               <div className="flex min-w-0 gap-3">
