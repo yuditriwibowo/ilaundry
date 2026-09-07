@@ -221,14 +221,67 @@ export default function PesananDetailView({
       {/* 2. LANDSCAPE / DESKTOP VIEW (Tampilan landscape & desktop)                */}
       {/* ========================================================================= */}
       <div className="hidden md:grid landscape:grid grid-cols-1 landscape:grid-cols-12 md:grid-cols-12 gap-4 md:gap-6 short-screen:gap-3">
-        {/* 2.2 Kolom Kiri: Kolom Utama */}
-        <div className="landscape:col-span-7 md:col-span-7 lg:col-span-8 space-y-4 md:space-y-6 short-screen:space-y-3">
-          {/* 2.3 Fieldset Informasi Pesanan yang belum ditampilkan di kolom kanan */}
+        {/* 2.2 Kolom Utama (full width, Ringkasan Pesanan digabung ke sini) */}
+        <div className="landscape:col-span-12 md:col-span-12 space-y-4 md:space-y-6 short-screen:space-y-3">
+          {/* 2.3 Fieldset Informasi Pesanan (gabungan Ringkasan + Informasi Tambahan) */}
           <fieldset className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
             <legend className="px-2 text-sm font-semibold text-gray-700">
-              Informasi Tambahan Pesanan
+              Informasi Pesanan
             </legend>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-700">
+              {/* No. Pesanan */}
+              <div>
+                <span className="text-xs text-gray-500 block">No. Pesanan</span>
+                <span className="font-semibold text-primary-700">
+                  {pesanan.nomor_pesanan ?? "-"}
+                </span>
+              </div>
+
+              {/* Pelanggan */}
+              <div>
+                <span className="text-xs text-gray-500 block">Pelanggan</span>
+                <span className="font-medium text-gray-900">
+                  {pesanan.nama_pelanggan ?? "-"}
+                </span>
+              </div>
+
+              {/* Tanggal Masuk */}
+              <div>
+                <span className="text-xs text-gray-500 block">Tanggal Masuk</span>
+                <span className="font-medium text-gray-900">
+                  {formatDateTimeToLocal(pesanan.tgl_pesanan)}
+                </span>
+              </div>
+
+              {/* Estimasi Selesai */}
+              <div>
+                <span className="text-xs text-gray-500 block">Estimasi Selesai</span>
+                <span
+                  className={
+                    estimasi?.terlambat
+                      ? "font-medium text-red-600"
+                      : "font-medium text-gray-900"
+                  }
+                >
+                  {pesanan.tgl_estimasi_selesai
+                    ? formatDateTimeToLocal(pesanan.tgl_estimasi_selesai)
+                    : "-"}
+                </span>
+              </div>
+
+              {/* Status Pesanan */}
+              <div>
+                <span className="text-xs text-gray-500 block">Status Pesanan</span>
+                <StatusPesananBadge status={pesanan.status_pesanan} />
+              </div>
+
+              {/* Status Bayar */}
+              <div>
+                <span className="text-xs text-gray-500 block">Status Bayar</span>
+                <StatusPembayaranBadge status={pesanan.status_pembayaran} />
+              </div>
+
+              {/* Kasir / Dibuat Oleh */}
               <div>
                 <span className="text-xs text-gray-500 block">Kasir / Dibuat Oleh</span>
                 <span className="font-medium text-gray-900">{pesanan.nama_user ?? "-"}</span>
@@ -288,6 +341,12 @@ export default function PesananDetailView({
                   </span>
                 </div>
                 <div>
+                  <span className="text-gray-500 block">Total Tagihan:</span>
+                  <span className="text-sm font-bold text-gray-900">
+                    {formatRupiah(pesanan.total_bayar)}
+                  </span>
+                </div>
+                <div>
                   <span className="text-gray-500 block">Metode Bayar:</span>
                   <span className="font-medium text-gray-800 capitalize">
                     {pesanan.metode_pembayaran ?? "-"}
@@ -307,6 +366,7 @@ export default function PesananDetailView({
                     {formatRupiah(pesanan.kurang_bayar)}
                   </span>
                 </div>
+                
               </div>
             </div>
 
@@ -316,6 +376,14 @@ export default function PesananDetailView({
                 <span className="font-medium">Catatan Pesanan:</span> {pesanan.catatan}
               </div>
             ) : null}
+
+            {/* Action Buttons: WhatsApp, Print, Edit, Delete di paling bawah */}
+            <div className="mt-4 border-t border-gray-200 pt-4">
+              <div className="text-xs text-gray-500 mb-2">Aksi Cepat</div>
+              <div className="flex justify-start">
+                <PesananDetailActionButtons pesanan={pesanan} />
+              </div>
+            </div>
           </fieldset>
 
           {/* 2.4 Fieldset Item Pesanan */}
@@ -329,83 +397,6 @@ export default function PesananDetailView({
             </div>
             {/* 2.6 Table untuk menampilkan item pesanan */}
             <ItemPesananTable pesananId={pesanan.id} initialItems={initialItems} />
-          </fieldset>
-        </div>
-
-        {/* 2.1 Kolom Kanan: Sidebar Kolom */}
-        <div className="landscape:col-span-5 md:col-span-5 lg:col-span-4">
-          <fieldset className="rounded-xl border border-primary-200 bg-primary-50/60 p-4 md:p-5 short-screen:p-3 shadow-sm transition">
-            <legend className="px-2 text-sm font-semibold text-primary-900">
-              Ringkasan Pesanan
-            </legend>
-            <div className="space-y-3.5 text-sm text-gray-800">
-              {/* No. Pesanan */}
-              <div className="flex items-center justify-between border-b border-primary-100 pb-2">
-                <span className="text-xs text-gray-500">No. Pesanan</span>
-                <span className="font-semibold text-primary-700">
-                  {pesanan.nomor_pesanan ?? "-"}
-                </span>
-              </div>
-
-              {/* Pelanggan */}
-              <div className="flex items-center justify-between border-b border-primary-100 pb-2">
-                <span className="text-xs text-gray-500">Pelanggan</span>
-                <span className="font-medium text-gray-900">
-                  {pesanan.nama_pelanggan ?? "-"}
-                </span>
-              </div>
-
-              {/* Tanggal Masuk */}
-              <div className="flex items-center justify-between border-b border-primary-100 pb-2">
-                <span className="text-xs text-gray-500">Tanggal Masuk</span>
-                <span className="text-xs font-medium text-gray-700">
-                  {formatDateTimeToLocal(pesanan.tgl_pesanan)}
-                </span>
-              </div>
-
-              {/* Estimasi Selesai */}
-              <div className="flex items-center justify-between border-b border-primary-100 pb-2">
-                <span className="text-xs text-gray-500">Estimasi Selesai</span>
-                <span
-                  className={estimasi?.terlambat ? "text-xs font-medium text-red-600" : "text-xs text-gray-600"}
-                  title={
-                    pesanan.tgl_estimasi_selesai
-                      ? formatDateTimeToLocal(pesanan.tgl_estimasi_selesai)
-                      : undefined
-                  }
-                >
-                  {estimasi ? estimasi.text : "-"}
-                </span>
-              </div>
-
-              {/* Total Bayar */}
-              <div className="flex items-center justify-between border-b border-primary-100 pb-2">
-                <span className="text-xs text-gray-500">Total Bayar</span>
-                <span className="text-base font-bold text-gray-900">
-                  {formatRupiah(pesanan.total_bayar)}
-                </span>
-              </div>
-
-              {/* Status Pesanan */}
-              <div className="flex items-center justify-between border-b border-primary-100 pb-2">
-                <span className="text-xs text-gray-500">Status Pesanan</span>
-                <StatusPesananBadge status={pesanan.status_pesanan} />
-              </div>
-
-              {/* Status Bayar */}
-              <div className="flex items-center justify-between border-b border-primary-100 pb-2">
-                <span className="text-xs text-gray-500">Status Bayar</span>
-                <StatusPembayaranBadge status={pesanan.status_pembayaran} />
-              </div>
-
-              {/* Action Buttons: WhatsApp, Print, Edit, Delete */}
-              <div className="pt-3">
-                <div className="text-xs text-gray-500 mb-2">Aksi Cepat</div>
-                <div className="flex justify-start">
-                  <PesananDetailActionButtons pesanan={pesanan} />
-                </div>
-              </div>
-            </div>
           </fieldset>
         </div>
       </div>

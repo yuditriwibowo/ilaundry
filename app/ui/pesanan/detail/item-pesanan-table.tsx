@@ -49,6 +49,9 @@ export default function ItemPesananTable({
               Harga
             </th>
             <th scope="col" className="px-3.5 py-3">
+              Nilai Diskon
+            </th>
+            <th scope="col" className="px-3.5 py-3">
               Subtotal
             </th>
             <th scope="col" className="px-3.5 py-3">
@@ -94,6 +97,11 @@ export default function ItemPesananTable({
               </td>
               <td className="whitespace-nowrap px-3.5 py-3 text-gray-700">
                 {formatRupiah(item.harga_satuan)}
+              </td>
+              <td className="whitespace-nowrap px-3.5 py-3 text-red-600">
+                {item.nilai_diskon && item.nilai_diskon > 0
+                  ? `- ${formatRupiah(item.nilai_diskon)}`
+                  : "-"}
               </td>
               <td className="whitespace-nowrap px-3.5 py-3 font-medium text-gray-900">
                 {item.nilai_diskon && item.nilai_diskon > 0 ? (
