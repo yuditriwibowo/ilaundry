@@ -64,30 +64,6 @@ export default function PesananDetailView({
                 <StatusPembayaranBadge status={pesanan.status_pembayaran} />
               </div>
             </div>
-            <div className="mt-3 flex items-end justify-between gap-2">
-              <div className="min-w-0">
-                <p className="truncate text-base font-semibold text-gray-900">
-                  {formatRupiah(pesanan.total_bayar)}
-                </p>
-                <p className="truncate text-[11px] text-gray-500">
-                  Masuk : {formatDateTimeToLocal(pesanan.tgl_pesanan)}
-                  {(() => {
-                    return (
-                      <span
-                        className={estimasi?.terlambat ? "font-medium text-red-600" : ""}
-                        title={
-                          pesanan.tgl_estimasi_selesai
-                            ? formatDateTimeToLocal(pesanan.tgl_estimasi_selesai)
-                            : undefined
-                        }
-                      >
-                        {" • "}Est : {estimasi ? estimasi.text : "-"}
-                      </span>
-                    );
-                  })()}
-                </p>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -102,6 +78,30 @@ export default function PesananDetailView({
             Informasi Pesanan
           </legend>
           <div className="divide-y divide-gray-100 text-xs text-gray-700">
+            <div className="flex items-center justify-between py-2">
+              <span className="flex items-center gap-1.5 text-gray-500">
+                <CalendarIcon className="h-4 w-4 text-gray-400" /> Tanggal Masuk
+              </span>
+              <span className="font-medium text-gray-900">
+                {formatDateTimeToLocal(pesanan.tgl_pesanan)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between py-2">
+              <span className="flex items-center gap-1.5 text-gray-500">
+                <ClockIcon className="h-4 w-4 text-gray-400" /> Tanggal Estimasi Selesai
+              </span>
+              <span
+                className={
+                  estimasi?.terlambat
+                    ? "font-medium text-red-600"
+                    : "font-medium text-gray-900"
+                }
+              >
+                {pesanan.tgl_estimasi_selesai
+                  ? formatDateTimeToLocal(pesanan.tgl_estimasi_selesai)
+                  : "-"}
+              </span>
+            </div>
             <div className="flex items-center justify-between py-2">
               <span className="flex items-center gap-1.5 text-gray-500">
                 <UserIcon className="h-4 w-4 text-gray-400" /> Kasir / Staf
@@ -157,14 +157,14 @@ export default function PesananDetailView({
                 <span>Biaya Antar Jemput:</span>
                 <span>{formatRupiah(pesanan.biaya_antar_jemput)}</span>
               </div>
-              {pesanan.nilai_diskon > 0 ? (
-                <div className="flex justify-between text-red-600">
-                  <span>Diskon:</span>
-                  <span>- {formatRupiah(pesanan.nilai_diskon)}</span>
-                </div>
-              ) : null}
+              <div className="flex justify-between text-red-600">
+                <span>Diskon:</span>
+                <span>
+                  {pesanan.nilai_diskon > 0 ? `- ${formatRupiah(pesanan.nilai_diskon)}` : "-"}
+                </span>
+              </div>
               <div className="border-t border-gray-200 pt-1 flex justify-between font-semibold text-gray-900">
-                <span>Total Bayar:</span>
+                <span>Total Tagihan:</span>
                 <span>{formatRupiah(pesanan.total_bayar)}</span>
               </div>
               <div className="flex justify-between">
