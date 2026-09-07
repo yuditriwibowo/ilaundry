@@ -39,7 +39,7 @@ export default async function Page(props: {
                <LayananFilters optionsTipe={optionsTipe} optionsDurasi={optionsDurasi} />
              </div>
           </div>
-          <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0">
+          <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar">
             <Suspense key={query + currentPage + tipe + durasi} fallback={<LayananTableSkeleton />}>
               <Table query={query} currentPage={currentPage} tipeId={tipe} durasiNama={durasi} />
             </Suspense>

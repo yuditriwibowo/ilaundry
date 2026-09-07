@@ -93,7 +93,7 @@ export default async function Page() {
                          <SelectToko stores={stores} selectedToko={selectedToko} />
                 </div>
             </div>
-            <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0 portrait:pb-4">
+            <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar portrait:pb-4">
                 <div className="flex flex-col gap-3 p-4">
                     {/* Pengaturan Mode Display: terang / gelap / sesuai system */}
                     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-200">

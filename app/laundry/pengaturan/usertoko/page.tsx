@@ -28,7 +28,7 @@ export default async function Page(props: {
               <CreateUserToko />
            </div>
           </div>
-          <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0">
+          <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar">
             <Suspense key={query + currentPage} fallback={<UserTokoTableSkeleton />}>
               <Table query={query} currentPage={currentPage} />
             </Suspense>
