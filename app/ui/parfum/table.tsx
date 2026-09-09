@@ -30,7 +30,7 @@ export default async function ParfumTable({
               />
             </div>
             <div className="overflow-x-auto w-full">
-              <table className="hidden min-w-[650px] w-full text-gray-900 md:table">
+              <table className="hidden w-full text-gray-900 md:table">
                 <thead className="rounded-lg text-left text-sm font-normal">
                   <tr className="border-b">
                     <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
@@ -56,7 +56,7 @@ export default async function ParfumTable({
                         </div>
                       </td>
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex justify-end gap-3">
+                        <div className="flex justify-end gap-2">
                           <UpdateParfum id={parfum.id} />
                           <DeleteParfum id={parfum.id} />
                         </div>

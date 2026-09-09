@@ -57,9 +57,9 @@ export default function InfiniteList({
       {pelangganList.map((pelanggan) => (
         <div
           key={pelanggan.id}
-          className="mb-2 w-full rounded-md bg-white p-4"
+          className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm"
         >
-          <div className="flex items-start justify-between gap-4 text-sm">
+          <div className="flex items-start justify-between gap-2 text-sm">
             <div className="flex min-w-0 gap-3">
               {pelanggan.image_url ? (
                 <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">

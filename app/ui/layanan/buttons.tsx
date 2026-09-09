@@ -16,13 +16,18 @@ export function CreateLayanan() {
   );
 }
 
+const actionButtonClass =
+  "flex h-8 w-8 items-center justify-center rounded-full border p-2 transition-colors hover:bg-gray-100";
+
 export function UpdateLayanan({ id }: { id: string }) {
   return (
     <Link
       href={`/laundry/pengaturan/layanan/${id}/edit`}
-      className="rounded-md border p-2 hover:bg-gray-100"
+      title="Edit"
+      className={`${actionButtonClass} border-gray-200 text-gray-600`}
     >
-      <PencilIcon className="w-5" />
+      <span className="sr-only">Edit</span>
+      <PencilIcon className="h-4 w-4" />
     </Link>
   );
 }
@@ -42,14 +47,15 @@ export function DeleteLayanan({
   }
 
   return (
-    <button 
+    <button
       onClick={async () => {
         await handleDelete();
       }}
-      className="rounded-md border p-2 hover:bg-gray-100"
+      title="Hapus"
+      className={`${actionButtonClass} border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-600`}
     >
       <span className="sr-only">Hapus</span>
-      <TrashIcon className="w-5" />
+      <TrashIcon className="h-4 w-4" />
     </button>
   );
 }

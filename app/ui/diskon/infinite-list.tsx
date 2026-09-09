@@ -60,9 +60,9 @@ export default function InfiniteList({
           {diskonList.map((diskon) => (
             <div
               key={diskon.id}
-              className="mb-2 w-full rounded-md bg-white p-4"
+              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm"
             >
-              <div className="flex items-start justify-between gap-4 text-sm">
+              <div className="flex items-start justify-between gap-2 text-sm">
                 <div className="flex min-w-0 gap-3">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600">
                     <TicketIcon className="h-5 w-5 text-white" />

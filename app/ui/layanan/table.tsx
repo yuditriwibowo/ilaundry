@@ -78,7 +78,7 @@ export default async function LayananTable({
                         Rp {layanan.harga.toLocaleString('id-ID')}
                       </td>
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex justify-end gap-3">
+                        <div className="flex justify-end gap-2">
                           <UpdateLayanan id={layanan.id} />
                           <DeleteLayanan id={layanan.id} />
                         </div>
