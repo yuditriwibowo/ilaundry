@@ -20,7 +20,7 @@ export default async function DiskonTable({
       {diskonList?.length === 0 ? (
         <NotFound />
       ) : (
-        <div className="inline-block min-w-full align-middle">
+        <div className="w-full">
           <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
             <div className="md:hidden">
               <InfiniteList 
@@ -59,13 +59,13 @@ export default async function DiskonTable({
                           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600">
                             <TicketIcon className="h-4 w-4 text-white" />
                           </div>
-                          <p>{diskon.nama_diskon}</p>
+                          <p className="font-medium">{diskon.nama_diskon}</p>
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
                         {diskon.tipe_diskon}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-3">
+                      <td className="whitespace-nowrap px-3 py-3 font-medium">
                         {diskon.tipe_diskon === "Persentase" ? `${diskon.nilai_diskon}%` : formatRupiah(diskon.nilai_diskon)}
                       </td>
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">

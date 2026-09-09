@@ -16,7 +16,7 @@ export default async function PelangganTable({
 
   return (
     <div className="mt-6 flow-root">
-      <div className="inline-block min-w-full align-middle">
+      <div className="w-full">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
             <InfiniteList 
@@ -65,7 +65,7 @@ export default async function PelangganTable({
                             alt={`${pelanggan.nama}'s profile picture`}
                           />
                         ) : null}
-                        <p>{pelanggan.nama}</p>
+                        <p className="font-medium">{pelanggan.nama}</p>
                       </div>
                     </td>
                     <td className="whitespace-nowrap px-3 py-3">

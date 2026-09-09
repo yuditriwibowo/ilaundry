@@ -41,7 +41,7 @@ export default async function Page(props: {
           <PesananFilters />
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0">
+      <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar">
         <Suspense key={query + currentPage + status + bayar} fallback={<PesananTableSkeleton />}>
           <Table query={query} currentPage={currentPage} status={status} bayar={bayar} />
         </Suspense>

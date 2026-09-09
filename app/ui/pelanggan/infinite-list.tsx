@@ -60,9 +60,9 @@ export default function InfiniteList({
           className="mb-2 w-full rounded-md bg-white p-4"
         >
           <div className="flex items-start justify-between gap-4 text-sm">
-            <div className="flex gap-3">
+            <div className="flex min-w-0 gap-3">
               {pelanggan.image_url ? (
-                <div className="relative h-8 w-8 overflow-hidden rounded-full">
+                <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
                     <Image
                       src={pelanggan.image_url}
                       className="object-cover"
@@ -73,15 +73,16 @@ export default function InfiniteList({
 
                 </div>
               ) : null}
-              <div className="flex flex-col">
-                <p className="font-medium text-base">{pelanggan.nama}</p>
-                <p className="text-gray-500">{pelanggan.no_hp}</p>
-                <p className="text-gray-500">{pelanggan.email || "-"}</p>
-                <p className="text-gray-500">{pelanggan.alamat || "-"}</p>
-
+              <div className="flex min-w-0 flex-col">
+                <p className="truncate text-base font-medium text-gray-900">
+                  {pelanggan.nama}
+                </p>
+                <p className="truncate text-gray-500">{pelanggan.no_hp}</p>
+                <p className="truncate text-gray-500">{pelanggan.email || "-"}</p>
+                <p className="truncate text-gray-500">{pelanggan.alamat || "-"}</p>
               </div>
             </div>
-             <div className="flex gap-2">
+             <div className="flex shrink-0 gap-2">
                <UpdatePelanggan id={pelanggan.id} />
                 <DeletePelanggan id={pelanggan.id} onDeleteAction={handleDelete} />
 

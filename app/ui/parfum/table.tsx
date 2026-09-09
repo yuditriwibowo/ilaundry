@@ -19,7 +19,7 @@ export default async function ParfumTable({
       {parfumList?.length === 0 ? (
         <NotFound />
       ) : (
-        <div className="inline-block min-w-full align-middle">
+        <div className="w-full">
           <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
             <div className="md:hidden">
               <InfiniteList 
@@ -52,7 +52,7 @@ export default async function ParfumTable({
                           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600">
                             <Droplets className="h-4 w-4 text-white" />
                           </div>
-                          <p>{parfum.nama_parfum}</p>
+                          <p className="font-medium">{parfum.nama_parfum}</p>
                         </div>
                       </td>
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">

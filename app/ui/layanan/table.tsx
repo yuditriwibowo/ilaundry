@@ -65,7 +65,7 @@ export default async function LayananTable({
                           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600">
                             <PackageIcon className="h-4 w-4 text-white" />
                           </div>
-                          <p>{layanan.nama_layanan}</p>
+                          <p className="font-medium">{layanan.nama_layanan}</p>
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
@@ -74,7 +74,7 @@ export default async function LayananTable({
                       <td className="whitespace-nowrap px-3 py-3">
                         {layanan.nama_durasi ? `${layanan.nama_durasi}${layanan.lama_durasi ? ` - ${layanan.lama_durasi} Jam` : ""}` : "-"}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-3">
+                      <td className="whitespace-nowrap px-3 py-3 font-medium">
                         Rp {layanan.harga.toLocaleString('id-ID')}
                       </td>
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">

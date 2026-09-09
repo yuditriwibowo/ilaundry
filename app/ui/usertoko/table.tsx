@@ -19,7 +19,7 @@ export default async function UserTokoTable({
       {userTokoList?.length === 0 ? (
         <NotFound />
       ) : (
-        <div className="inline-block min-w-full align-middle">
+        <div className="w-full">
           <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
             <div className="md:hidden">
               <InfiniteList 
@@ -60,7 +60,7 @@ export default async function UserTokoTable({
                             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600">
                               <Users className="h-4 w-4 text-white" />
                             </div>
-                            <p>{item.name}</p>
+                            <p className="font-medium">{item.name}</p>
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-3 py-3">

@@ -66,17 +66,19 @@ export default function InfiniteList({
                 className="mb-2 w-full rounded-md bg-white p-4"
               >
                 <div className="flex items-start justify-between gap-4 text-sm">
-                  <div className="flex gap-3">
+                  <div className="flex min-w-0 gap-3">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600">
                       <Users className="h-5 w-5 text-white" />
                     </div>
-                    <div className="flex flex-col">
-                      <p className="font-medium text-base">{item.name}</p>
-                      <p className="text-gray-500">Toko: {item.nama_toko}</p>
-                      <p className="text-gray-500">Peran: {item.peran}</p>
+                    <div className="flex min-w-0 flex-col">
+                      <p className="truncate text-base font-medium text-gray-900">
+                        {item.name}
+                      </p>
+                      <p className="truncate text-gray-500">Toko: {item.nama_toko}</p>
+                      <p className="truncate text-gray-500">Peran: {item.peran}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex shrink-0 gap-2">
                     <UpdateUserToko id={itemId} />
                     <DeleteUserToko id={itemId} onDeleteAction={handleDelete} />
                   </div>

@@ -20,7 +20,7 @@ export default async function AntarJemputTable({
       {antarJemputList?.length === 0 ? (
         <NotFound />
       ) : (
-        <div className="inline-block min-w-full align-middle">
+        <div className="w-full">
           <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
             <div className="md:hidden">
               <InfiniteList 
@@ -56,10 +56,10 @@ export default async function AntarJemputTable({
                           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600">
                             <Truck className="h-4 w-4 text-white" />
                           </div>
-                          <p>{antarJemput.nama_antar_jemput}</p>
+                          <p className="font-medium">{antarJemput.nama_antar_jemput}</p>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-3">
+                      <td className="whitespace-nowrap px-3 py-3 font-medium">
                         {formatRupiah(antarJemput.harga_antar_jemput)}
                       </td>
                       <td className="whitespace-nowrap py-3 pl-6 pr-3">
