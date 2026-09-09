@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { PackageIcon } from "lucide-react";
 import { UpdateLayanan, DeleteLayanan } from "@/app/ui/layanan/buttons";
 import { fetchMoreLayanan } from "@/app/lib/actions";
@@ -21,6 +22,7 @@ export default function InfiniteList({
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const pageRef = useRef(1);
+  const router = useRouter();
 
   const handleDelete = useCallback((id: string) => {
     setLayananList((prev) => prev.filter((layanan) => layanan.id !== id));
@@ -61,7 +63,16 @@ export default function InfiniteList({
           {layananList.map((layanan) => (
             <div
               key={layanan.id}
-              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm"
+              role="button"
+              aria-label={`Lihat detail layanan ${layanan.nama_layanan}`}
+              tabIndex={0}
+              onClick={() => router.push(`/laundry/pengaturan/layanan/${layanan.id}/detail`)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  router.push(`/laundry/pengaturan/layanan/${layanan.id}/detail`);
+                }
+              }}
+              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm cursor-pointer transition-colors hover:bg-gray-50 active:scale-[0.99]"
             >
               <div className="flex items-start justify-between gap-2 text-sm">
                 <div className="flex min-w-0 gap-3">
@@ -77,7 +88,10 @@ export default function InfiniteList({
                     </p>
                   </div>
                 </div>
-                <div className="flex shrink-0 gap-2">
+                <div
+                  className="flex shrink-0 gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <UpdateLayanan id={layanan.id} />
                   <DeleteLayanan id={layanan.id} onDeleteAction={handleDelete} />
                 </div>

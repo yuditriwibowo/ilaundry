@@ -147,6 +147,12 @@ export type TabelLayanan = {
   nama_toko: string | null;
 };
 
+// Hasil query detail layanan (join tipe, durasi, toko) + metadata waktu.
+export type DetailLayanan = TabelLayanan & {
+  created_at: string;
+  last_update: string | null;
+};
+
 export type Parfum = {
   id: string;
   nama_parfum: string;
@@ -201,6 +207,9 @@ export type UserTokoDetail = {
   peran: 'Administrator' | 'Manager' | 'Kasir' | null;
   name: string;
   email: string;
+  nama_toko: string | null;
+  created_at: string | null;
+  last_update: string | null;
 };
 
 // Status pesanan mengikuti alur kerja laundry:

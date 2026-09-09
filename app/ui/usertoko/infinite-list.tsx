@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Users } from "lucide-react";
 import { UpdateUserToko, DeleteUserToko } from "@/app/ui/usertoko/buttons";
 import { fetchMoreUserToko } from "@/app/lib/actions";
@@ -21,6 +22,7 @@ export default function InfiniteList({
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const pageRef = useRef(1);
+  const router = useRouter();
 
   const handleDelete = useCallback((id: string) => {
     setUserTokoList((prev) => prev.filter((item) => (item.id || item.name) !== id));
@@ -58,12 +60,21 @@ export default function InfiniteList({
         <NotFound />
       ) : (
         <>
-          {userTokoList.map((item, index) => {
+          {userTokoList.map((item) => {
             const itemId = item.id || item.name;
             return (
               <div
                 key={itemId}
-                className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm"
+                role="button"
+                aria-label={`Lihat detail user toko ${item.name}`}
+                tabIndex={0}
+                onClick={() => router.push(`/laundry/pengaturan/usertoko/${itemId}/detail`)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    router.push(`/laundry/pengaturan/usertoko/${itemId}/detail`);
+                  }
+                }}
+                className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm cursor-pointer transition-colors hover:bg-gray-50 active:scale-[0.99]"
               >
                 <div className="flex items-start justify-between gap-2 text-sm">
                   <div className="flex min-w-0 gap-3">
@@ -78,7 +89,10 @@ export default function InfiniteList({
                       <p className="truncate text-gray-500">Peran: {item.peran}</p>
                     </div>
                   </div>
-                  <div className="flex shrink-0 gap-2">
+                  <div
+                    className="flex shrink-0 gap-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <UpdateUserToko id={itemId} />
                     <DeleteUserToko id={itemId} onDeleteAction={handleDelete} />
                   </div>

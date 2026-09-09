@@ -12,6 +12,7 @@ import {
   Durasi,
   Layanan,
   TabelLayanan,
+  DetailLayanan,
   Parfum,
   Diskon,
   AntarJemput,
@@ -566,6 +567,37 @@ export async function fetchLayananById(id: string) {
   }
 }
 
+export async function fetchLayananDetailById(id: string) {
+  try {
+    const data = await sql<DetailLayanan[]>`
+      SELECT 
+        l.id, 
+        l.nama_layanan, 
+        l.harga, 
+        tl.nama_tipe, 
+        d.nama_durasi, 
+        d.lama_durasi,
+        t.nama_toko,
+        l.created_at,
+        l.last_update
+      FROM layanan l
+      JOIN tipe_layanan tl ON l.tipe_id = tl.id
+      JOIN durasi d ON l.durasi_id = d.id
+      LEFT JOIN toko t ON l.toko_id = t.id
+      WHERE l.id = ${id};
+    `;
+  
+    if (data.length === 0) {
+      return null;
+    }
+  
+    return data[0];
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch layanan.");
+  }
+}
+
 export async function fetchParfum() {
   try {
     const data = await sql<Parfum[]>`SELECT * FROM parfum ORDER BY nama_parfum ASC`;
@@ -895,10 +927,15 @@ export async function fetchUserTokoById(id: string) {
         ut.toko_id,
         ut.peran,
         u.name,
-        u.email
+        u.email,
+        t.nama_toko,
+        ut.created_at,
+        ut.last_update
       FROM public.user_toko AS ut
       JOIN public.users AS u
         ON u.id = ut.user_id
+      LEFT JOIN public.toko AS t
+        ON t.id = ut.toko_id
       WHERE ut.id = ${id};
     `;
     if (data.length === 0) {

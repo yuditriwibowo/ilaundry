@@ -1,7 +1,6 @@
-import { Droplets } from "lucide-react";
-import { UpdateParfum, DeleteParfum } from "@/app/ui/parfum/buttons";
 import { fetchFilteredParfum, fetchParfumPages } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/parfum/infinite-list";
+import ParfumTableRow from "@/app/ui/parfum/table-row";
 import NotFound from "@/app/laundry/pengaturan/not-found";
 
 export default async function ParfumTable({
@@ -43,25 +42,7 @@ export default async function ParfumTable({
                 </thead>
                 <tbody className="bg-white">
                   {parfumList?.map((parfum) => (
-                    <tr
-                      key={parfum.id}
-                      className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
-                    >
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600">
-                            <Droplets className="h-4 w-4 text-white" />
-                          </div>
-                          <p className="font-medium">{parfum.nama_parfum}</p>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex justify-end gap-2">
-                          <UpdateParfum id={parfum.id} />
-                          <DeleteParfum id={parfum.id} />
-                        </div>
-                      </td>
-                    </tr>
+                    <ParfumTableRow key={parfum.id} parfum={parfum} />
                   ))}
                 </tbody>
               </table>

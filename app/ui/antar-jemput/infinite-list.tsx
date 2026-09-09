@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Truck } from "lucide-react";
 import { UpdateAntarJemput, DeleteAntarJemput } from "@/app/ui/antar-jemput/buttons";
 import { fetchMoreAntarJemput } from "@/app/lib/actions";
@@ -21,6 +22,7 @@ export default function InfiniteList({
   const [antarJemputList, setAntarJemputList] = useState<AntarJemput[]>(initialAntarJemput);
   const [isLoading, setIsLoading] = useState(false);
   const pageRef = useRef(1);
+  const router = useRouter();
 
   const handleDelete = useCallback((id: string) => {
     setAntarJemputList((prev) => prev.filter((item) => item.id !== id));
@@ -60,7 +62,16 @@ export default function InfiniteList({
           {antarJemputList.map((antarJemput) => (
             <div
               key={antarJemput.id}
-              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm"
+              role="button"
+              aria-label={`Lihat detail antar-jemput ${antarJemput.nama_antar_jemput}`}
+              tabIndex={0}
+              onClick={() => router.push(`/laundry/pengaturan/antar-jemput/${antarJemput.id}/detail`)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  router.push(`/laundry/pengaturan/antar-jemput/${antarJemput.id}/detail`);
+                }
+              }}
+              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm cursor-pointer transition-colors hover:bg-gray-50 active:scale-[0.99]"
             >
               <div className="flex items-start justify-between gap-2 text-sm">
                 <div className="flex min-w-0 gap-3">
@@ -76,7 +87,10 @@ export default function InfiniteList({
                     </p>
                   </div>
                 </div>
-                <div className="flex shrink-0 gap-2">
+                <div
+                  className="flex shrink-0 gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <UpdateAntarJemput id={antarJemput.id} />
                   <DeleteAntarJemput id={antarJemput.id} onDeleteAction={handleDelete} />
                 </div>

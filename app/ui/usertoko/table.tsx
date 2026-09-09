@@ -1,7 +1,6 @@
-import { Users } from "lucide-react";
-import { UpdateUserToko, DeleteUserToko } from "@/app/ui/usertoko/buttons";
 import { fetchFilteredUserToko, fetchUserTokoPages } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/usertoko/infinite-list";
+import UserTokoTableRow from "@/app/ui/usertoko/table-row";
 import NotFound from "@/app/laundry/pengaturan/not-found";
 
 export default async function UserTokoTable({
@@ -48,36 +47,9 @@ export default async function UserTokoTable({
                   </tr>
                 </thead>
                 <tbody className="bg-white">
-                  {userTokoList?.map((item, index) => {
-                    const itemId = item.id || item.name;
-                    return (
-                      <tr
-                        key={itemId}
-                        className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
-                      >
-                        <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600">
-                              <Users className="h-4 w-4 text-white" />
-                            </div>
-                            <p className="font-medium">{item.name}</p>
-                          </div>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          {item.nama_toko}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          {item.peran}
-                        </td>
-                        <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                          <div className="flex justify-end gap-2">
-                            <UpdateUserToko id={itemId} />
-                            <DeleteUserToko id={itemId} />
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {userTokoList?.map((item) => (
+                    <UserTokoTableRow key={item.id || item.name} userToko={item} />
+                  ))}
                 </tbody>
               </table>
             </div>

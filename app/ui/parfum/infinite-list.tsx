@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Droplets } from "lucide-react";
 import { UpdateParfum, DeleteParfum } from "@/app/ui/parfum/buttons";
 import { fetchMoreParfum } from "@/app/lib/actions";
@@ -21,6 +22,7 @@ export default function InfiniteList({
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const pageRef = useRef(1);
+  const router = useRouter();
 
   const handleDelete = useCallback((id: string) => {
     setParfumList((prev) => prev.filter((parfum) => parfum.id !== id));
@@ -61,7 +63,16 @@ export default function InfiniteList({
           {parfumList.map((parfum) => (
             <div
               key={parfum.id}
-              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm"
+              role="button"
+              aria-label={`Lihat detail parfum ${parfum.nama_parfum}`}
+              tabIndex={0}
+              onClick={() => router.push(`/laundry/pengaturan/parfum/${parfum.id}/detail`)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  router.push(`/laundry/pengaturan/parfum/${parfum.id}/detail`);
+                }
+              }}
+              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm cursor-pointer transition-colors hover:bg-gray-50 active:scale-[0.99]"
             >
               <div className="flex items-start justify-between gap-2 text-sm">
                 <div className="flex min-w-0 gap-3">
@@ -74,7 +85,10 @@ export default function InfiniteList({
                     </p>
                   </div>
                 </div>
-                <div className="flex shrink-0 gap-2">
+                <div
+                  className="flex shrink-0 gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <UpdateParfum id={parfum.id} />
                   <DeleteParfum id={parfum.id} onDeleteAction={handleDelete} />
                 </div>

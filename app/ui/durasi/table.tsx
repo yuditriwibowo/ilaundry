@@ -1,7 +1,6 @@
-import { ClockIcon } from "lucide-react";
-import { UpdateDurasi, DeleteDurasi } from "@/app/ui/durasi/buttons";
 import { fetchFilteredDurasi, fetchDurasiPages } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/durasi/infinite-list";
+import DurasiTableRow from "@/app/ui/durasi/table-row";
 import NotFound from "@/app/laundry/pengaturan/not-found";
 
 export default async function DurasiTable({
@@ -46,28 +45,7 @@ export default async function DurasiTable({
                 </thead>
                 <tbody className="bg-white">
                   {durasiList?.map((durasi) => (
-                    <tr
-                      key={durasi.id}
-                      className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
-                    >
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600">
-                            <ClockIcon className="h-4 w-4 text-white" />
-                          </div>
-                          <p className="font-medium">{durasi.nama_durasi}</p>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        {durasi.lama_durasi ? `${durasi.lama_durasi} jam` : "-"}
-                      </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                        <div className="flex justify-end gap-2">
-                          <UpdateDurasi id={durasi.id} />
-                          <DeleteDurasi id={durasi.id} />
-                        </div>
-                      </td>
-                    </tr>
+                    <DurasiTableRow key={durasi.id} durasi={durasi} />
                   ))}
                 </tbody>
               </table>

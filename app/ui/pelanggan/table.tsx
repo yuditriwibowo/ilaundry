@@ -1,8 +1,6 @@
-import Image from "next/image";
-import { UpdatePelanggan, DeletePelanggan } from "@/app/ui/pelanggan/buttons";
-import { formatDateToLocal } from "@/app/lib/utils";
 import { fetchFilteredPelanggan, fetchPelangganPages } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/pelanggan/infinite-list";
+import PelangganTableRow from "@/app/ui/pelanggan/table-row";
 
 export default async function PelangganTable({
   query,
@@ -50,41 +48,7 @@ export default async function PelangganTable({
               </thead>
               <tbody className="bg-white">
                 {pelangganList?.map((pelanggan) => (
-                  <tr
-                    key={pelanggan.id}
-                    className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
-                  >
-                    <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                      <div className="flex items-center gap-3">
-                        {pelanggan.image_url ? (
-                          <Image
-                            src={pelanggan.image_url}
-                            className="rounded-full"
-                            width={28}
-                            height={28}
-                            alt={`${pelanggan.nama}'s profile picture`}
-                          />
-                        ) : null}
-                        <p className="font-medium">{pelanggan.nama}</p>
-                      </div>
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      {pelanggan.no_hp}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      {pelanggan.email || "-"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      {pelanggan.alamat || "-"}
-                    </td>
-
-                    <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                      <div className="flex justify-end gap-2">
-                        <UpdatePelanggan id={pelanggan.id} />
-                        <DeletePelanggan id={pelanggan.id} />
-                      </div>
-                    </td>
-                  </tr>
+                  <PelangganTableRow key={pelanggan.id} pelanggan={pelanggan} />
                 ))}
               </tbody>
             </table>
