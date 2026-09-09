@@ -88,24 +88,74 @@ export function DeletePesanan({
   id: string;
   onDeleteAction?: (id: string) => void;
 }) {
-  async function handleDelete() {
-    await deletePesanan(id);
-    if (onDeleteAction) {
-      onDeleteAction(id);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleConfirm() {
+    setIsDeleting(true);
+    try {
+      await deletePesanan(id);
+      if (onDeleteAction) {
+        onDeleteAction(id);
+      }
+      setShowConfirm(false);
+    } catch (error) {
+      console.error("Failed to delete pesanan:", error);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
   return (
-    <button
-      onClick={async () => {
-        await handleDelete();
-      }}
-      title="Hapus"
-      className={`${actionButtonClass} border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-600`}
-    >
-      <span className="sr-only">Hapus</span>
-      <TrashIcon className="h-4 w-4" />
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={() => setShowConfirm(true)}
+        title="Hapus"
+        className={`${actionButtonClass} border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-600 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-red-950/50 dark:hover:text-red-400`}
+      >
+        <span className="sr-only">Hapus</span>
+        <TrashIcon className="h-4 w-4" />
+      </button>
+
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl border border-gray-100 dark:bg-slate-900 dark:border-slate-800">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/60 dark:text-red-400">
+              <TrashIcon className="h-8 w-8" />
+            </div>
+
+            <h3 className="mb-2 text-lg font-bold text-gray-900 dark:text-gray-100">
+              Konfirmasi Hapus
+            </h3>
+
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+              Apakah Anda yakin akan menghapus pesanan ini?
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 rounded-xl border border-gray-200 bg-gray-50 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                Tidak
+              </button>
+              
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleConfirm}
+                className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 dark:bg-red-600 dark:hover:bg-red-700"
+              >
+                {isDeleting ? "Menghapus..." : "Ya, Hapus"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -259,6 +309,8 @@ export function PesananActionMenu({
   onDeleteAction?: (id: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -274,96 +326,146 @@ export function PesananActionMenu({
     };
   }, [open]);
 
-  async function handleDelete() {
-    setOpen(false);
-    await deletePesanan(pesanan.id);
-    onDeleteAction?.(pesanan.id);
+  async function handleConfirmDelete() {
+    setIsDeleting(true);
+    try {
+      await deletePesanan(pesanan.id);
+      onDeleteAction?.(pesanan.id);
+      setShowConfirm(false);
+    } catch (error) {
+      console.error("Failed to delete pesanan:", error);
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   const menuItemClass =
-    "flex w-full items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left";
+    "flex w-full items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-slate-800 text-left";
 
   return (
-    <div ref={menuRef} className="relative inline-block">
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        title="Menu Aksi"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        className={`${actionButtonClass} border-gray-200 text-gray-600`}
-      >
-        <span className="sr-only">Menu Aksi</span>
-        <Bars3Icon className="h-4 w-4" />
-      </button>
-
-      {open ? (
-        <div
-          role="menu"
-          className="absolute right-0 z-20 mt-1 w-48 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+    <>
+      <div ref={menuRef} className="relative inline-block">
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          title="Menu Aksi"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          className={`${actionButtonClass} border-gray-200 text-gray-600 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-slate-800`}
         >
-          <Link
-            href={`/laundry/pesanan/${pesanan.id}/detail`}
-            role="menuitem"
-            className={menuItemClass}
-            onClick={() => setOpen(false)}
+          <span className="sr-only">Menu Aksi</span>
+          <Bars3Icon className="h-4 w-4" />
+        </button>
+
+        {open ? (
+          <div
+            role="menu"
+            className="absolute right-0 z-20 mt-1 w-48 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
           >
-            <EyeIcon className="h-4 w-4 text-gray-500" />
-            Lihat Detail
-          </Link>
-          <button
-            type="button"
-            role="menuitem"
-            className={menuItemClass}
-            onClick={() => {
-              setOpen(false);
-              kirimWa({
-                noHp: pesanan.no_hp,
-                nama: pesanan.nama_pelanggan,
-                nomorPesanan: pesanan.nomor_pesanan,
-                totalBayar: pesanan.total_bayar,
-                statusPesanan: pesanan.status_pesanan,
-                statusPembayaran: pesanan.status_pembayaran,
-              });
-            }}
-          >
-            <MessageCircleIcon className="h-4 w-4 text-green-600" />
-            Kirim WA
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            className={menuItemClass}
-            onClick={() => {
-              setOpen(false);
-              printStruk(pesanan);
-            }}
-          >
-            <PrinterIcon className="h-4 w-4 text-gray-500" />
-            Print
-          </button>
-          <Link
-            href={`/laundry/pesanan/${pesanan.id}/edit`}
-            role="menuitem"
-            className={menuItemClass}
-            onClick={() => setOpen(false)}
-          >
-            <PencilIcon className="h-4 w-4 text-gray-500" />
-            Edit
-          </Link>
-          <div className="my-1 border-t border-gray-100" />
-          <button
-            type="button"
-            role="menuitem"
-            className={`${menuItemClass} text-red-600 hover:bg-red-50`}
-            onClick={handleDelete}
-          >
-            <TrashIcon className="h-4 w-4" />
-            Hapus
-          </button>
+            <Link
+              href={`/laundry/pesanan/${pesanan.id}/detail`}
+              role="menuitem"
+              className={menuItemClass}
+              onClick={() => setOpen(false)}
+            >
+              <EyeIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              Lihat Detail
+            </Link>
+            <button
+              type="button"
+              role="menuitem"
+              className={menuItemClass}
+              onClick={() => {
+                setOpen(false);
+                kirimWa({
+                  noHp: pesanan.no_hp,
+                  nama: pesanan.nama_pelanggan,
+                  nomorPesanan: pesanan.nomor_pesanan,
+                  totalBayar: pesanan.total_bayar,
+                  statusPesanan: pesanan.status_pesanan,
+                  statusPembayaran: pesanan.status_pembayaran,
+                });
+              }}
+            >
+              <MessageCircleIcon className="h-4 w-4 text-green-600" />
+              Kirim WA
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={menuItemClass}
+              onClick={() => {
+                setOpen(false);
+                printStruk(pesanan);
+              }}
+            >
+              <PrinterIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              Print
+            </button>
+            <Link
+              href={`/laundry/pesanan/${pesanan.id}/edit`}
+              role="menuitem"
+              className={menuItemClass}
+              onClick={() => setOpen(false)}
+            >
+              <PencilIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              Edit
+            </Link>
+            <div className="my-1 border-t border-gray-100 dark:border-slate-800" />
+            <button
+              type="button"
+              role="menuitem"
+              className={`${menuItemClass} text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 dark:text-red-400`}
+              onClick={() => {
+                setOpen(false);
+                setShowConfirm(true);
+              }}
+            >
+              <TrashIcon className="h-4 w-4" />
+              Hapus
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl border border-gray-100 dark:bg-slate-900 dark:border-slate-800">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/60 dark:text-red-400">
+              <TrashIcon className="h-8 w-8" />
+            </div>
+
+            <h3 className="mb-2 text-lg font-bold text-gray-900 dark:text-gray-100">
+              Konfirmasi Hapus
+            </h3>
+
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+              Apakah Anda yakin akan menghapus pesanan {pesanan.nomor_pesanan ?? "ini"}?
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 rounded-xl border border-gray-200 bg-gray-50 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                Tidak
+              </button>
+              
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleConfirmDelete}
+                className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 dark:bg-red-600 dark:hover:bg-red-700"
+              >
+                {isDeleting ? "Menghapus..." : "Ya, Hapus"}
+              </button>
+            </div>
+          </div>
         </div>
-      ) : null}
-    </div>
+      )}
+    </>
   );
 }
 
@@ -375,72 +477,120 @@ export function PesananDetailActionButtons({
   onDeleteSuccessAction?: () => void;
 }) {
   const router = useRouter();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  async function handleDelete() {
-    if (confirm("Apakah Anda yakin ingin menghapus pesanan ini?")) {
+  async function handleConfirmDelete() {
+    setIsDeleting(true);
+    try {
       await deletePesanan(pesanan.id);
       if (onDeleteSuccessAction) {
         onDeleteSuccessAction();
       } else {
         router.push("/laundry/pesanan");
       }
+      setShowConfirm(false);
+    } catch (error) {
+      console.error("Failed to delete pesanan:", error);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
   return (
-    <div className="flex items-center gap-3">
-      {/* WhatsApp */}
-      <button
-        type="button"
-        onClick={() =>
-          kirimWa({
-            noHp: pesanan.no_hp,
-            nama: pesanan.nama_pelanggan,
-            nomorPesanan: pesanan.nomor_pesanan,
-            totalBayar: pesanan.total_bayar,
-            statusPesanan: pesanan.status_pesanan,
-            statusPembayaran: pesanan.status_pembayaran,
-          })
-        }
-        title="Kirim WhatsApp"
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-green-200 bg-green-50 text-green-600 transition-colors hover:bg-green-100 shadow-sm"
-      >
-        <span className="sr-only">Kirim WhatsApp</span>
-        <MessageCircleIcon className="h-5 w-5" />
-      </button>
+    <>
+      <div className="flex items-center gap-3">
+        {/* WhatsApp */}
+        <button
+          type="button"
+          onClick={() =>
+            kirimWa({
+              noHp: pesanan.no_hp,
+              nama: pesanan.nama_pelanggan,
+              nomorPesanan: pesanan.nomor_pesanan,
+              totalBayar: pesanan.total_bayar,
+              statusPesanan: pesanan.status_pesanan,
+              statusPembayaran: pesanan.status_pembayaran,
+            })
+          }
+          title="Kirim WhatsApp"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-green-200 bg-green-50 text-green-600 transition-colors hover:bg-green-100 shadow-sm"
+        >
+          <span className="sr-only">Kirim WhatsApp</span>
+          <MessageCircleIcon className="h-5 w-5" />
+        </button>
 
-      {/* Print */}
-      <button
-        type="button"
-        onClick={() => printStruk(pesanan)}
-        title="Print Struk"
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition-colors hover:bg-gray-100 shadow-sm"
-      >
-        <span className="sr-only">Print</span>
-        <PrinterIcon className="h-5 w-5" />
-      </button>
+        {/* Print */}
+        <button
+          type="button"
+          onClick={() => printStruk(pesanan)}
+          title="Print Struk"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700 shadow-sm"
+        >
+          <span className="sr-only">Print</span>
+          <PrinterIcon className="h-5 w-5" />
+        </button>
 
-      {/* Edit */}
-      <Link
-        href={`/laundry/pesanan/${pesanan.id}/edit`}
-        title="Edit Pesanan"
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition-colors hover:bg-gray-100 shadow-sm"
-      >
-        <span className="sr-only">Edit</span>
-        <PencilIcon className="h-5 w-5" />
-      </Link>
+        {/* Edit */}
+        <Link
+          href={`/laundry/pesanan/${pesanan.id}/edit`}
+          title="Edit Pesanan"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700 shadow-sm"
+        >
+          <span className="sr-only">Edit</span>
+          <PencilIcon className="h-5 w-5" />
+        </Link>
 
-      {/* Delete */}
-      <button
-        type="button"
-        onClick={handleDelete}
-        title="Hapus Pesanan"
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-red-200 bg-white text-red-600 transition-colors hover:bg-red-50 shadow-sm"
-      >
-        <span className="sr-only">Hapus</span>
-        <TrashIcon className="h-5 w-5" />
-      </button>
-    </div>
+        {/* Delete */}
+        <button
+          type="button"
+          onClick={() => setShowConfirm(true)}
+          title="Hapus Pesanan"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-red-200 bg-white text-red-600 transition-colors hover:bg-red-50 dark:border-slate-700 dark:bg-slate-800 dark:text-red-400 dark:hover:bg-red-950/50 shadow-sm"
+        >
+          <span className="sr-only">Hapus</span>
+          <TrashIcon className="h-5 w-5" />
+        </button>
+      </div>
+
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl border border-gray-100 dark:bg-slate-900 dark:border-slate-800">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/60 dark:text-red-400">
+              <TrashIcon className="h-8 w-8" />
+            </div>
+
+            <h3 className="mb-2 text-lg font-bold text-gray-900 dark:text-gray-100">
+              Konfirmasi Hapus
+            </h3>
+
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+              Apakah Anda yakin akan menghapus pesanan {pesanan.nomor_pesanan ?? "ini"}?
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 rounded-xl border border-gray-200 bg-gray-50 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                Tidak
+              </button>
+              
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleConfirmDelete}
+                className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 dark:bg-red-600 dark:hover:bg-red-700"
+              >
+                {isDeleting ? "Menghapus..." : "Ya, Hapus"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -467,7 +617,7 @@ export function UpdateItemPesananButton({
     <Link
       href={`/laundry/pesanan/${pesananId}/item/${itemId}/edit`}
       title="Edit Item"
-      className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+      className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-slate-800 dark:hover:text-gray-100"
     >
       <span className="sr-only">Edit Item</span>
       <PencilIcon className="h-3.5 w-3.5" />
@@ -484,25 +634,71 @@ export function DeleteItemPesananButton({
   itemId: string;
   onDeleteAction?: (id: string) => void;
 }) {
-  async function handleDelete() {
-    if (confirm("Apakah Anda yakin ingin menghapus item ini?")) {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleConfirm() {
+    setIsDeleting(true);
+    try {
       await deleteItemPesanan(itemId, pesananId);
       onDeleteAction?.(itemId);
+      setShowConfirm(false);
+    } catch (error) {
+      console.error("Failed to delete item:", error);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleDelete}
-      title="Hapus Item"
-      className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600"
-    >
-      <span className="sr-only">Hapus Item</span>
-      <TrashIcon className="h-3.5 w-3.5" />
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={() => setShowConfirm(true)}
+        title="Hapus Item"
+        className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+      >
+        <span className="sr-only">Hapus Item</span>
+        <TrashIcon className="h-3.5 w-3.5" />
+      </button>
+
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl border border-gray-100 dark:bg-slate-900 dark:border-slate-800">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/60 dark:text-red-400">
+              <TrashIcon className="h-8 w-8" />
+            </div>
+
+            <h3 className="mb-2 text-lg font-bold text-gray-900 dark:text-gray-100">
+              Konfirmasi Hapus
+            </h3>
+
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+              Apakah Anda yakin akan menghapus item ini?
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 rounded-xl border border-gray-200 bg-gray-50 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                Tidak
+              </button>
+              
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleConfirm}
+                className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 dark:bg-red-600 dark:hover:bg-red-700"
+              >
+                {isDeleting ? "Menghapus..." : "Ya, Hapus"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
-
-
-
