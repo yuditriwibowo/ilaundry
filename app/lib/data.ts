@@ -1161,3 +1161,108 @@ export async function fetchItemPesananPages(pesananId: string) {
   }
 }
 
+
+// ==== Opsi untuk form tambah pesanan ====
+
+export async function fetchPelangganForForm() {
+  try {
+    const data = await sql<Pick<Pelanggan, "id" | "nama" | "no_hp">[]>`
+      SELECT id, nama, no_hp
+      FROM pelanggan
+      ORDER BY nama ASC
+    `;
+    return data;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil data pelanggan.");
+  }
+}
+
+export async function fetchLayananForForm() {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  try {
+    const data = await sql<TabelLayanan[]>`
+      SELECT
+        l.id,
+        l.nama_layanan,
+        l.harga,
+        tl.nama_tipe,
+        d.nama_durasi,
+        d.lama_durasi,
+        t.nama_toko
+      FROM layanan l
+      JOIN tipe_layanan tl ON l.tipe_id = tl.id
+      JOIN durasi d ON l.durasi_id = d.id
+      LEFT JOIN toko t ON l.toko_id = t.id
+      WHERE
+        ${selectedToko ? sql`l.toko_id = ${selectedToko}` : sql`1=1`}
+      ORDER BY l.nama_layanan ASC
+    `;
+    return data;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil data layanan.");
+  }
+}
+
+export async function fetchParfumForForm() {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  try {
+    const data = await sql<Pick<Parfum, "id" | "nama_parfum">[]>`
+      SELECT id, nama_parfum
+      FROM parfum
+      WHERE
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`}
+      ORDER BY nama_parfum ASC
+    `;
+    return data;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil data parfum.");
+  }
+}
+
+export async function fetchDiskonForForm() {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  try {
+    const data = await sql<Pick<Diskon, "id" | "nama_diskon" | "tipe_diskon" | "nilai_diskon">[]>`
+      SELECT id, nama_diskon, tipe_diskon, nilai_diskon
+      FROM diskon
+      WHERE
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`}
+      ORDER BY nama_diskon ASC
+    `;
+    return data;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil data diskon.");
+  }
+}
+
+export async function fetchAntarJemputForForm() {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  try {
+    const data = await sql<
+      Pick<AntarJemput, "id" | "nama_antar_jemput" | "harga_antar_jemput">[]
+    >`
+      SELECT id, nama_antar_jemput, harga_antar_jemput
+      FROM antar_jemput
+      WHERE
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`}
+      ORDER BY nama_antar_jemput ASC
+    `;
+    return data;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil data antar-jemput.");
+  }
+}
+

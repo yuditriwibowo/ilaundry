@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Konten utama: halaman menggunakan inner overflow-y-auto sendiri */}
-      <div className="grow min-w-0 min-h-0 px-4 pt-0 overflow-y-auto portrait:scrollbar-hide portrait-no-scrollbar md:px-4 md:pt-4 landscape:pb-0 md:pb-12 short-screen:pb-4">
+      <div className="grow min-w-0 min-h-0 px-4 pt-0 overflow-y-auto portrait:scrollbar-hide portrait-no-scrollbar md:px-4 md:pt-4 landscape:pb-0 md:pb-12 short-screen:pb-4 portrait:pb-[calc(5rem+env(safe-area-inset-bottom,0px))]">
         {children}
       </div>
 
