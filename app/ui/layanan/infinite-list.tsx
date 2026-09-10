@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { PackageIcon } from "lucide-react";
 import { UpdateLayanan, DeleteLayanan } from "@/app/ui/layanan/buttons";
 import { fetchMoreLayanan } from "@/app/lib/actions";
 import { TabelLayanan } from "@/app/lib/definitions";
-import { useInView } from "react-intersection-observer";
+import SharedInfiniteList from "@/app/ui/shared/infinite-list";
+import { EntityCard } from "@/app/ui/shared/entity-card";
 import NotFound from "@/app/laundry/pengaturan/not-found";
+
+const BASE = "/laundry/pengaturan/layanan";
 
 export default function InfiniteList({
   initialLayanan,
@@ -18,91 +19,37 @@ export default function InfiniteList({
   query: string;
   totalPages: number;
 }) {
-  const [layananList, setLayananList] = useState<TabelLayanan[]>(initialLayanan);
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const pageRef = useRef(1);
-  const router = useRouter();
-
-  const handleDelete = useCallback((id: string) => {
-    setLayananList((prev) => prev.filter((layanan) => layanan.id !== id));
-  }, []);
-
-  const { ref, inView } = useInView();
-
-  const loadMore = useCallback(async () => {
-    setIsLoading(true);
-    const nextPage = pageRef.current + 1;
-    try {
-      const moreLayanan = await fetchMoreLayanan(query, nextPage);
-      setLayananList((prev) => {
-        const combined = [...prev, ...moreLayanan];
-        return Array.from(new Map(combined.map(item => [item.id, item])).values());
-      });
-      setPage(nextPage);
-      pageRef.current = nextPage;
-    } catch (error) {
-      console.error("Failed to fetch more layanan:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [query]);
-
-  useEffect(() => {
-    if (inView && pageRef.current < totalPages && !isLoading) {
-      loadMore();
-    }
-  }, [inView, totalPages, isLoading, loadMore]);
-
   return (
-    <>
-      {layananList.length === 0 ? (
-        <NotFound />
-      ) : (
-        <>
-          {layananList.map((layanan) => (
-            <div
-              key={layanan.id}
-              role="button"
-              aria-label={`Lihat detail layanan ${layanan.nama_layanan}`}
-              tabIndex={0}
-              onClick={() => router.push(`/laundry/pengaturan/layanan/${layanan.id}/detail`)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  router.push(`/laundry/pengaturan/layanan/${layanan.id}/detail`);
-                }
-              }}
-              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm cursor-pointer transition-colors hover:bg-gray-50 active:scale-[0.99]"
-            >
-              <div className="flex items-start justify-between gap-2 text-sm">
-                <div className="flex min-w-0 gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600">
-                    <PackageIcon className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="flex min-w-0 flex-col">
-                    <p className="truncate text-base font-medium text-gray-900">
-                      {layanan.nama_layanan}
-                    </p>
-                    <p className="truncate text-gray-500">
-                      {layanan.nama_tipe} • {layanan.nama_durasi ? `${layanan.nama_durasi}${layanan.lama_durasi ? ` - ${layanan.lama_durasi} Jam` : ""}` : "-"} • Rp {layanan.harga.toLocaleString('id-ID')}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className="flex shrink-0 gap-2"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <UpdateLayanan id={layanan.id} />
-                  <DeleteLayanan id={layanan.id} onDeleteAction={handleDelete} />
-                </div>
-              </div>
-            </div>
-          ))}
-          <div ref={ref} className="h-10 flex items-center justify-center">
-            {isLoading && <p className="text-sm text-gray-500">Loading more...</p>}
-          </div>
-        </>
+    <SharedInfiniteList
+      initialItems={initialLayanan}
+      query={query}
+      totalPages={totalPages}
+      fetchMore={fetchMoreLayanan}
+      emptyState={<NotFound />}
+      renderItem={(layanan, remove) => (
+        <EntityCard
+          key={layanan.id}
+          detailHref={`${BASE}/${layanan.id}/detail`}
+          ariaLabel={`Lihat detail layanan ${layanan.nama_layanan}`}
+          icon={PackageIcon}
+          title={layanan.nama_layanan}
+          subtitle={
+            <>
+              {layanan.nama_tipe} •{" "}
+              {layanan.nama_durasi
+                ? `${layanan.nama_durasi}${layanan.lama_durasi ? ` - ${layanan.lama_durasi} Jam` : ""}`
+                : "-"}{" "}
+              • Rp {layanan.harga.toLocaleString("id-ID")}
+            </>
+          }
+          actions={
+            <>
+              <UpdateLayanan id={layanan.id} />
+              <DeleteLayanan id={layanan.id} onDeleteAction={remove} />
+            </>
+          }
+        />
       )}
-    </>
+    />
   );
 }

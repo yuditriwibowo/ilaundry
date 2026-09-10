@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { TicketIcon } from "lucide-react";
-import { UpdateDiskon, DeleteDiskon } from "@/app/ui/diskon/buttons";
 import { fetchMoreDiskon } from "@/app/lib/actions";
 import { Diskon } from "@/app/lib/definitions";
-import { useInView } from "react-intersection-observer";
-import NotFound from "@/app/laundry/pengaturan/not-found";
+import SharedInfiniteList from "@/app/ui/shared/infinite-list";
+import { EntityCard } from "@/app/ui/shared/entity-card";
+import { UpdateDiskon, DeleteDiskon } from "@/app/ui/diskon/buttons";
 import { formatRupiah } from "@/app/lib/utils";
+
+const BASE = "/laundry/pengaturan/diskon";
 
 export default function InfiniteList({
   initialDiskon,
@@ -19,90 +19,38 @@ export default function InfiniteList({
   query: string;
   totalPages: number;
 }) {
-  const [diskonList, setDiskonList] = useState<Diskon[]>(initialDiskon);
-  const [isLoading, setIsLoading] = useState(false);
-  const pageRef = useRef(1);
-  const router = useRouter();
-
-  const handleDelete = useCallback((id: string) => {
-    setDiskonList((prev) => prev.filter((diskon) => diskon.id !== id));
-  }, []);
-
-  const { ref, inView } = useInView();
-
-  const loadMore = useCallback(async () => {
-    setIsLoading(true);
-    const nextPage = pageRef.current + 1;
-    try {
-      const moreDiskon = await fetchMoreDiskon(query, nextPage);
-      setDiskonList((prev) => {
-        const combined = [...prev, ...moreDiskon];
-        return Array.from(new Map(combined.map(item => [item.id, item])).values());
-      });
-      pageRef.current = nextPage;
-    } catch (error) {
-      console.error("Failed to fetch more diskon:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [query]);
-
-  useEffect(() => {
-    if (inView && pageRef.current < totalPages && !isLoading) {
-      loadMore();
-    }
-  }, [inView, totalPages, isLoading, loadMore]);
-
   return (
-    <>
-      {diskonList.length === 0 ? (
-        <NotFound />
-      ) : (
-        <>
-          {diskonList.map((diskon) => (
-            <div
-              key={diskon.id}
-              role="button"
-              aria-label={`Lihat detail diskon ${diskon.nama_diskon}`}
-              tabIndex={0}
-              onClick={() => router.push(`/laundry/pengaturan/diskon/${diskon.id}/detail`)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  router.push(`/laundry/pengaturan/diskon/${diskon.id}/detail`);
-                }
-              }}
-              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm cursor-pointer transition-colors hover:bg-gray-50 active:scale-[0.99]"
-            >
-              <div className="flex items-start justify-between gap-2 text-sm">
-                <div className="flex min-w-0 gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600">
-                    <TicketIcon className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="flex min-w-0 flex-col">
-                    <p className="truncate text-base font-medium text-gray-900">
-                      {diskon.nama_diskon}
-                    </p>
-                    <p className="truncate text-gray-500">
-                      Nilai: {diskon.tipe_diskon === "Persentase" ? `${diskon.nilai_diskon}%` : formatRupiah(diskon.nilai_diskon)}
-                    </p>
-                    <p className="truncate text-xs text-gray-400 uppercase font-semibold">{diskon.tipe_diskon}</p>
-                  </div>
-                </div>
-                <div
-                  className="flex shrink-0 gap-2"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <UpdateDiskon id={diskon.id} />
-                  <DeleteDiskon id={diskon.id} onDeleteAction={handleDelete} />
-                </div>
-              </div>
-            </div>
-          ))}
-          <div ref={ref} className="h-10 flex items-center justify-center">
-            {isLoading && <p className="text-sm text-gray-500">Loading more...</p>}
-          </div>
-        </>
+    <SharedInfiniteList
+      initialItems={initialDiskon}
+      query={query}
+      totalPages={totalPages}
+      fetchMore={fetchMoreDiskon}
+      renderItem={(diskon, remove) => (
+        <EntityCard
+          key={diskon.id}
+          detailHref={`${BASE}/${diskon.id}/detail`}
+          ariaLabel={`Lihat detail diskon ${diskon.nama_diskon}`}
+          icon={TicketIcon}
+          title={diskon.nama_diskon}
+          subtitle={
+            <>
+              Nilai:{" "}
+              {diskon.tipe_diskon === "Persentase"
+                ? `${diskon.nilai_diskon}%`
+                : formatRupiah(diskon.nilai_diskon)}
+              <span className="block truncate text-xs text-gray-400 uppercase font-semibold">
+                {diskon.tipe_diskon}
+              </span>
+            </>
+          }
+          actions={
+            <>
+              <UpdateDiskon id={diskon.id} />
+              <DeleteDiskon id={diskon.id} onDeleteAction={remove} />
+            </>
+          }
+        />
       )}
-    </>
+    />
   );
 }

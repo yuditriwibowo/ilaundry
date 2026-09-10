@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { Truck } from "lucide-react";
-import { UpdateAntarJemput, DeleteAntarJemput } from "@/app/ui/antar-jemput/buttons";
 import { fetchMoreAntarJemput } from "@/app/lib/actions";
 import { AntarJemput } from "@/app/lib/definitions";
-import { useInView } from "react-intersection-observer";
-import NotFound from "@/app/laundry/pengaturan/not-found";
+import SharedInfiniteList from "@/app/ui/shared/infinite-list";
+import { EntityCard } from "@/app/ui/shared/entity-card";
+import { UpdateAntarJemput, DeleteAntarJemput } from "@/app/ui/antar-jemput/buttons";
 import { formatRupiah } from "@/app/lib/utils";
+
+const BASE = "/laundry/pengaturan/antar-jemput";
 
 export default function InfiniteList({
   initialAntarJemput,
@@ -19,89 +19,30 @@ export default function InfiniteList({
   query: string;
   totalPages: number;
 }) {
-  const [antarJemputList, setAntarJemputList] = useState<AntarJemput[]>(initialAntarJemput);
-  const [isLoading, setIsLoading] = useState(false);
-  const pageRef = useRef(1);
-  const router = useRouter();
-
-  const handleDelete = useCallback((id: string) => {
-    setAntarJemputList((prev) => prev.filter((item) => item.id !== id));
-  }, []);
-
-  const { ref, inView } = useInView();
-
-  const loadMore = useCallback(async () => {
-    setIsLoading(true);
-    const nextPage = pageRef.current + 1;
-    try {
-      const moreAntarJemput = await fetchMoreAntarJemput(query, nextPage);
-      setAntarJemputList((prev) => {
-        const combined = [...prev, ...moreAntarJemput];
-        return Array.from(new Map(combined.map(item => [item.id, item])).values());
-      });
-      pageRef.current = nextPage;
-    } catch (error) {
-      console.error("Failed to fetch more antar-jemput:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [query]);
-
-  useEffect(() => {
-    if (inView && pageRef.current < totalPages && !isLoading) {
-      loadMore();
-    }
-  }, [inView, totalPages, isLoading, loadMore]);
-
   return (
-    <>
-      {antarJemputList.length === 0 ? (
-        <NotFound />
-      ) : (
-        <>
-          {antarJemputList.map((antarJemput) => (
-            <div
-              key={antarJemput.id}
-              role="button"
-              aria-label={`Lihat detail antar-jemput ${antarJemput.nama_antar_jemput}`}
-              tabIndex={0}
-              onClick={() => router.push(`/laundry/pengaturan/antar-jemput/${antarJemput.id}/detail`)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  router.push(`/laundry/pengaturan/antar-jemput/${antarJemput.id}/detail`);
-                }
-              }}
-              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm cursor-pointer transition-colors hover:bg-gray-50 active:scale-[0.99]"
-            >
-              <div className="flex items-start justify-between gap-2 text-sm">
-                <div className="flex min-w-0 gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600">
-                    <Truck className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="flex min-w-0 flex-col">
-                    <p className="truncate text-base font-medium text-gray-900">
-                      {antarJemput.nama_antar_jemput}
-                    </p>
-                    <p className="truncate text-gray-500">
-                      Harga: {formatRupiah(antarJemput.harga_antar_jemput)}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className="flex shrink-0 gap-2"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <UpdateAntarJemput id={antarJemput.id} />
-                  <DeleteAntarJemput id={antarJemput.id} onDeleteAction={handleDelete} />
-                </div>
-              </div>
-            </div>
-          ))}
-          <div ref={ref} className="h-10 flex items-center justify-center">
-            {isLoading && <p className="text-sm text-gray-500">Loading more...</p>}
-          </div>
-        </>
+    <SharedInfiniteList
+      initialItems={initialAntarJemput}
+      query={query}
+      totalPages={totalPages}
+      fetchMore={fetchMoreAntarJemput}
+      renderItem={(antarJemput, remove) => (
+        <EntityCard
+          key={antarJemput.id}
+          detailHref={`${BASE}/${antarJemput.id}/detail`}
+          ariaLabel={`Lihat detail antar-jemput ${antarJemput.nama_antar_jemput}`}
+          icon={Truck}
+          title={antarJemput.nama_antar_jemput}
+          subtitle={
+            <>Harga: {formatRupiah(antarJemput.harga_antar_jemput)}</>
+          }
+          actions={
+            <>
+              <UpdateAntarJemput id={antarJemput.id} />
+              <DeleteAntarJemput id={antarJemput.id} onDeleteAction={remove} />
+            </>
+          }
+        />
       )}
-    </>
+    />
   );
 }

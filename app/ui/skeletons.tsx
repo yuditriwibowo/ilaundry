@@ -2,6 +2,8 @@
 const shimmer =
   'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent';
 
+import { EntityTableSkeleton } from "@/app/ui/shared/entity-skeleton";
+
 export function LaundryCardSkeleton() {
   return (
     <div className="w-full h-full">
@@ -380,31 +382,6 @@ export function TokoTableRowSkeleton() {
   );
 }
 
-export function DurasiTableRowSkeleton() {
-  return (
-    <tr className="w-full border-b border-gray-100 py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex items-center gap-3">
-          <div className="h-7 w-7 rounded-lg bg-gray-200"></div>
-          <div className="h-6 w-32 rounded bg-gray-100"></div>
-        </div>
-      </td>
-      <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-24 rounded bg-gray-100"></div>
-      </td>
-      <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-40 rounded bg-gray-100"></div>
-      </td>
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex justify-end gap-3">
-          <div className="h-8 w-8 rounded bg-gray-100"></div>
-          <div className="h-8 w-8 rounded bg-gray-100"></div>
-        </div>
-      </td>
-    </tr>
-  );
-}
-
 export function TokoTableSkeleton() {
   return (
     <div className="mt-6 flow-root">
@@ -443,255 +420,19 @@ export function TokoTableSkeleton() {
 }
 
 export function DurasiTableSkeleton() {
-  return (
-    <div className="mt-6 flow-root">
-      <div className="inline-block min-w-full align-middle">
-        <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-          <div className="md:hidden">
-            <TokoMobileSkeleton />
-            <TokoMobileSkeleton />
-            <TokoMobileSkeleton />
-            <TokoMobileSkeleton />
-            <TokoMobileSkeleton />
-            <TokoMobileSkeleton />
-          </div>
-          <table className="hidden min-w-full text-gray-900 md:table">
-            <thead className="rounded-lg text-left text-sm font-normal">
-              <tr className="border-b">
-                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">Nama Durasi</th>
-                <th scope="col" className="px-3 py-5 font-medium">Lama Durasi</th>
-                <th scope="col" className="px-3 py-5 font-medium">Toko ID</th>
-                <th scope="col" className="relative py-3 pl-6 pr-3"><span className="sr-only">Edit</span></th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              <DurasiTableRowSkeleton />
-              <DurasiTableRowSkeleton />
-              <DurasiTableRowSkeleton />
-              <DurasiTableRowSkeleton />
-              <DurasiTableRowSkeleton />
-              <DurasiTableRowSkeleton />
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function ParfumTableRowSkeleton() {
-  return (
-    <tr className="w-full border-b border-gray-100 py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex items-center gap-3">
-          <div className="h-7 w-7 rounded-lg bg-gray-200"></div>
-          <div className="h-6 w-32 rounded bg-gray-100"></div>
-        </div>
-      </td>
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex justify-end gap-3">
-          <div className="h-8 w-8 rounded bg-gray-100"></div>
-          <div className="h-8 w-8 rounded bg-gray-100"></div>
-        </div>
-      </td>
-    </tr>
-  );
+  return <EntityTableSkeleton headers={["Nama Durasi", "Lama Durasi"]} />;
 }
 
 export function ParfumTableSkeleton() {
-  return (
-    <div className="mt-6 flow-root">
-      <div className="inline-block min-w-full align-middle">
-        <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-          <div className="md:hidden">
-            <TokoMobileSkeleton />
-            <TokoMobileSkeleton />
-            <TokoMobileSkeleton />
-            <TokoMobileSkeleton />
-            <TokoMobileSkeleton />
-            <TokoMobileSkeleton />
-          </div>
-          <table className="hidden min-w-full text-gray-900 md:table">
-            <thead className="rounded-lg text-left text-sm font-normal">
-              <tr className="border-b">
-                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">Nama Parfum</th>
-                <th scope="col" className="relative py-3 pl-6 pr-3"><span className="sr-only">Edit</span></th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              <ParfumTableRowSkeleton />
-              <ParfumTableRowSkeleton />
-              <ParfumTableRowSkeleton />
-              <ParfumTableRowSkeleton />
-              <ParfumTableRowSkeleton />
-              <ParfumTableRowSkeleton />
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function DiskonMobileSkeleton() {
-  return (
-    <div className="mb-2 w-full rounded-md bg-white p-4">
-      <div className="flex items-start justify-between gap-4 text-sm">
-        <div className="flex gap-3">
-          <div className="h-8 w-8 rounded-lg bg-gray-200" />
-          <div className="flex flex-col">
-            <div className="h-5 w-32 rounded bg-gray-100 mb-1" />
-            <div className="h-4 w-24 rounded bg-gray-100 mb-1" />
-            <div className="h-4 w-28 rounded bg-gray-100 mb-1" />
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <div className="h-8 w-8 rounded bg-gray-100" />
-          <div className="h-8 w-8 rounded bg-gray-100" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function DiskonTableRowSkeleton() {
-  return (
-    <tr className="w-full border-b border-gray-100 py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex items-center gap-3">
-          <div className="h-7 w-7 rounded-lg bg-gray-200"></div>
-          <div className="h-6 w-32 rounded bg-gray-100"></div>
-        </div>
-      </td>
-      <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-24 rounded bg-gray-100"></div>
-      </td>
-      <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-24 rounded bg-gray-100"></div>
-      </td>
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex justify-end gap-3">
-          <div className="h-8 w-8 rounded bg-gray-100"></div>
-          <div className="h-8 w-8 rounded bg-gray-100"></div>
-        </div>
-      </td>
-    </tr>
-  );
+  return <EntityTableSkeleton headers={["Nama Parfum"]} />;
 }
 
 export function DiskonTableSkeleton() {
-  return (
-    <div className="mt-6 flow-root">
-      <div className="inline-block min-w-full align-middle">
-        <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-          <div className="md:hidden">
-            <DiskonMobileSkeleton />
-            <DiskonMobileSkeleton />
-            <DiskonMobileSkeleton />
-            <DiskonMobileSkeleton />
-            <DiskonMobileSkeleton />
-            <DiskonMobileSkeleton />
-          </div>
-          <table className="hidden min-w-full text-gray-900 md:table">
-            <thead className="rounded-lg text-left text-sm font-normal">
-              <tr className="border-b">
-                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">Nama Diskon</th>
-                <th scope="col" className="px-3 py-5 font-medium">Tipe</th>
-                <th scope="col" className="px-3 py-5 font-medium">Nilai</th>
-                <th scope="col" className="relative py-3 pl-6 pr-3"><span className="sr-only">Edit</span></th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              <DiskonTableRowSkeleton />
-              <DiskonTableRowSkeleton />
-              <DiskonTableRowSkeleton />
-              <DiskonTableRowSkeleton />
-              <DiskonTableRowSkeleton />
-              <DiskonTableRowSkeleton />
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function AntarJemputMobileSkeleton() {
-  return (
-    <div className="mb-2 w-full rounded-md bg-white p-4">
-      <div className="flex items-start justify-between gap-4 text-sm">
-        <div className="flex gap-3">
-          <div className="h-8 w-8 rounded-lg bg-gray-200" />
-          <div className="flex flex-col">
-            <div className="h-5 w-32 rounded bg-gray-100 mb-1" />
-            <div className="h-4 w-24 rounded bg-gray-100 mb-1" />
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <div className="h-8 w-8 rounded bg-gray-100" />
-          <div className="h-8 w-8 rounded bg-gray-100" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function AntarJemputTableRowSkeleton() {
-  return (
-    <tr className="w-full border-b border-gray-100 py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex items-center gap-3">
-          <div className="h-7 w-7 rounded-lg bg-gray-200"></div>
-          <div className="h-6 w-32 rounded bg-gray-100"></div>
-        </div>
-      </td>
-      <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-24 rounded bg-gray-100"></div>
-      </td>
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex justify-end gap-3">
-          <div className="h-8 w-8 rounded bg-gray-100"></div>
-          <div className="h-8 w-8 rounded bg-gray-100"></div>
-        </div>
-      </td>
-    </tr>
-  );
+  return <EntityTableSkeleton headers={["Nama Diskon", "Tipe", "Nilai"]} />;
 }
 
 export function AntarJemputTableSkeleton() {
-  return (
-    <div className="mt-6 flow-root">
-      <div className="inline-block min-w-full align-middle">
-        <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-          <div className="md:hidden">
-            <AntarJemputMobileSkeleton />
-            <AntarJemputMobileSkeleton />
-            <AntarJemputMobileSkeleton />
-            <AntarJemputMobileSkeleton />
-            <AntarJemputMobileSkeleton />
-            <AntarJemputMobileSkeleton />
-          </div>
-          <table className="hidden min-w-full text-gray-900 md:table">
-            <thead className="rounded-lg text-left text-sm font-normal">
-              <tr className="border-b">
-                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">Nama Antar-Jemput</th>
-                <th scope="col" className="px-3 py-5 font-medium">Harga</th>
-                <th scope="col" className="relative py-3 pl-6 pr-3"><span className="sr-only">Edit</span></th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              <AntarJemputTableRowSkeleton />
-              <AntarJemputTableRowSkeleton />
-              <AntarJemputTableRowSkeleton />
-              <AntarJemputTableRowSkeleton />
-              <AntarJemputTableRowSkeleton />
-              <AntarJemputTableRowSkeleton />
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+  return <EntityTableSkeleton headers={["Nama Antar-Jemput", "Harga"]} />;
 }
 
 export function TokoActionsSkeleton() {
@@ -703,100 +444,8 @@ export function TokoActionsSkeleton() {
   );
 }
 
-export function LayananMobileSkeleton() {
-  return (
-    <div className="mb-2 w-full rounded-md bg-white p-4">
-      <div className="flex items-start justify-between gap-4 text-sm">
-        <div className="flex gap-3">
-          <div className="h-8 w-8 shrink-0 rounded-lg bg-gray-200" />
-          <div className="flex flex-col gap-1">
-            <div className="h-5 w-32 rounded bg-gray-100" />
-            <div className="h-4 w-44 rounded bg-gray-100" />
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <div className="h-8 w-8 rounded bg-gray-100" />
-          <div className="h-8 w-8 rounded bg-gray-100" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function LayananTableRowSkeleton() {
-  return (
-    <tr className="w-full border-b border-gray-100 py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex items-center gap-3">
-          <div className="h-7 w-7 rounded-lg bg-gray-200"></div>
-          <div className="h-6 w-36 rounded bg-gray-100"></div>
-        </div>
-      </td>
-      <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-20 rounded bg-gray-100"></div>
-      </td>
-      <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-28 rounded bg-gray-100"></div>
-      </td>
-      <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-24 rounded bg-gray-100"></div>
-      </td>
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
-        <div className="flex justify-end gap-3">
-          <div className="h-8 w-8 rounded bg-gray-100"></div>
-          <div className="h-8 w-8 rounded bg-gray-100"></div>
-        </div>
-      </td>
-    </tr>
-  );
-}
-
 export function LayananTableSkeleton() {
-  return (
-    <div className="mt-6 flow-root">
-      <div className="w-full">
-        <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-          <div className="md:hidden">
-            <LayananMobileSkeleton />
-            <LayananMobileSkeleton />
-            <LayananMobileSkeleton />
-            <LayananMobileSkeleton />
-            <LayananMobileSkeleton />
-            <LayananMobileSkeleton />
-          </div>
-          <table className="hidden w-full text-gray-900 md:table">
-            <thead className="rounded-lg text-left text-sm font-normal">
-              <tr className="border-b">
-                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                  Nama Layanan
-                </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Tipe
-                </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Durasi
-                </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Harga
-                </th>
-                <th scope="col" className="relative py-3 pl-6 pr-3">
-                  <span className="sr-only">Edit</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              <LayananTableRowSkeleton />
-              <LayananTableRowSkeleton />
-              <LayananTableRowSkeleton />
-              <LayananTableRowSkeleton />
-              <LayananTableRowSkeleton />
-              <LayananTableRowSkeleton />
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+  return <EntityTableSkeleton headers={["Nama Layanan", "Tipe", "Durasi", "Harga"]} />;
 }
 
 export function PesananMobileSkeleton() {
