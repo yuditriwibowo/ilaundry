@@ -12,13 +12,14 @@ import {
   TagIcon,
   TrashIcon,
   TruckIcon,
-  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "@/app/ui/button";
 import { createPesanan, State } from "@/app/lib/actions";
 import { formatRupiah } from "@/app/lib/utils";
+import SelectPelanggan, {
+  type OpsiPelanggan,
+} from "@/app/ui/pesanan/select-pelanggan";
 
-type OpsiPelanggan = { id: string; nama: string; no_hp: string };
 type OpsiLayanan = {
   id: string;
   nama_layanan: string;
@@ -89,6 +90,7 @@ export default function Form({
 
   const [antarJemputYt, setAntarJemputYt] = useState("tidak");
   const [antarJemputId, setAntarJemputId] = useState("");
+  const [pelangganId, setPelangganId] = useState("");
   const [diskonId, setDiskonId] = useState("");
   const [jumlahBayar, setJumlahBayar] = useState("0");
 
@@ -175,24 +177,12 @@ export default function Form({
           <label htmlFor="pelanggan_id" className="mb-2 block text-sm font-medium">
             Pelanggan
           </label>
-          <div className="relative">
-            <select
-              id="pelanggan_id"
-              name="pelanggan_id"
-              defaultValue=""
-              className={selectClass}
-              aria-describedby="pelanggan_id-error"
-            >
-              <option value="">Pilih Pelanggan</option>
-              {optionsPelanggan.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.nama}
-                  {option.no_hp ? ` - ${option.no_hp}` : ""}
-                </option>
-              ))}
-            </select>
-            <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-          </div>
+          <SelectPelanggan
+            id="pelanggan_id"
+            options={optionsPelanggan}
+            value={pelangganId}
+            onChange={setPelangganId}
+          />
           <div id="pelanggan_id-error" aria-live="polite" aria-atomic="true">
             <ErrorText errors={state.errors?.pelanggan_id} />
           </div>
