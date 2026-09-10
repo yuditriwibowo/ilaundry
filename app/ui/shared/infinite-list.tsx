@@ -1,4 +1,17 @@
-"use client";
+/**
+ * Client-only module — JANGAN diimpor dari Server Component.
+ *
+ * Directive `"use client"` sengaja TIDAK ditempatkan di sini:
+ * plugin TypeScript Next.js (rule ts(71007)) memeriksa serializability
+ * props semua komponen di file berdirective `"use client"`, sehingga
+ * props `fetchMore` (referensi Server Action) dan `renderItem`
+ * (render function) di file ini akan dianggap warning padahal
+ * keduanya tidak pernah melewati boundary server→client.
+ *
+ * Modul ini hanya diimpor dari komponen `"use client"` (infinite-list
+ * per domain), sehingga otomatis ikut terkompilasi ke client bundle
+ * dan hooks di bawah tetap valid.
+ */
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useInView } from "react-intersection-observer";
