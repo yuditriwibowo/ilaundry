@@ -15,7 +15,10 @@ export type OpsiPelanggan = { id: string; nama: string; no_hp: string };
 /*
   Select Pelanggan berbasis popup dengan pencarian.
   - Trigger bergaya sama seperti input/select lain di form.
-  - Nilai terpilih dikirim ke server action lewat hidden input `pelanggan_id`.
+  - Komponen ini self-contained (uncontrolled): nilai terpilih dikelola internal
+    dan dikirim ke server action lewat hidden input `name`. Tidak ada function
+    prop agar props tetap serializable (menghindari warning Next.js
+    "Props must be serializable for components in the use client entry file").
   - Popup dirender via portal ke document.body (pola sama dengan modal
     konfirmasi hapus di app/ui/antar-jemput/buttons.tsx).
   - Pencarian memfilter nama & no. HP (case-insensitive).
@@ -23,18 +26,19 @@ export type OpsiPelanggan = { id: string; nama: string; no_hp: string };
 */
 export default function SelectPelanggan({
   options,
-  value,
-  onChange,
+  name = "pelanggan_id",
+  defaultValue = "",
   id,
   placeholder = "Pilih Pelanggan",
 }: {
   options: OpsiPelanggan[];
-  value: string;
-  onChange: (id: string) => void;
+  name?: string;
+  defaultValue?: string;
   id?: string;
   placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(defaultValue);
   const [query, setQuery] = useState("");
   // Highlight dikelola berdasarkan id item (bukan index) sehingga saat kata kunci
   // pencarian berubah, posisi highlight bisa dihitung ulang dari daftar hasil
@@ -97,7 +101,7 @@ export default function SelectPelanggan({
   }
 
   function choose(option: OpsiPelanggan) {
-    onChange(option.id);
+    setValue(option.id);
     setOpen(false);
   }
 
@@ -127,8 +131,8 @@ export default function SelectPelanggan({
   return (
     <>
       <div className="relative">
-        {/* Nilai tetap ikut ter-submit ke server action */}
-        <input type="hidden" name="pelanggan_id" value={value} />
+        {/* Nilai terpilih ikut ter-submit ke server action */}
+        <input type="hidden" name={name} value={value} />
 
         <button
           type="button"

@@ -90,7 +90,6 @@ export default function Form({
 
   const [antarJemputYt, setAntarJemputYt] = useState("tidak");
   const [antarJemputId, setAntarJemputId] = useState("");
-  const [pelangganId, setPelangganId] = useState("");
   const [diskonId, setDiskonId] = useState("");
   const [jumlahBayar, setJumlahBayar] = useState("0");
 
@@ -177,12 +176,7 @@ export default function Form({
           <label htmlFor="pelanggan_id" className="mb-2 block text-sm font-medium">
             Pelanggan
           </label>
-          <SelectPelanggan
-            id="pelanggan_id"
-            options={optionsPelanggan}
-            value={pelangganId}
-            onChange={setPelangganId}
-          />
+          <SelectPelanggan id="pelanggan_id" options={optionsPelanggan} />
           <div id="pelanggan_id-error" aria-live="polite" aria-atomic="true">
             <ErrorText errors={state.errors?.pelanggan_id} />
           </div>
