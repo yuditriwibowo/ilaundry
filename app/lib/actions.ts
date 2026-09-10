@@ -4,9 +4,8 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import postgres from "postgres";
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
+import { sql } from "./db";
+import { getCurrentUser } from "./auth";
 
 const InvoiceSchema = z.object({
   id: z.string(),
@@ -72,6 +71,7 @@ export type State = {
 };
 
 export async function createInvoice(prevState: State,formData: FormData) {
+  await getCurrentUser();
   const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get("customerId"),
     amount: formData.get("amount"),
@@ -107,6 +107,7 @@ export async function createInvoice(prevState: State,formData: FormData) {
 const UpdateInvoice = InvoiceSchema.omit({ id: true, date: true });
 
 export async function updateInvoice(id: string, prevState: State, formData: FormData) {
+  await getCurrentUser();
   const validatedFields = UpdateInvoice.safeParse({
     customerId: formData.get("customerId"),
     amount: formData.get("amount"),
@@ -140,6 +141,7 @@ export async function updateInvoice(id: string, prevState: State, formData: Form
 }
 
 export async function deleteInvoice(id: string) {
+  await getCurrentUser();
   try {
     await sql`DELETE FROM invoices WHERE id = ${id}`;
   } catch (error) {
@@ -149,6 +151,7 @@ export async function deleteInvoice(id: string) {
 }
 
 export async function deleteToko(id: string) {
+  await getCurrentUser();
   try {
     await sql`DELETE FROM toko WHERE id = ${id}`;
   } catch (error) {
@@ -158,6 +161,7 @@ export async function deleteToko(id: string) {
 }
 
 export async function deleteDurasi(id: string) {
+  await getCurrentUser();
   try {
     await sql`DELETE FROM durasi WHERE id = ${id}`;
   } catch (error) {
@@ -167,6 +171,7 @@ export async function deleteDurasi(id: string) {
 }
 
 export async function deleteParfum(id: string) {
+  await getCurrentUser();
   try {
     await sql`DELETE FROM parfum WHERE id = ${id}`;
   } catch (error) {
@@ -176,6 +181,7 @@ export async function deleteParfum(id: string) {
 }
 
 export async function deleteDiskon(id: string) {
+  await getCurrentUser();
   try {
     await sql`DELETE FROM diskon WHERE id = ${id}`;
   } catch (error) {
@@ -185,6 +191,7 @@ export async function deleteDiskon(id: string) {
 }
 
 export async function deleteAntarJemput(id: string) {
+  await getCurrentUser();
   try {
     await sql`DELETE FROM antar_jemput WHERE id = ${id}`;
   } catch (error) {
@@ -194,6 +201,7 @@ export async function deleteAntarJemput(id: string) {
 }
 
 export async function deleteLayanan(id: string) {
+  await getCurrentUser();
   try {
     await sql`DELETE FROM layanan WHERE id = ${id}`;
   } catch (error) {
@@ -203,11 +211,17 @@ export async function deleteLayanan(id: string) {
 }
 
 export async function deletePelanggan(id: string) {
-  await sql`DELETE FROM pelanggan WHERE id = ${id}`;
+  await getCurrentUser();
+  try {
+    await sql`DELETE FROM pelanggan WHERE id = ${id}`;
+  } catch (error) {
+    throw new Error("Database Error: Failed to Delete Pelanggan.");
+  }
   revalidatePath("/laundry/pelanggan");
 }
 
 export async function deletePesanan(id: string) {
+  await getCurrentUser();
   try {
     await sql`DELETE FROM pesanan WHERE id = ${id}`;
   } catch (error) {
@@ -365,6 +379,7 @@ const UpdateParfum = ParfumSchema.omit({
 });
 
 export async function updateDurasi(id: string, prevState: State, formData: FormData) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -403,6 +418,7 @@ export async function updateDurasi(id: string, prevState: State, formData: FormD
 
 
 export async function createToko(prevState: State, formData: FormData) {
+  await getCurrentUser();
   const validatedFields = CreateToko.safeParse({
     nama_toko: formData.get("nama_toko"),
     alamat_toko: formData.get("alamat_toko"),
@@ -436,6 +452,7 @@ export async function createToko(prevState: State, formData: FormData) {
 }
 
 export async function createDurasi(prevState: State, formData: FormData) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -472,6 +489,7 @@ export async function createDurasi(prevState: State, formData: FormData) {
 }
 
 export async function updateParfum(id: string, prevState: State, formData: FormData) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -508,6 +526,7 @@ export async function updateParfum(id: string, prevState: State, formData: FormD
 }
 
 export async function createParfum(prevState: State, formData: FormData) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -542,6 +561,7 @@ export async function createParfum(prevState: State, formData: FormData) {
 }
 
 export async function createDiskon(prevState: State, formData: FormData) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -578,6 +598,7 @@ export async function createDiskon(prevState: State, formData: FormData) {
 }
 
 export async function updateDiskon(id: string, prevState: State, formData: FormData) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -616,6 +637,7 @@ export async function updateDiskon(id: string, prevState: State, formData: FormD
 }
 
 export async function createAntarJemput(prevState: State, formData: FormData) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -651,6 +673,7 @@ export async function createAntarJemput(prevState: State, formData: FormData) {
 }
 
 export async function updateAntarJemput(id: string, prevState: State, formData: FormData) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -688,6 +711,7 @@ export async function updateAntarJemput(id: string, prevState: State, formData: 
 }
 
 export async function updateToko(id: string, prevState: State, formData: FormData) {
+  await getCurrentUser();
   const validatedFields = UpdateToko.safeParse({
     nama_toko: formData.get("nama_toko"),
     alamat_toko: formData.get("alamat_toko"),
@@ -766,6 +790,7 @@ const UpdateLayanan = LayananSchema.omit({
 });
 
 export async function createLayanan(prevState: State, formData: FormData) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -803,6 +828,7 @@ export async function createLayanan(prevState: State, formData: FormData) {
 }
 
 export async function updateLayanan(id: string, prevState: State, formData: FormData) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -850,6 +876,7 @@ const CreatePelanggan = PelangganSchema.omit({
 });
 
 export async function createPelanggan(prevState: State, formData: FormData) {
+  await getCurrentUser();
   const validatedFields = CreatePelanggan.safeParse({
     nama: formData.get("nama"),
     no_hp: formData.get("no_hp"),
@@ -892,6 +919,7 @@ const UpdatePelanggan = PelangganSchema.omit({
 });
 
 export async function updatePelanggan(id: string, prevState: State, formData: FormData) {
+  await getCurrentUser();
   const validatedFields = UpdatePelanggan.safeParse({
     nama: formData.get("nama"),
     no_hp: formData.get("no_hp"),
@@ -964,6 +992,7 @@ const CreatePesananForm = z
   });
 
 export async function createPesanan(prevState: State, formData: FormData): Promise<State> {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
   const userId = cookieStore.get("user_id")?.value || null;
@@ -1188,34 +1217,42 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
 import { fetchFilteredPelanggan, fetchFilteredToko, fetchFilteredDurasi, fetchFilteredLayanan, fetchFilteredParfum, fetchFilteredDiskon, fetchFilteredAntarJemput, fetchFilteredUserToko, fetchFilteredPesanan, fetchItemPesananByPesananId } from "./data";
 
 export async function fetchMorePelanggan(query: string, page: number) {
+  await getCurrentUser();
   return await fetchFilteredPelanggan(query, page);
 }
 
 export async function fetchMoreToko(query: string, page: number) {
+  await getCurrentUser();
   return await fetchFilteredToko(query, page);
 }
 
 export async function fetchMoreDurasi(query: string, page: number) {
+  await getCurrentUser();
   return await fetchFilteredDurasi(query, page);
 }
 
 export async function fetchMoreLayanan(query: string, page: number) {
+  await getCurrentUser();
   return await fetchFilteredLayanan(query, page);
 }
 
 export async function fetchMoreParfum(query: string, page: number) {
+  await getCurrentUser();
   return await fetchFilteredParfum(query, page);
 }
 
 export async function fetchMoreDiskon(query: string, page: number) {
+  await getCurrentUser();
   return await fetchFilteredDiskon(query, page);
 }
 
 export async function fetchMoreAntarJemput(query: string, page: number) {
+  await getCurrentUser();
   return await fetchFilteredAntarJemput(query, page);
 }
 
 export async function fetchMoreUserToko(query: string, page: number) {
+  await getCurrentUser();
   return await fetchFilteredUserToko(query, page);
 }
 
@@ -1225,14 +1262,17 @@ export async function fetchMorePesanan(
   statusPesanan?: string,
   statusPembayaran?: string,
 ) {
+  await getCurrentUser();
   return await fetchFilteredPesanan(query, page, statusPesanan, statusPembayaran);
 }
 
 export async function fetchMoreItemPesanan(pesananId: string, page: number) {
+  await getCurrentUser();
   return await fetchItemPesananByPesananId(pesananId, page);
 }
 
 export async function deleteItemPesanan(id: string, pesananId: string) {
+  await getCurrentUser();
   try {
     await sql`DELETE FROM public.item_pesanan WHERE id = ${id}`;
   } catch (error) {
@@ -1255,6 +1295,7 @@ export async function setSessionUserId() {
 }
 
 export async function setSelectedTokoAction(tokoId: string) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   if (tokoId) {
     cookieStore.set("selected_toko", tokoId, {
@@ -1378,6 +1419,7 @@ async function insertUserTokoForExistingUser(
 }
 
 export async function createUserToko(prevState: State, formData: FormData): Promise<State> {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const userId_operator = cookieStore.get("user_id")?.value || null;
   const tokoId = cookieStore.get("selected_toko")?.value || null;
@@ -1504,6 +1546,7 @@ export async function createUserToko(prevState: State, formData: FormData): Prom
 }
 
 export async function updateUserToko(id: string, prevState: State, formData: FormData) {
+  await getCurrentUser();
   const cookieStore = await cookies();
   const userId = cookieStore.get("user_id")?.value || null;
   const now = new Date().toISOString();
@@ -1543,6 +1586,7 @@ export async function updateUserToko(id: string, prevState: State, formData: For
 }
 
 export async function deleteUserToko(id: string) {
+  await getCurrentUser();
   try {
     await sql`DELETE FROM user_toko WHERE id = ${id}`;
   } catch (error) {
