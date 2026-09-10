@@ -66,6 +66,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // localStorage tidak tersedia (mis. private mode) — pakai default "system"
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setThemeState(stored);
     setResolvedTheme(applyTheme(stored));
   }, []);
