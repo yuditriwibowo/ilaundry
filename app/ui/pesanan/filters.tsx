@@ -5,7 +5,6 @@ import TabBar, { type Tab } from "@/app/ui/tab-bar";
 import { StatusPesanan, StatusPembayaran } from "@/app/lib/definitions";
 
 const statusPesananOptions: { value: StatusPesanan; label: string }[] = [
-  { value: "baru", label: "Baru" },
   { value: "diproses", label: "Diproses" },
   { value: "selesai", label: "Selesai" },
   { value: "diambil", label: "Diambil" },

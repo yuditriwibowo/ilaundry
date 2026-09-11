@@ -9,6 +9,7 @@ import {
 import {
   PesananDetailActionButtons,
   CreateItemPesananButton,
+  metodePembayaranText,
 } from "@/app/ui/pesanan/buttons";
 import { getInitials } from "@/app/ui/pesanan/infinite-list";
 import ItemPesananInfiniteList from "./item-pesanan-infinite-list";
@@ -170,7 +171,7 @@ export default function PesananDetailView({
               </div>
               <div className="flex justify-between">
                 <span>Metode Bayar:</span>
-                <span className="capitalize">{pesanan.metode_pembayaran ?? "-"}</span>
+                <span>{pesanan.metode_pembayaran ? metodePembayaranText[pesanan.metode_pembayaran] : "-"}</span>
               </div>
               <div className="flex justify-between">
                 <span>Jumlah Bayar:</span>
@@ -349,8 +350,8 @@ export default function PesananDetailView({
                 </div>
                 <div>
                   <span className="text-gray-500 block">Metode Bayar:</span>
-                  <span className="font-medium text-gray-800 capitalize">
-                    {pesanan.metode_pembayaran ?? "-"}
+                  <span className="font-medium text-gray-800">
+                    {pesanan.metode_pembayaran ? metodePembayaranText[pesanan.metode_pembayaran] : "-"}
                   </span>
                 </div>
                 <div>

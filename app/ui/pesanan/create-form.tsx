@@ -4,7 +4,6 @@ import { useActionState, useMemo, useRef, useState } from "react";
 import {
   BanknotesIcon,
   ChatBubbleLeftRightIcon,
-  CubeIcon,
   ScaleIcon,
   ShoppingBagIcon,
   SparklesIcon,
@@ -45,9 +44,19 @@ type ItemRow = {
   key: number;
   layanan_id: string;
   jumlah: string;
-  satuan: string;
   parfum_id: string;
+  diskon_id: string;
 };
+
+// Satuan ditentukan otomatis dari tipe layanan:
+// kiloan -> kg, satuan -> pcs, meteran -> m
+function satuanDariTipe(namaTipe: string | null | undefined): string {
+  const tipe = (namaTipe ?? "").toLowerCase();
+  if (tipe.includes("kiloan")) return "kg";
+  if (tipe.includes("satuan")) return "pcs";
+  if (tipe.includes("meteran")) return "m";
+  return "kg";
+}
 
 const selectClass =
   "peer block w-full rounded-md border border-gray-200 py-2 pl-10 pr-3 text-sm outline-2 placeholder:text-gray-500";
@@ -84,18 +93,22 @@ export default function Form({
   const [state, formAction] = useActionState(createPesanan, initialState);
 
   const [items, setItems] = useState<ItemRow[]>([
-    { key: 0, layanan_id: "", jumlah: "1", satuan: "kg", parfum_id: "" },
+    { key: 0, layanan_id: "", jumlah: "1", parfum_id: "", diskon_id: "" },
   ]);
   const nextKey = useRef(1);
 
   const [antarJemputYt, setAntarJemputYt] = useState("tidak");
   const [antarJemputId, setAntarJemputId] = useState("");
-  const [diskonId, setDiskonId] = useState("");
   const [jumlahBayar, setJumlahBayar] = useState("0");
 
   const layananMap = useMemo(
     () => new Map(optionsLayanan.map((layanan) => [layanan.id, layanan])),
     [optionsLayanan],
+  );
+
+  const diskonMap = useMemo(
+    () => new Map(optionsDiskon.map((diskon) => [diskon.id, diskon])),
+    [optionsDiskon],
   );
 
   function addItem() {
@@ -105,8 +118,8 @@ export default function Form({
         key: nextKey.current++,
         layanan_id: "",
         jumlah: "1",
-        satuan: "kg",
         parfum_id: "",
+        diskon_id: "",
       },
     ]);
   }
@@ -127,12 +140,34 @@ export default function Form({
     );
   }
 
-  // Ringkasan biaya (estimasi di sisi klien; perhitungan final di server action)
-  const totalLayanan = items.reduce((sum, item) => {
+  // Perhitungan diskon per item:
+  // - Persentase: (diskon.nilai_diskon / 100) * subtotal item
+  // - Nominal: diskon.nilai_diskon langsung dipakai
+  // Nilai diskon per item dibatasi maksimal subtotal item agar subtotal_final tidak negatif.
+  function hitungItem(item: ItemRow) {
     const layanan = layananMap.get(item.layanan_id);
     const jumlah = Number(item.jumlah) || 0;
-    return sum + (layanan ? Number(layanan.harga) * jumlah : 0);
-  }, 0);
+    const subtotal = layanan ? Number(layanan.harga) * jumlah : 0;
+    const diskon = item.diskon_id ? diskonMap.get(item.diskon_id) : undefined;
+    const nilaiDiskon = diskon
+      ? Math.min(
+          Math.max(
+            0,
+            diskon.tipe_diskon === "Persentase"
+              ? Math.round((Number(diskon.nilai_diskon) / 100) * subtotal)
+              : Number(diskon.nilai_diskon),
+          ),
+          subtotal,
+        )
+      : 0;
+    const subtotalFinal = Math.max(0, subtotal - nilaiDiskon);
+    return { subtotal, nilaiDiskon, subtotalFinal };
+  }
+
+  // Ringkasan biaya (estimasi di sisi klien; perhitungan final di server action)
+  const itemHitung = items.map(hitungItem);
+  const totalLayanan = itemHitung.reduce((sum, item) => sum + item.subtotal, 0);
+  const totalDiskon = itemHitung.reduce((sum, item) => sum + item.nilaiDiskon, 0);
 
   const biayaAntarJemput =
     antarJemputYt === "ya"
@@ -142,26 +177,19 @@ export default function Form({
         )
       : 0;
 
-  const selectedDiskon = optionsDiskon.find((d) => d.id === diskonId);
-  const nilaiDiskon = selectedDiskon
-    ? Math.min(
-        selectedDiskon.tipe_diskon === "Persentase"
-          ? Math.round((Number(selectedDiskon.nilai_diskon) / 100) * totalLayanan)
-          : Number(selectedDiskon.nilai_diskon),
-        totalLayanan + biayaAntarJemput,
-      )
-    : 0;
-
-  const totalBayar = Math.max(0, totalLayanan + biayaAntarJemput - nilaiDiskon);
-  const kurangBayar = Math.max(0, totalBayar - (Number(jumlahBayar) || 0));
+  const totalTagihan = Math.max(0, totalLayanan + biayaAntarJemput - totalDiskon);
+  // Kurang Bayar = Total Tagihan - Jumlah Bayar (tidak pernah negatif)
+  const kurangBayar = Math.max(0, totalTagihan - (Number(jumlahBayar) || 0));
 
   // Item pesanan dikirim sebagai JSON lewat hidden input
+  // Satuan diambil dari tipe layanan yang dipilih per item
   const itemsPayload = JSON.stringify(
     items.map((item) => ({
       layanan_id: item.layanan_id,
       jumlah: Number(item.jumlah) || 0,
-      satuan: item.satuan,
+      satuan: satuanDariTipe(layananMap.get(item.layanan_id)?.nama_tipe),
       parfum_id: item.parfum_id || undefined,
+      diskon_id: item.diskon_id || undefined,
     })),
   );
 
@@ -169,6 +197,8 @@ export default function Form({
     <form action={formAction}>
       <input type="hidden" name="items" value={itemsPayload} />
       <input type="hidden" name="antar_jemput_id" value={antarJemputId} />
+      {/* jumlah_bayar dikirim sebagai angka polos (tanpa format) untuk server action */}
+      <input type="hidden" name="jumlah_bayar" value={jumlahBayar || "0"} />
 
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Pelanggan */}
@@ -189,6 +219,7 @@ export default function Form({
             {items.map((item, index) => {
               const layanan = layananMap.get(item.layanan_id);
               const jumlah = Number(item.jumlah) || 0;
+              const { subtotal, nilaiDiskon, subtotalFinal } = hitungItem(item);
               return (
                 <div
                   key={item.key}
@@ -232,8 +263,8 @@ export default function Form({
                       <ShoppingBagIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
                     </div>
 
-                    {/* Jumlah */}
-                    <div className="relative">
+                    {/* Jumlah (satuan otomatis dari tipe layanan) */}
+                    <div className="relative sm:col-span-2">
                       <input
                         type="number"
                         min="0"
@@ -241,24 +272,16 @@ export default function Form({
                         value={item.jumlah}
                         onChange={(e) => updateItem(item.key, "jumlah", e.target.value)}
                         placeholder="Jumlah"
-                        className={inputClass}
+                        className={`${inputClass} pr-14`}
                         aria-label={`Jumlah item ${index + 1}`}
                       />
                       <ScaleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
-                    </div>
-
-                    {/* Satuan */}
-                    <div className="relative">
-                      <select
-                        value={item.satuan}
-                        onChange={(e) => updateItem(item.key, "satuan", e.target.value)}
-                        className={selectClass}
+                      <span
+                        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500"
                         aria-label={`Satuan item ${index + 1}`}
                       >
-                        <option value="kg">kg</option>
-                        <option value="pcs">pcs</option>
-                      </select>
-                      <CubeIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+                        {satuanDariTipe(layanan?.nama_tipe)}
+                      </span>
                     </div>
 
                     {/* Parfum */}
@@ -278,15 +301,53 @@ export default function Form({
                       </select>
                       <SparklesIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
                     </div>
+
+                    {/* Diskon */}
+                    <div className="relative sm:col-span-2">
+                      <select
+                        value={item.diskon_id}
+                        onChange={(e) => updateItem(item.key, "diskon_id", e.target.value)}
+                        className={selectClass}
+                        aria-label={`Diskon item ${index + 1}`}
+                      >
+                        <option value="">Tanpa Diskon</option>
+                        {optionsDiskon.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.nama_diskon} (
+                            {option.tipe_diskon === "Persentase"
+                              ? `${option.nilai_diskon}%`
+                              : formatRupiah(Number(option.nilai_diskon))}
+                            )
+                          </option>
+                        ))}
+                      </select>
+                      <TagIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+                    </div>
                   </div>
 
                   {layanan && (
-                    <p className="mt-2 text-right text-xs text-gray-500">
-                      {formatRupiah(Number(layanan.harga))} × {jumlah} {item.satuan} ={" "}
-                      <span className="font-medium text-gray-900">
-                        {formatRupiah(Number(layanan.harga) * jumlah)}
-                      </span>
-                    </p>
+                    <div className="mt-2 text-right text-xs text-gray-500">
+                      <p>
+                        {formatRupiah(Number(layanan.harga))} × {jumlah}{" "}
+                        {satuanDariTipe(layanan.nama_tipe)} ={" "}
+                        <span className="font-medium text-gray-900">
+                          {formatRupiah(subtotal)}
+                        </span>
+                      </p>
+                      {nilaiDiskon > 0 && (
+                        <>
+                          <p>
+                            Diskon: <span className="text-red-500">-{formatRupiah(nilaiDiskon)}</span>
+                          </p>
+                          <p>
+                            Subtotal Final:{" "}
+                            <span className="font-medium text-gray-900">
+                              {formatRupiah(subtotalFinal)}
+                            </span>
+                          </p>
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
               );
@@ -376,34 +437,6 @@ export default function Form({
           </div>
         </div>
 
-        {/* Diskon */}
-        <div className="mb-4">
-          <label htmlFor="diskon_id" className="mb-2 block text-sm font-medium">
-            Diskon (Opsional)
-          </label>
-          <div className="relative">
-            <select
-              id="diskon_id"
-              name="diskon_id"
-              value={diskonId}
-              onChange={(e) => setDiskonId(e.target.value)}
-              className={selectClass}
-            >
-              <option value="">Tanpa Diskon</option>
-              {optionsDiskon.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.nama_diskon} (
-                  {option.tipe_diskon === "Persentase"
-                    ? `${option.nilai_diskon}%`
-                    : formatRupiah(Number(option.nilai_diskon))}
-                  )
-                </option>
-              ))}
-            </select>
-            <TagIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-          </div>
-        </div>
-
         {/* Ringkasan Pembayaran */}
         <div className="mb-4 rounded-md border border-gray-200 bg-white p-4">
           <h3 className="mb-3 text-sm font-medium text-gray-900">
@@ -420,15 +453,11 @@ export default function Form({
             </div>
             <div className="flex items-center justify-between">
               <dt className="text-gray-500">Diskon</dt>
-              <dd className="font-medium text-gray-900">-{formatRupiah(nilaiDiskon)}</dd>
+              <dd className="font-medium text-gray-900">-{formatRupiah(totalDiskon)}</dd>
             </div>
             <div className="flex items-center justify-between border-t border-gray-200 pt-2">
-              <dt className="font-medium text-gray-900">Total Bayar</dt>
-              <dd className="font-semibold text-primary-600">{formatRupiah(totalBayar)}</dd>
-            </div>
-            <div className="flex items-center justify-between">
-              <dt className="text-gray-500">Kurang Bayar</dt>
-              <dd className="font-medium text-gray-900">{formatRupiah(kurangBayar)}</dd>
+              <dt className="font-medium text-gray-900">Total Tagihan</dt>
+              <dd className="font-semibold text-primary-600">{formatRupiah(totalTagihan)}</dd>
             </div>
           </dl>
         </div>
@@ -436,7 +465,7 @@ export default function Form({
         {/* Metode Pembayaran */}
         <div className="mb-4">
           <label htmlFor="metode_pembayaran" className="mb-2 block text-sm font-medium">
-            Metode Pembayaran (Opsional)
+            Metode Pembayaran
           </label>
           <div className="relative">
             <select
@@ -444,17 +473,20 @@ export default function Form({
               name="metode_pembayaran"
               defaultValue=""
               className={selectClass}
+              aria-describedby="metode_pembayaran-error"
             >
               <option value="">Pilih Metode Pembayaran</option>
               <option value="tunai">Tunai</option>
-              <option value="transfer">Transfer</option>
-              <option value="qris">QRIS</option>
+              <option value="non_tunai">Non Tunai</option>
             </select>
             <BanknotesIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
           </div>
+          <div id="metode_pembayaran-error" aria-live="polite" aria-atomic="true">
+            <ErrorText errors={state.errors?.metode_pembayaran} />
+          </div>
         </div>
 
-        {/* Jumlah Bayar */}
+        {/* Jumlah Bayar (format rupiah) */}
         <div className="mb-4">
           <label htmlFor="jumlah_bayar" className="mb-2 block text-sm font-medium">
             Jumlah Bayar
@@ -462,20 +494,25 @@ export default function Form({
           <div className="relative">
             <input
               id="jumlah_bayar"
-              name="jumlah_bayar"
-              type="number"
-              min="0"
-              step="any"
-              value={jumlahBayar}
-              onChange={(e) => setJumlahBayar(e.target.value)}
+              type="text"
+              inputMode="numeric"
+              value={jumlahBayar === "" ? "" : formatRupiah(Number(jumlahBayar))}
+              onChange={(e) =>
+                setJumlahBayar(e.target.value.replace(/[^0-9]/g, ""))
+              }
               placeholder="Masukkan jumlah bayar"
-              className={inputClass}
+              className={`${inputClass} pr-14`}
               aria-describedby="jumlah_bayar-error"
             />
             <BanknotesIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
           </div>
           <div id="jumlah_bayar-error" aria-live="polite" aria-atomic="true">
             <ErrorText errors={state.errors?.jumlah_bayar} />
+          </div>
+          {/* Kurang Bayar = Total Tagihan - Jumlah Bayar */}
+          <div className="mt-3 flex items-center justify-between rounded-md bg-white px-3 py-2 text-sm">
+            <span className="text-gray-500">Kurang Bayar</span>
+            <span className="font-semibold text-gray-900">{formatRupiah(kurangBayar)}</span>
           </div>
         </div>
 

@@ -129,12 +129,12 @@ export type UserTokoDetail = {
 };
 
 // Status pesanan mengikuti alur kerja laundry:
-// baru -> diproses -> selesai -> diambil (sesuai kolom tgl_selesai & tgl_diambil)
-export type StatusPesanan = 'baru' | 'diproses' | 'selesai' | 'diambil';
+// diproses -> selesai -> diambil (sesuai kolom tgl_selesai & tgl_diambil)
+export type StatusPesanan = 'diproses' | 'selesai' | 'diambil';
 
 export type StatusPembayaran = 'belum_bayar'| 'DP' | 'lunas';
 
-export type MetodePembayaran = 'tunai' | 'transfer' | 'qris';
+export type MetodePembayaran = 'tunai' | 'non_tunai';
 
 export type Pesanan = {
   id: string;

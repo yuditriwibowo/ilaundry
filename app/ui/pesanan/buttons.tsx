@@ -14,7 +14,7 @@ import { MessageCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { deletePesanan, deleteItemPesanan } from "@/app/lib/actions";
-import { TabelPesanan, StatusPesanan, StatusPembayaran } from "@/app/lib/definitions";
+import { TabelPesanan, StatusPesanan, StatusPembayaran, MetodePembayaran } from "@/app/lib/definitions";
 import { formatDateTimeToLocal, formatRupiah } from "@/app/lib/utils";
 
 const actionButtonClass =
@@ -39,10 +39,14 @@ const statusPembayaranText: Record<StatusPembayaran, string> = {
 };
 
 const statusPesananText: Record<StatusPesanan, string> = {
-  baru: "Baru",
   diproses: "Diproses",
   selesai: "Selesai",
   diambil: "Diambil",
+};
+
+export const metodePembayaranText: Record<MetodePembayaran, string> = {
+  tunai: "Tunai",
+  non_tunai: "Non Tunai",
 };
 
 function normalizePhoneNumber(noHp: string) {
@@ -266,7 +270,7 @@ export function printStruk(pesanan: TabelPesanan) {
     ["Kasir", pesanan.nama_user ?? "-"],
     ["Status Pesanan", statusPesananText[pesanan.status_pesanan]],
     ["Status Bayar", statusPembayaranText[pesanan.status_pembayaran]],
-    ["Metode Bayar", pesanan.metode_pembayaran ?? "-"],
+    ["Metode Bayar", pesanan.metode_pembayaran ? metodePembayaranText[pesanan.metode_pembayaran] : "-"],
   ];
 
   win.document.write(`

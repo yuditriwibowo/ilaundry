@@ -3,14 +3,12 @@ import clsx from "clsx";
 import { StatusPesanan, StatusPembayaran } from "@/app/lib/definitions";
 
 const statusPesananStyles: Record<StatusPesanan, string> = {
-  baru: "bg-blue-100 text-blue-700",
   diproses: "bg-amber-100 text-amber-700",
   selesai: "bg-green-100 text-green-700",
   diambil: "bg-gray-200 text-gray-600",
 };
 
 const statusPesananLabels: Record<StatusPesanan, string> = {
-  baru: "Baru",
   diproses: "Diproses",
   selesai: "Selesai",
   diambil: "Diambil",

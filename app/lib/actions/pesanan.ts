@@ -13,8 +13,9 @@ import type { State } from "./types";
 const PesananItemSchema = z.object({
   layanan_id: z.string().min(1, { message: "Layanan wajib dipilih." }),
   jumlah: z.coerce.number().gt(0, { message: "Jumlah harus lebih dari 0." }),
-  satuan: z.enum(["kg", "pcs"], { message: "Satuan wajib dipilih." }),
+  satuan: z.enum(["kg", "pcs", "m"], { message: "Satuan wajib dipilih." }),
   parfum_id: z.string().optional(),
+  diskon_id: z.string().optional(),
 });
 
 const CreatePesananForm = z
@@ -24,10 +25,9 @@ const CreatePesananForm = z
       message: "Antar jemput wajib dipilih.",
     }),
     antar_jemput_id: z.string().optional(),
-    diskon_id: z.string().optional(),
     metode_pembayaran: z.preprocess(
       (v) => (v === "" ? undefined : v),
-      z.enum(["tunai", "transfer", "qris"]).optional(),
+      z.enum(["tunai", "non_tunai"]).optional(),
     ),
     jumlah_bayar: z.coerce
       .number()
@@ -43,6 +43,14 @@ const CreatePesananForm = z
         code: z.ZodIssueCode.custom,
         path: ["antar_jemput_id"],
         message: "Layanan antar-jemput wajib dipilih.",
+      });
+    }
+    // Jika jumlah bayar diisi (> 0), metode pembayaran wajib dipilih
+    if (data.jumlah_bayar > 0 && !data.metode_pembayaran) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["metode_pembayaran"],
+        message: "Metode pembayaran wajib dipilih karena jumlah bayar sudah diisi.",
       });
     }
   });
@@ -67,7 +75,6 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
     pelanggan_id: formData.get("pelanggan_id"),
     antar_jemput_yt: formData.get("antar_jemput_yt"),
     antar_jemput_id: formData.get("antar_jemput_id"),
-    diskon_id: formData.get("diskon_id"),
     metode_pembayaran: formData.get("metode_pembayaran"),
     jumlah_bayar: formData.get("jumlah_bayar"),
     catatan: formData.get("catatan"),
@@ -90,6 +97,7 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
       errors: {
         pelanggan_id: fieldErrors.pelanggan_id,
         antar_jemput_id: fieldErrors.antar_jemput_id,
+        metode_pembayaran: fieldErrors.metode_pembayaran,
         jumlah_bayar: fieldErrors.jumlah_bayar,
         items: itemsErrors.length > 0 ? itemsErrors : undefined,
       },
@@ -97,13 +105,13 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
     };
   }
 
-  const { pelanggan_id, antar_jemput_yt, antar_jemput_id, diskon_id, metode_pembayaran, jumlah_bayar, catatan, items } =
+  const { pelanggan_id, antar_jemput_yt, antar_jemput_id, metode_pembayaran, jumlah_bayar, catatan, items } =
     validatedFields.data;
 
   const now = new Date();
   const nowIso = now.toISOString();
   const pad = (n: number) => String(n).padStart(2, "0");
-  const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const stamp = `${String(now.getFullYear()).slice(-2)}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}`;
   const nomorPesanan = `PSN-${stamp}`;
   // Ambil data referensi untuk snapshot item pesanan
   const layananIds = items.map((item) => item.layanan_id);
@@ -120,7 +128,7 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
     JOIN tipe_layanan tl ON l.tipe_id = tl.id
     JOIN durasi d ON l.durasi_id = d.id
     LEFT JOIN toko t ON l.toko_id = t.id
-    WHERE l.id IN (${sql(layananIds)})
+    WHERE l.id = ANY(${layananIds})
   `;
   const layananMap = new Map(layananRows.map((row) => [row.id, row]));
   if (items.some((item) => !layananMap.has(item.layanan_id))) {
@@ -140,7 +148,7 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
   const parfumRows =
     parfumIds.length > 0
       ? await sql<{ id: string; nama_parfum: string }[]>`
-          SELECT id, nama_parfum FROM parfum WHERE id IN (${sql(parfumIds)})
+          SELECT id, nama_parfum FROM parfum WHERE id = ANY(${parfumIds})
         `
       : [];
   const parfumMap = new Map(
@@ -165,10 +173,39 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
     biayaAntarJemput = Number(antarJemputRows[0].harga_antar_jemput);
   }
 
-  // Hitung subtotal & estimasi selesai per item (berdasarkan durasi layanan)
+  // Ambil data referensi diskon untuk item yang punya diskon
+  const diskonIds = items
+    .map((item) => item.diskon_id)
+    .filter((id): id is string => Boolean(id));
+  const diskonRows =
+    diskonIds.length > 0
+      ? await sql<Pick<Diskon, "id" | "tipe_diskon" | "nilai_diskon">[]>`
+          SELECT id, tipe_diskon, nilai_diskon FROM diskon WHERE id = ANY(${diskonIds})
+        `
+      : [];
+  const diskonMap = new Map(diskonRows.map((row) => [row.id, row]));
+
+  // Hitung subtotal, diskon, subtotal final & estimasi selesai per item
+  // (berdasarkan durasi layanan). Nilai diskon per item:
+  // - Persentase: (diskon.nilai_diskon / 100) * subtotal item
+  // - Nominal: diskon.nilai_diskon langsung dipakai
+  // Dibatasi maksimal subtotal item agar subtotal_final tidak negatif.
   const itemCalc = items.map((item, index) => {
     const layanan = layananMap.get(item.layanan_id)!;
     const subtotal = Number(layanan.harga) * item.jumlah;
+    const diskon = item.diskon_id ? diskonMap.get(item.diskon_id) : undefined;
+    const nilaiDiskon = diskon
+      ? Math.min(
+          Math.max(
+            0,
+            diskon.tipe_diskon === "Persentase"
+              ? Math.round((Number(diskon.nilai_diskon) / 100) * subtotal)
+              : Number(diskon.nilai_diskon),
+          ),
+          subtotal,
+        )
+      : 0;
+    const subtotalFinal = Math.max(0, subtotal - nilaiDiskon);
     const estimasi =
       layanan.lama_durasi != null
         ? new Date(
@@ -179,6 +216,9 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
       ...item,
       layanan,
       subtotal,
+      diskonId: diskon ? item.diskon_id! : null,
+      nilaiDiskon,
+      subtotalFinal,
       estimasi,
       namaParfum: item.parfum_id ? parfumMap.get(item.parfum_id) ?? null : null,
       nomor: index + 1,
@@ -186,24 +226,8 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
   });
 
   const totalLayanan = itemCalc.reduce((sum, item) => sum + item.subtotal, 0);
-
-  // Nilai diskon: Persentase dihitung dari total layanan, Nominal langsung dipakai
-  let nilaiDiskon = 0;
-  if (diskon_id) {
-    const diskonRows = await sql<Diskon[]>`
-      SELECT id, nama_diskon, tipe_diskon, nilai_diskon
-      FROM diskon
-      WHERE id = ${diskon_id}
-    `;
-    if (diskonRows.length > 0) {
-      const diskon = diskonRows[0];
-      const nilai =
-        diskon.tipe_diskon === "Persentase"
-          ? Math.round((Number(diskon.nilai_diskon) / 100) * totalLayanan)
-          : Number(diskon.nilai_diskon);
-      nilaiDiskon = Math.max(0, Math.min(nilai, totalLayanan + biayaAntarJemput));
-    }
-  }
+  // Nilai diskon pesanan = total semua item_pesanan.nilai_diskon
+  const nilaiDiskon = itemCalc.reduce((sum, item) => sum + item.nilaiDiskon, 0);
 
   const totalBayar = Math.max(0, totalLayanan + biayaAntarJemput - nilaiDiskon);
   const kurangBayar = Math.max(0, totalBayar - jumlah_bayar);
@@ -231,7 +255,7 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
           nilai_diskon, total_bayar, status_pembayaran, metode_pembayaran,
           jumlah_bayar, kurang_bayar, catatan, created_at, last_update, update_by, antar_jemput_yt
         ) VALUES (
-          ${selectedToko}, ${pelanggan_id}, ${userId}, ${nomorPesanan}, 'baru',
+          ${selectedToko}, ${pelanggan_id}, ${userId}, ${nomorPesanan}, 'diproses',
           ${nowIso}, ${tglEstimasiSelesai}, null, null,
           ${namaAntarJemput}, ${totalLayanan}, ${biayaAntarJemput},
           ${nilaiDiskon}, ${totalBayar}, ${statusPembayaran}, ${metode_pembayaran ?? null},
@@ -250,10 +274,10 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
             nilai_durasi, tgl_estimasi_selesai, tgl_selesai, subtotal_final,
             created_at, last_update, update_by
           ) VALUES (
-            ${pesananId}, ${item.namaParfum}, ${String(item.nomor)}, ${item.layanan.nama_layanan},
+            ${pesananId}, ${item.namaParfum}, ${nomorPesanan + "-" + item.nomor}, ${item.layanan.nama_layanan},
             ${item.layanan.nama_tipe}, ${item.layanan.nama_durasi}, ${item.layanan.harga}, ${item.jumlah}, ${item.satuan}, ${item.subtotal},
-            null, 'diproses', null, null, ${nowIso},
-            ${item.layanan.lama_durasi ?? null}, ${item.estimasi}, null, ${item.subtotal},
+            null, 'diproses', ${item.diskonId}, ${item.nilaiDiskon}, ${nowIso},
+            ${item.layanan.lama_durasi ?? null}, ${item.estimasi}, null, ${item.subtotalFinal},
             ${nowIso}, ${nowIso}, ${userId}
           )
         `;
