@@ -32,7 +32,7 @@ export async function fetchFilteredParfum(
         created_at
       FROM parfum
       WHERE
-        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
         (nama_parfum ILIKE ${`%${query}%`} OR
         toko_id::text ILIKE ${`%${query}%`})
       ORDER BY nama_parfum ASC
@@ -53,7 +53,7 @@ export async function fetchParfumPages(query: string) {
     const data = await sql`SELECT COUNT(*)
     FROM parfum
     WHERE
-      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`} AND
+      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
       (nama_parfum ILIKE ${`%${query}%`} OR
       toko_id::text ILIKE ${`%${query}%`})
   `;
@@ -95,7 +95,7 @@ export async function fetchParfumForForm() {
       SELECT id, nama_parfum
       FROM parfum
       WHERE
-        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`}
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
       ORDER BY nama_parfum ASC
     `;
     return data;

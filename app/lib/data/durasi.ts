@@ -32,7 +32,7 @@ export async function fetchFilteredDurasi(
         last_update
       FROM durasi
       WHERE
-        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
         (nama_durasi ILIKE ${`%${query}%`} OR
         toko_id::text ILIKE ${`%${query}%`})
       ORDER BY nama_durasi ASC
@@ -54,7 +54,7 @@ export async function fetchDurasiPages(query: string) {
     const data = await sql`SELECT COUNT(*)
     FROM durasi
     WHERE
-      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`} AND
+      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
       (nama_durasi ILIKE ${`%${query}%`} OR
       toko_id::text ILIKE ${`%${query}%`})
   `;

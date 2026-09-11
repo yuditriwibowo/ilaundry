@@ -55,7 +55,7 @@ export async function fetchFilteredPesanan(
       LEFT JOIN public.users AS u
         ON u.id = p.kasir_id
       WHERE
-        ${selectedToko ? sql`p.toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${selectedToko ? sql`p.toko_id = ${selectedToko}` : sql`1=0`} AND
         ${statusPesanan ? sql`p.status_pesanan = ${statusPesanan}` : sql`1=1`} AND
         ${statusPembayaran ? sql`p.status_pembayaran = ${statusPembayaran}` : sql`1=1`} AND
         (p.nomor_pesanan ILIKE ${`%${query}%`} OR
@@ -91,7 +91,7 @@ export async function fetchPesananPages(
       LEFT JOIN public.users AS u
         ON u.id = p.kasir_id
       WHERE
-        ${selectedToko ? sql`p.toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${selectedToko ? sql`p.toko_id = ${selectedToko}` : sql`1=0`} AND
         ${statusPesanan ? sql`p.status_pesanan = ${statusPesanan}` : sql`1=1`} AND
         ${statusPembayaran ? sql`p.status_pembayaran = ${statusPembayaran}` : sql`1=1`} AND
         (p.nomor_pesanan ILIKE ${`%${query}%`} OR

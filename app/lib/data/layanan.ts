@@ -42,7 +42,7 @@ export async function fetchFilteredLayanan(
       JOIN durasi d ON l.durasi_id = d.id
       LEFT JOIN toko t ON l.toko_id = t.id
       WHERE
-        ${selectedToko ? sql`l.toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${selectedToko ? sql`l.toko_id = ${selectedToko}` : sql`1=0`} AND
         ${tipeId ? sql`l.tipe_id = ${tipeId}` : sql`1=1`} AND
         ${durasiNama ? sql`d.nama_durasi = ${durasiNama}` : sql`1=1`} AND
         (l.nama_layanan ILIKE ${`%${query}%`} OR tl.nama_tipe ILIKE ${`%${query}%`})
@@ -67,7 +67,7 @@ export async function fetchLayananPages(query: string, tipeId?: string, durasiNa
       JOIN tipe_layanan tl ON l.tipe_id = tl.id
       JOIN durasi d ON l.durasi_id = d.id
       WHERE
-        ${selectedToko ? sql`l.toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${selectedToko ? sql`l.toko_id = ${selectedToko}` : sql`1=0`} AND
         ${tipeId ? sql`l.tipe_id = ${tipeId}` : sql`1=1`} AND
         ${durasiNama ? sql`d.nama_durasi = ${durasiNama}` : sql`1=1`} AND
         (l.nama_layanan ILIKE ${`%${query}%`} OR tl.nama_tipe ILIKE ${`%${query}%`})
@@ -151,7 +151,7 @@ export async function fetchLayananForForm() {
       JOIN durasi d ON l.durasi_id = d.id
       LEFT JOIN toko t ON l.toko_id = t.id
       WHERE
-        ${selectedToko ? sql`l.toko_id = ${selectedToko}` : sql`1=1`}
+        ${selectedToko ? sql`l.toko_id = ${selectedToko}` : sql`1=0`}
       ORDER BY l.nama_layanan ASC
     `;
     return data;

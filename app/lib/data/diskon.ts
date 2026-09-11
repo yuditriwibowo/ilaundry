@@ -24,7 +24,7 @@ export async function fetchFilteredDiskon(
         created_at
       FROM diskon
       WHERE
-        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
         (nama_diskon ILIKE ${`%${query}%`} OR
         tipe_diskon ILIKE ${`%${query}%`})
       ORDER BY nama_diskon ASC
@@ -45,7 +45,7 @@ export async function fetchDiskonPages(query: string) {
     const data = await sql`SELECT COUNT(*)
     FROM diskon
     WHERE
-      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`} AND
+      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
       (nama_diskon ILIKE ${`%${query}%`} OR
       tipe_diskon ILIKE ${`%${query}%`})
   `;
@@ -87,7 +87,7 @@ export async function fetchDiskonForForm() {
       SELECT id, nama_diskon, tipe_diskon, nilai_diskon
       FROM diskon
       WHERE
-        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`}
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
       ORDER BY nama_diskon ASC
     `;
     return data;

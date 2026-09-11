@@ -23,7 +23,7 @@ export async function fetchFilteredAntarJemput(
         created_at
       FROM antar_jemput
       WHERE
-        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
         nama_antar_jemput ILIKE ${`%${query}%`}
       ORDER BY harga_antar_jemput ASC, nama_antar_jemput ASC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
@@ -43,7 +43,7 @@ export async function fetchAntarJemputPages(query: string) {
     const data = await sql`SELECT COUNT(*)
     FROM antar_jemput
     WHERE
-      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`} AND
+      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
       nama_antar_jemput ILIKE ${`%${query}%`}
   `;
 
@@ -86,7 +86,7 @@ export async function fetchAntarJemputForForm() {
       SELECT id, nama_antar_jemput, harga_antar_jemput
       FROM antar_jemput
       WHERE
-        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=1`}
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
       ORDER BY nama_antar_jemput ASC
     `;
     return data;

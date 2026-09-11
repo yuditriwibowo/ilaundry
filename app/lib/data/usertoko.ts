@@ -27,7 +27,7 @@ export async function fetchFilteredUserToko(
       JOIN public.toko AS t
         ON t.id = ut.toko_id
       WHERE
-        ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=0`} AND
         ut.peran IS NOT NULL AND
         (u.name ILIKE ${`%${query}%`} OR
          t.nama_toko ILIKE ${`%${query}%`} OR
@@ -55,7 +55,7 @@ export async function fetchUserTokoPages(query: string) {
       JOIN public.toko AS t
         ON t.id = ut.toko_id
       WHERE
-        ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=1`} AND
+        ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=0`} AND
         ut.peran IS NOT NULL AND
         (u.name ILIKE ${`%${query}%`} OR
          t.nama_toko ILIKE ${`%${query}%`} OR
@@ -91,7 +91,7 @@ export async function fetchUnassignedUserToko() {
       JOIN public.users AS u
         ON u.id = ut.user_id
       WHERE
-        ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=1`}
+        ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=0`}
         AND ut.peran IS NULL
       ORDER BY u.name ASC
     `;
