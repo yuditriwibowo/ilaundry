@@ -7,8 +7,6 @@
 export type { State } from "./types";
 
 export { setSessionUserId, setSelectedTokoAction } from "./session";
-// TODO(step 4): hapus baris template invoice di bawah ini.
-export { createInvoice, updateInvoice, deleteInvoice } from "./invoices";
 export { createToko, updateToko, deleteToko, fetchMoreToko } from "./toko";
 export { createDurasi, updateDurasi, deleteDurasi, fetchMoreDurasi } from "./durasi";
 export { createParfum, updateParfum, deleteParfum, fetchMoreParfum } from "./parfum";
