@@ -218,3 +218,44 @@ export async function fetchItemPesananPages(pesananId: string) {
     throw new Error("Gagal mengambil total halaman item pesanan.");
   }
 }
+
+// Mengambil seluruh item pesanan tanpa pagination.
+// Dipakai untuk mengisi (prefill) form edit pesanan.
+export async function fetchAllItemPesananByPesananId(pesananId: string) {
+  try {
+    const items = await sql<ItemPesanan[]>`
+      SELECT
+        id,
+        pesanan_id,
+        nama_parfum_snapshot,
+        nomor_item_pesanan,
+        nama_layanan_snapshot,
+        tipe_layanan_snapshot,
+        durasi_snapshot,
+        harga_satuan,
+        jumlah,
+        satuan,
+        subtotal,
+        catatan_item,
+        status_item,
+        created_at,
+        last_update,
+        update_by,
+        diskon_id,
+        nilai_diskon,
+        tgl_item_pesanan,
+        nilai_durasi,
+        tgl_estimasi_selesai,
+        tgl_selesai,
+        subtotal_final
+      FROM public.item_pesanan
+      WHERE pesanan_id = ${pesananId}
+      ORDER BY nomor_item_pesanan ASC, created_at ASC
+    `;
+
+    return items;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch all item pesanan.");
+  }
+}
