@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/app/ui/button';
 import { ShieldCheckIcon, UserIcon } from '@heroicons/react/24/outline';
 import { useActionState } from 'react';
+import SelectPopup from '@/app/ui/shared/select-popup';
 
 export default function EditUserTokoForm({
   userToko,
@@ -39,20 +40,23 @@ export default function EditUserTokoForm({
           <label htmlFor="peran" className="mb-2 block text-sm font-medium">
             Peran
           </label>
-          <div className="relative">
-            <select
+          <div>
+            <SelectPopup
               id="peran"
               name="peran"
               defaultValue={userToko.peran || ''}
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              aria-describedby="peran-error"
-            >
-              <option value="">Pilih Peran</option>
-              <option value="Administrator">Administrator</option>
-              <option value="Manager">Manager</option>
-              <option value="Kasir">Kasir</option>
-            </select>
-            <ShieldCheckIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              placeholder="Pilih Peran"
+              dialogTitle="Pilih Peran"
+              searchPlaceholder="Cari peran..."
+              emptyMessage="Peran tidak ditemukan"
+              resultLabel="peran ditemukan"
+              icon={ShieldCheckIcon}
+              options={[
+                { id: 'Administrator', label: 'Administrator' },
+                { id: 'Manager', label: 'Manager' },
+                { id: 'Kasir', label: 'Kasir' },
+              ]}
+            />
           </div>
           <div id="peran-error" aria-live="polite" aria-atomic="true">
             {state.errors?.peran &&

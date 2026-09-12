@@ -3,11 +3,14 @@
 import type { ComponentType, ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
+import SelectPopup, { type OpsiSelect } from "@/app/ui/shared/select-popup";
 
 /**
  * Field form generik untuk create/edit master data.
  * Menyatukan markup yang sebelumnya diduplikasi di semua form per domain:
  * label + input/select dengan ikon + error Zod dari useActionState.
+ * Select memakai pola popup dengan pencarian (SelectPopup) yang sama
+ * dengan SelectPelanggan.
  */
 
 type BaseFieldProps = {
@@ -69,29 +72,54 @@ export function SelectField({
   icon: Icon,
   errors,
   defaultValue,
+  placeholder,
+  dialogTitle,
+  searchPlaceholder,
+  emptyMessage,
+  resultLabel,
+  options,
   children,
 }: BaseFieldProps & {
   defaultValue?: string;
-  children: ReactNode;
+  placeholder?: string;
+  dialogTitle?: string;
+  searchPlaceholder?: string;
+  emptyMessage?: string;
+  resultLabel?: string;
+  options?: OpsiSelect[];
+  children?: ReactNode;
 }) {
+  // Opsi bisa lewat prop `options` (bentuk {id,label,description}) atau
+  // `children` berisi <option> (dipetakan ke OpsiSelect agar tetap satu pola).
+  const resolvedOptions: OpsiSelect[] =
+    options ??
+    (Array.isArray(children)
+      ? (children as { props: { value?: string; children?: unknown } }[])
+          .filter((child) => child?.props?.value !== undefined)
+          .map((child) => ({
+            id: String(child.props.value),
+            label: renderLabel(child.props.children),
+          }))
+      : []);
+
   return (
     <div className="mb-4">
       <label htmlFor={id} className="mb-2 block text-sm font-medium">
         {label}
       </label>
       <div className="relative">
-        <select
+        <SelectPopup
           id={id}
           name={id}
           defaultValue={defaultValue}
-          className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-          aria-describedby={`${id}-error`}
-        >
-          {children}
-        </select>
-        {Icon && (
-          <Icon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-        )}
+          placeholder={placeholder ?? `Pilih ${label}`}
+          dialogTitle={dialogTitle ?? `Pilih ${label}`}
+          searchPlaceholder={searchPlaceholder ?? "Cari..."}
+          emptyMessage={emptyMessage ?? "Tidak ditemukan"}
+          resultLabel={resultLabel ?? "hasil ditemukan"}
+          icon={Icon}
+          options={resolvedOptions}
+        />
       </div>
       <div id={`${id}-error`} aria-live="polite" aria-atomic="true">
         {errors?.map((error: string) => (
@@ -102,6 +130,17 @@ export function SelectField({
       </div>
     </div>
   );
+}
+
+// Ambil teks label dari children <option> (bisa string atau nested).
+function renderLabel(children: unknown): string {
+  if (typeof children === "string" || typeof children === "number") {
+    return String(children);
+  }
+  if (Array.isArray(children)) {
+    return children.map(renderLabel).join("");
+  }
+  return "";
 }
 
 /**

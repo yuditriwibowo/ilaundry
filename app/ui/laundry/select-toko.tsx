@@ -4,26 +4,34 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BuildingStorefrontIcon } from "@heroicons/react/24/outline";
 import { setSelectedTokoAction } from "@/app/lib/actions";
+import SelectPopup from "@/app/ui/shared/select-popup";
+import type { Toko } from "@/app/lib/definitions";
 
+/*
+  Select Toko berbasis popup dengan pencarian (pola sama dengan SelectPelanggan).
+  Saat toko dipilih, cookie selected_toko di-set via server action lalu
+  router.refresh() agar data halaman terkait toko ter-update.
+*/
 export default function SelectToko({
   stores,
   selectedToko = "",
 }: {
-  stores: any[];
+  stores: Toko[];
   selectedToko?: string;
 }) {
   const router = useRouter();
+  const [, startTransition] = useTransition();
+  // Sinkronisasi defaultValue eksternal (cookie) saat server re-render
+  // dengan nilai yang berubah (pola derive-state-during-render React).
   const [selected, setSelected] = useState(selectedToko);
   const [prevSelectedToko, setPrevSelectedToko] = useState(selectedToko);
-  const [, startTransition] = useTransition();
 
   if (selectedToko !== prevSelectedToko) {
     setPrevSelectedToko(selectedToko);
     setSelected(selectedToko);
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newValue = e.target.value;
+  const handleChange = (newValue: string) => {
     setSelected(newValue);
     startTransition(async () => {
       await setSelectedTokoAction(newValue);
@@ -32,20 +40,22 @@ export default function SelectToko({
   };
 
   return (
-    <div className="relative w-full">
-      <select
-        value={selected}
+    <div className="w-full">
+      <SelectPopup
+        defaultValue={selected}
+        placeholder="Pilih Toko"
+        dialogTitle="Pilih Toko"
+        searchPlaceholder="Cari nama toko..."
+        emptyMessage="Toko tidak ditemukan"
+        resultLabel="toko ditemukan"
+        icon={BuildingStorefrontIcon}
         onChange={handleChange}
-        className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500 bg-white text-gray-900"
-      >
-        <option value="">Pilih Toko</option>
-        {stores.map((store) => (
-          <option key={store.id} value={String(store.id)}>
-            {store.nama_toko}
-          </option>
-        ))}
-      </select>
-      <BuildingStorefrontIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+        options={stores.map((store) => ({
+          id: String(store.id),
+          label: store.nama_toko,
+          description: store.alamat_toko || undefined,
+        }))}
+      />
     </div>
   );
 }

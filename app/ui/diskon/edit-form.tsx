@@ -35,12 +35,13 @@ export default function EditDiskonForm({
           label="Tipe Diskon"
           icon={InformationCircleIcon}
           defaultValue={diskon.tipe_diskon || ''}
+          placeholder="Pilih tipe diskon"
           errors={state.errors?.tipe_diskon}
-        >
-          <option value="" disabled>Pilih tipe diskon</option>
-          <option value="Persentase">Persentase (%)</option>
-          <option value="Nominal">Nominal (Rp)</option>
-        </SelectField>
+          options={[
+            { id: "Persentase", label: "Persentase (%)" },
+            { id: "Nominal", label: "Nominal (Rp)" },
+          ]}
+        />
         <FormField
           id="nilai_diskon"
           label="Nilai Diskon"

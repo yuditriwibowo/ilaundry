@@ -18,6 +18,7 @@ import { formatRupiah } from "@/app/lib/utils";
 import SelectPelanggan, {
   type OpsiPelanggan,
 } from "@/app/ui/pesanan/select-pelanggan";
+import SelectPopup from "@/app/ui/shared/select-popup";
 
 type OpsiLayanan = {
   id: string;
@@ -58,8 +59,6 @@ function satuanDariTipe(namaTipe: string | null | undefined): string {
   return "kg";
 }
 
-const selectClass =
-  "peer block w-full rounded-md border border-gray-200 py-2 pl-10 pr-3 text-sm outline-2 placeholder:text-gray-500";
 const inputClass =
   "peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500";
 
@@ -243,24 +242,27 @@ export default function Form({
                   </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {/* Layanan */}
-                    <div className="relative sm:col-span-2">
-                      <select
+                    <div className="sm:col-span-2">
+                      <SelectPopup
                         value={item.layanan_id}
-                        onChange={(e) =>
-                          updateItem(item.key, "layanan_id", e.target.value)
+                        onChange={(newValue) =>
+                          updateItem(item.key, "layanan_id", newValue)
                         }
-                        className={selectClass}
-                        aria-label={`Layanan item ${index + 1}`}
-                      >
-                        <option value="">Pilih Layanan</option>
-                        {optionsLayanan.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.nama_layanan} - {formatRupiah(Number(option.harga))}
-                            {option.nama_tipe ? ` (${option.nama_tipe})` : ""}
-                          </option>
-                        ))}
-                      </select>
-                      <ShoppingBagIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+                        placeholder="Pilih Layanan"
+                        dialogTitle="Pilih Layanan"
+                        searchPlaceholder="Cari layanan..."
+                        emptyMessage="Layanan tidak ditemukan"
+                        resultLabel="layanan ditemukan"
+                        icon={ShoppingBagIcon}
+                        ariaLabel={`Layanan item ${index + 1}`}
+                        options={optionsLayanan.map((option) => ({
+                          id: option.id,
+                          label: option.nama_layanan,
+                          description: `${formatRupiah(Number(option.harga))}${
+                            option.nama_tipe ? ` (${option.nama_tipe})` : ""
+                          }`,
+                        }))}
+                      />
                     </div>
 
                     {/* Jumlah (satuan otomatis dari tipe layanan) */}
@@ -285,43 +287,49 @@ export default function Form({
                     </div>
 
                     {/* Parfum */}
-                    <div className="relative sm:col-span-2">
-                      <select
+                    <div className="sm:col-span-2">
+                      <SelectPopup
                         value={item.parfum_id}
-                        onChange={(e) => updateItem(item.key, "parfum_id", e.target.value)}
-                        className={selectClass}
-                        aria-label={`Parfum item ${index + 1}`}
-                      >
-                        <option value="">Tanpa Parfum</option>
-                        {optionsParfum.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.nama_parfum}
-                          </option>
-                        ))}
-                      </select>
-                      <SparklesIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+                        onChange={(newValue) =>
+                          updateItem(item.key, "parfum_id", newValue)
+                        }
+                        placeholder="Tanpa Parfum"
+                        dialogTitle="Pilih Parfum"
+                        searchPlaceholder="Cari parfum..."
+                        emptyMessage="Parfum tidak ditemukan"
+                        resultLabel="parfum ditemukan"
+                        icon={SparklesIcon}
+                        ariaLabel={`Parfum item ${index + 1}`}
+                        options={optionsParfum.map((option) => ({
+                          id: option.id,
+                          label: option.nama_parfum,
+                        }))}
+                      />
                     </div>
 
                     {/* Diskon */}
-                    <div className="relative sm:col-span-2">
-                      <select
+                    <div className="sm:col-span-2">
+                      <SelectPopup
                         value={item.diskon_id}
-                        onChange={(e) => updateItem(item.key, "diskon_id", e.target.value)}
-                        className={selectClass}
-                        aria-label={`Diskon item ${index + 1}`}
-                      >
-                        <option value="">Tanpa Diskon</option>
-                        {optionsDiskon.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.nama_diskon} (
-                            {option.tipe_diskon === "Persentase"
+                        onChange={(newValue) =>
+                          updateItem(item.key, "diskon_id", newValue)
+                        }
+                        placeholder="Tanpa Diskon"
+                        dialogTitle="Pilih Diskon"
+                        searchPlaceholder="Cari diskon..."
+                        emptyMessage="Diskon tidak ditemukan"
+                        resultLabel="diskon ditemukan"
+                        icon={TagIcon}
+                        ariaLabel={`Diskon item ${index + 1}`}
+                        options={optionsDiskon.map((option) => ({
+                          id: option.id,
+                          label: option.nama_diskon,
+                          description:
+                            option.tipe_diskon === "Persentase"
                               ? `${option.nilai_diskon}%`
-                              : formatRupiah(Number(option.nilai_diskon))}
-                            )
-                          </option>
-                        ))}
-                      </select>
-                      <TagIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+                              : formatRupiah(Number(option.nilai_diskon)),
+                        }))}
+                      />
                     </div>
                   </div>
 
@@ -414,21 +422,22 @@ export default function Form({
           </div>
 
           {antarJemputYt === "ya" && (
-            <div className="relative mt-3">
-              <select
+            <div className="mt-3">
+              <SelectPopup
                 value={antarJemputId}
-                onChange={(e) => setAntarJemputId(e.target.value)}
-                className={selectClass}
-                aria-describedby="antar_jemput_id-error"
-              >
-                <option value="">Pilih Layanan Antar Jemput</option>
-                {optionsAntarJemput.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.nama_antar_jemput} - {formatRupiah(Number(option.harga_antar_jemput))}
-                  </option>
-                ))}
-              </select>
-              <TruckIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+                onChange={setAntarJemputId}
+                placeholder="Pilih Layanan Antar Jemput"
+                dialogTitle="Pilih Layanan Antar Jemput"
+                searchPlaceholder="Cari layanan antar jemput..."
+                emptyMessage="Layanan antar jemput tidak ditemukan"
+                resultLabel="layanan antar jemput ditemukan"
+                icon={TruckIcon}
+                options={optionsAntarJemput.map((option) => ({
+                  id: option.id,
+                  label: option.nama_antar_jemput,
+                  description: formatRupiah(Number(option.harga_antar_jemput)),
+                }))}
+              />
             </div>
           )}
 
@@ -467,19 +476,21 @@ export default function Form({
           <label htmlFor="metode_pembayaran" className="mb-2 block text-sm font-medium">
             Metode Pembayaran
           </label>
-          <div className="relative">
-            <select
+          <div>
+            <SelectPopup
               id="metode_pembayaran"
               name="metode_pembayaran"
-              defaultValue=""
-              className={selectClass}
-              aria-describedby="metode_pembayaran-error"
-            >
-              <option value="">Pilih Metode Pembayaran</option>
-              <option value="tunai">Tunai</option>
-              <option value="non_tunai">Non Tunai</option>
-            </select>
-            <BanknotesIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              placeholder="Pilih Metode Pembayaran"
+              dialogTitle="Pilih Metode Pembayaran"
+              searchPlaceholder="Cari metode pembayaran..."
+              emptyMessage="Metode pembayaran tidak ditemukan"
+              resultLabel="metode pembayaran ditemukan"
+              icon={BanknotesIcon}
+              options={[
+                { id: "tunai", label: "Tunai" },
+                { id: "non_tunai", label: "Non Tunai" },
+              ]}
+            />
           </div>
           <div id="metode_pembayaran-error" aria-live="polite" aria-atomic="true">
             <ErrorText errors={state.errors?.metode_pembayaran} />

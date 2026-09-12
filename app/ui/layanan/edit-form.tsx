@@ -35,31 +35,29 @@ export default function EditLayananForm({
           id="tipe_id"
           label="Tipe Layanan"
           icon={BuildingStorefrontIcon}
+          placeholder="Pilih Tipe Layanan"
           errors={state.errors?.tipe_id}
           defaultValue={layanan.tipe_id}
-        >
-          <option value="">Pilih Tipe Layanan</option>
-          {optionsTipe.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.nama}
-            </option>
-          ))}
-        </SelectField>
+          options={optionsTipe.map((option) => ({
+            id: option.id,
+            label: option.nama,
+          }))}
+        />
 
         <SelectField
           id="durasi_id"
           label="Durasi Layanan"
           icon={ClockIcon}
+          placeholder="Pilih Durasi Layanan"
           errors={state.errors?.durasi_id}
           defaultValue={layanan.durasi_id}
-        >
-          <option value="">Pilih Durasi Layanan</option>
-          {optionsDurasi.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.nama}{option.lama_durasi ? ` - ${option.lama_durasi} Jam` : ""}
-            </option>
-          ))}
-        </SelectField>
+          options={optionsDurasi.map((option) => ({
+            id: option.id,
+            label: option.lama_durasi
+              ? `${option.nama} - ${option.lama_durasi} Jam`
+              : option.nama,
+          }))}
+        />
 
         <FormField
           id="nama_layanan"
