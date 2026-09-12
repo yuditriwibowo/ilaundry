@@ -28,8 +28,10 @@ export type OpsiSelect = {
     konfirmasi hapus di app/ui/antar-jemput/buttons.tsx).
   - Pencarian memfilter label & description (case-insensitive).
   - Dukungan keyboard: ↑/↓ memindahkan highlight, Enter memilih, Escape menutup.
-  - `onChange` bersifat opsional (NOTIFIKASI saja, bukan controlled): nilai
+  - `onChangeAction` bersifat opsional (NOTIFIKASI saja, bukan controlled): nilai
     tetap dikelola internal agar tetap kompatibel dengan server action form.
+    (Diberi akhiran "Action" sesuai konvensi Next.js agar props function di
+    file "use client" dianggap serializable.)
 */
 export default function SelectPopup({
   options,
@@ -45,7 +47,7 @@ export default function SelectPopup({
   icon: Icon,
   disabled = false,
   ariaLabel,
-  onChange,
+  onChangeAction,
 }: {
   options: OpsiSelect[];
   name?: string;
@@ -63,7 +65,8 @@ export default function SelectPopup({
   disabled?: boolean;
   // Label aksesibilitas opsional untuk trigger (mis. "Layanan item 1").
   ariaLabel?: string;
-  onChange?: (value: string) => void;
+  // Nama diakhiri "Action" agar lolos analisis serializable props Next.js.
+  onChangeAction?: (value: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
@@ -133,7 +136,7 @@ export default function SelectPopup({
   function choose(option: OpsiSelect) {
     setUncontrolledValue(option.id);
     setOpen(false);
-    onChange?.(option.id);
+    onChangeAction?.(option.id);
   }
 
   function moveHighlight(delta: number) {

@@ -49,7 +49,7 @@ export default function SelectToko({
         emptyMessage="Toko tidak ditemukan"
         resultLabel="toko ditemukan"
         icon={BuildingStorefrontIcon}
-        onChange={handleChange}
+        onChangeAction={handleChange}
         options={stores.map((store) => ({
           id: String(store.id),
           label: store.nama_toko,

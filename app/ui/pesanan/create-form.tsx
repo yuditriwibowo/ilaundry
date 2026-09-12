@@ -245,7 +245,7 @@ export default function Form({
                     <div className="sm:col-span-2">
                       <SelectPopup
                         value={item.layanan_id}
-                        onChange={(newValue) =>
+                        onChangeAction={(newValue) =>
                           updateItem(item.key, "layanan_id", newValue)
                         }
                         placeholder="Pilih Layanan"
@@ -290,7 +290,7 @@ export default function Form({
                     <div className="sm:col-span-2">
                       <SelectPopup
                         value={item.parfum_id}
-                        onChange={(newValue) =>
+                        onChangeAction={(newValue) =>
                           updateItem(item.key, "parfum_id", newValue)
                         }
                         placeholder="Tanpa Parfum"
@@ -311,7 +311,7 @@ export default function Form({
                     <div className="sm:col-span-2">
                       <SelectPopup
                         value={item.diskon_id}
-                        onChange={(newValue) =>
+                        onChangeAction={(newValue) =>
                           updateItem(item.key, "diskon_id", newValue)
                         }
                         placeholder="Tanpa Diskon"
@@ -425,7 +425,7 @@ export default function Form({
             <div className="mt-3">
               <SelectPopup
                 value={antarJemputId}
-                onChange={setAntarJemputId}
+                onChangeAction={setAntarJemputId}
                 placeholder="Pilih Layanan Antar Jemput"
                 dialogTitle="Pilih Layanan Antar Jemput"
                 searchPlaceholder="Cari layanan antar jemput..."
