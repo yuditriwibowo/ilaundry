@@ -123,6 +123,23 @@ export default function InfiniteList({
                   <p className="truncate text-[11px] text-gray-500">
                     Masuk : {formatDateTimeToLocal(pesanan.tgl_pesanan)}
                     {(() => {
+                      // Saat pesanan sudah selesai/diambil, tampilkan tanggal
+                      // selesai (bukan lagi estimasi)
+                      if (
+                        (pesanan.status_pesanan === "selesai" ||
+                          pesanan.status_pesanan === "diambil") &&
+                        pesanan.tgl_selesai
+                      ) {
+                        return (
+                          <span
+                            className="font-medium text-green-600"
+                            title="Tanggal Selesai"
+                          >
+                            {" • "}Selesai :{" "}
+                            {formatDateTimeToLocal(pesanan.tgl_selesai)}
+                          </span>
+                        );
+                      }
                       const estimasi = formatEstimasiJam(pesanan.tgl_estimasi_selesai);
                       return (
                         <span

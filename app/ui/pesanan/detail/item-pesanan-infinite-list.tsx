@@ -51,6 +51,43 @@ export default function ItemPesananInfiniteList({
     }
   }, [inView, totalPages, isLoading, loadMore]);
 
+  // Sinkronkan state lokal saat server mengirim data item terbaru
+  // (mis. setelah update status pesanan -> router.refresh()).
+  // Semua halaman yang sudah dimuat diambil ulang agar status item
+  // tampil selalu sesuai data terbaru di database.
+  const isFirstSync = useRef(true);
+  useEffect(() => {
+    if (isFirstSync.current) {
+      isFirstSync.current = false;
+      return;
+    }
+    let cancelled = false;
+    async function syncItems() {
+      try {
+        const pages = await Promise.all(
+          Array.from({ length: pageRef.current }, (_, i) =>
+            fetchMoreItemPesanan(pesananId, i + 1),
+          ),
+        );
+        if (cancelled) return;
+        const fresh = pages.flat();
+        setItems((prev) => {
+          // Data server yang menang untuk id yang sama; item lokal yang
+          // tidak ada di server (mis. baru ditambah di halaman lanjutan
+          // sebelum refresh) tetap dipertahankan.
+          const freshIds = new Set(fresh.map((item) => item.id));
+          return [...fresh, ...prev.filter((item) => !freshIds.has(item.id))];
+        });
+      } catch (error) {
+        console.error("Failed to sync item pesanan:", error);
+      }
+    }
+    syncItems();
+    return () => {
+      cancelled = true;
+    };
+  }, [initialItems, pesananId]);
+
   if (items.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">

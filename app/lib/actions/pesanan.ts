@@ -502,10 +502,27 @@ export async function updatePesanan(
   const tglEstimasiSelesai =
     estimasiList.length > 0 ? estimasiList[estimasiList.length - 1] : null;
 
+  // Status item pesanan baru mengikuti status pesanan saat ini:
+  // - batal → semua item langsung 'batal'
+  // - selesai/diambil → semua item mengikuti status tersebut dan
+  //   tgl_selesai item diisi
+  // - diproses → item baru 'diproses' seperti pesanan baru
+  const statusPesananSaatIni = existingPesanan.status_pesanan;
+  const statusItemBaru =
+    statusPesananSaatIni === "batal" ||
+    statusPesananSaatIni === "selesai" ||
+    statusPesananSaatIni === "diambil"
+      ? statusPesananSaatIni
+      : "diproses";
+  const tglSelesaiItemBaru =
+    statusItemBaru === "selesai" || statusItemBaru === "diambil" ? nowIso : null;
+
   // Update pesanan + ganti seluruh item pesanan dalam satu transaksi.
   // Kolom workflow (nomor_pesanan, status_pesanan, tgl_pesanan, tgl_selesai,
   // tgl_diambil, created_at, kasir_id) dipertahankan; item pesanan diganti
-  // total dan status item kembali 'diproses' seperti pesanan baru.
+  // total dan status item mengikuti status pesanan saat ini (bukan selalu
+  // 'diproses') agar konsisten dengan updateStatusPesanan: pesanan batal/
+  // selesai/diambil tetap menghasilkan item dengan status yang sama.
   try {
     await sql.begin(async (tx) => {
       await tx`
@@ -541,8 +558,8 @@ export async function updatePesanan(
           ) VALUES (
             ${id}, ${item.namaParfum}, ${nomorPesanan + "-" + item.nomor}, ${item.layanan.nama_layanan},
             ${item.layanan.nama_tipe}, ${item.layanan.nama_durasi}, ${item.layanan.harga}, ${item.jumlah}, ${item.satuan}, ${item.subtotal},
-            null, 'diproses', ${item.diskonId}, ${item.nilaiDiskon}, ${nowIso},
-            ${item.layanan.lama_durasi ?? null}, ${item.estimasi}, null, ${item.subtotalFinal},
+            null, ${statusItemBaru}, ${item.diskonId}, ${item.nilaiDiskon}, ${nowIso},
+            ${item.layanan.lama_durasi ?? null}, ${item.estimasi}, ${tglSelesaiItemBaru}, ${item.subtotalFinal},
             ${nowIso}, ${nowIso}, ${userId}
           )
         `;
@@ -677,15 +694,42 @@ export async function updateStatusPesanan(
     status === "diambil" ? existingPesanan.tgl_diambil ?? nowIso : null;
 
   try {
-    await sql`
-      UPDATE pesanan SET
-        status_pesanan = ${status},
-        tgl_selesai = ${tglSelesai},
-        tgl_diambil = ${tglDiambil},
-        last_update = ${nowIso},
-        update_by = ${userId}
-      WHERE id = ${id}
-    `;
+    await sql.begin(async (tx) => {
+      await tx`
+        UPDATE pesanan SET
+          status_pesanan = ${status},
+          tgl_selesai = ${tglSelesai},
+          tgl_diambil = ${tglDiambil},
+          last_update = ${nowIso},
+          update_by = ${userId}
+        WHERE id = ${id}
+      `;
+
+      // Sinkronkan status item pesanan dengan status pesanan, KECUALI
+      // kembali ke 'diproses':
+      // - selesai → semua item jadi 'selesai', tgl_selesai item diisi
+      //   (memakai tgl_selesai item yang sudah ada bila pernah diisi)
+      // - diambil → semua item jadi 'diambil' (tgl_selesai juga terisi)
+      // - batal → semua item jadi 'batal', tgl_selesai item dikosongkan
+      // - diproses → item TIDAK diubah; status tiap item tetap apa adanya
+      //   (item yang memang sudah selesai/batal tetap seperti itu, hanya
+      //   item yang benar-benar kembali diproses yang diupdate terpisah
+      //   per item)
+      if (status !== "diproses") {
+        await tx`
+          UPDATE item_pesanan SET
+            status_item = ${status},
+            tgl_selesai = CASE
+              WHEN ${status === "selesai" || status === "diambil"}
+                THEN COALESCE(tgl_selesai, ${nowIso})
+              ELSE NULL
+            END,
+            last_update = ${nowIso},
+            update_by = ${userId}
+          WHERE pesanan_id = ${id}
+        `;
+      }
+    });
   } catch (error) {
     console.error("Database Error: Gagal memperbarui status pesanan.", error);
     return {

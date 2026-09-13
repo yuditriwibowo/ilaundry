@@ -28,6 +28,22 @@ export default function PesananTableRow({ pesanan }: { pesanan: TabelPesanan }) 
       </td>
       <td className="whitespace-nowrap px-3 py-3">
         {(() => {
+          // Saat pesanan sudah selesai/diambil, tampilkan tanggal selesai
+          // (bukan lagi estimasi)
+          if (
+            (pesanan.status_pesanan === "selesai" ||
+              pesanan.status_pesanan === "diambil") &&
+            pesanan.tgl_selesai
+          ) {
+            return (
+              <span
+                className="font-medium text-green-600"
+                title="Tanggal Selesai"
+              >
+                Selesai : {formatDateTimeToLocal(pesanan.tgl_selesai)}
+              </span>
+            );
+          }
           const estimasi = formatEstimasiJam(pesanan.tgl_estimasi_selesai);
           if (!estimasi) return "-";
           return (

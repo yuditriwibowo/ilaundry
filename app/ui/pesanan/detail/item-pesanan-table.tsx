@@ -20,6 +20,18 @@ export default function ItemPesananTable({
     setItems((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
+  // Sinkronkan state lokal saat server mengirim data item terbaru
+  // (mis. setelah update status pesanan -> router.refresh()).
+  // Tanpa ini, state hanya diisi sekali saat mount sehingga status item
+  // tampil stale walaupun data di database sudah berubah.
+  // Pola resmi React: menyesuaikan state berdasarkan perubahan props
+  // dilakukan saat render (bukan di dalam effect).
+  const [prevInitialItems, setPrevInitialItems] = useState<ItemPesanan[]>(initialItems);
+  if (initialItems !== prevInitialItems) {
+    setPrevInitialItems(initialItems);
+    setItems(initialItems);
+  }
+
   if (items.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500">
