@@ -9,11 +9,18 @@ import {
   PrinterIcon,
   PlusIcon,
   Bars3Icon,
+  ArrowPathIcon,
+  BanknotesIcon,
 } from "@heroicons/react/24/outline";
 import { MessageCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { deletePesanan, deleteItemPesanan } from "@/app/lib/actions";
+import {
+  deletePesanan,
+  updateStatusPesanan,
+  updatePembayaranPesanan,
+  deleteItemPesanan,
+} from "@/app/lib/actions";
 import { TabelPesanan, StatusPesanan, StatusPembayaran, MetodePembayaran } from "@/app/lib/definitions";
 import { formatDateTimeToLocal, formatRupiah } from "@/app/lib/utils";
 
@@ -338,12 +345,18 @@ export function printStruk(pesanan: TabelPesanan) {
 export function PesananActionMenu({
   pesanan,
   onDeleteAction,
+  onUpdateAction,
 }: {
   pesanan: TabelPesanan;
   onDeleteAction?: (id: string) => void;
+  // Dipanggil setelah update status/pembayaran sukses dengan baris terbaru,
+  // agar list (infinite scroll) bisa mengganti data barisnya di state lokal.
+  onUpdateAction?: (updated: TabelPesanan) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showPembayaranModal, setShowPembayaranModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -451,6 +464,30 @@ export function PesananActionMenu({
               <PencilIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
               Edit
             </Link>
+            <button
+              type="button"
+              role="menuitem"
+              className={menuItemClass}
+              onClick={() => {
+                setOpen(false);
+                setShowStatusModal(true);
+              }}
+            >
+              <ArrowPathIcon className="h-4 w-4 text-blue-500" />
+              Update Status
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={menuItemClass}
+              onClick={() => {
+                setOpen(false);
+                setShowPembayaranModal(true);
+              }}
+            >
+              <BanknotesIcon className="h-4 w-4 text-green-600" />
+              Update Pembayaran
+            </button>
             <div className="my-1 border-t border-gray-100 dark:border-slate-800" />
             <button
               type="button"
@@ -525,6 +562,22 @@ export function PesananActionMenu({
           </div>,
           document.body
         )}
+
+      {/* Modal Update Status Pesanan */}
+      <UpdateStatusPesananModal
+        pesanan={pesanan}
+        show={showStatusModal}
+        onClose={() => setShowStatusModal(false)}
+        onSuccessAction={(updated) => onUpdateAction?.(updated)}
+      />
+
+      {/* Modal Update Pembayaran */}
+      <UpdatePembayaranModal
+        pesanan={pesanan}
+        show={showPembayaranModal}
+        onClose={() => setShowPembayaranModal(false)}
+        onSuccessAction={(updated) => onUpdateAction?.(updated)}
+      />
     </>
   );
 }
@@ -538,6 +591,8 @@ export function PesananDetailActionButtons({
 }) {
   const router = useRouter();
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showPembayaranModal, setShowPembayaranModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -606,6 +661,12 @@ export function PesananDetailActionButtons({
           <span className="sr-only">Edit</span>
           <PencilIcon className="h-5 w-5" />
         </Link>
+
+        {/* Update Status Pesanan */}
+        <UpdateStatusPesananButton pesanan={pesanan} />
+
+        {/* Update Pembayaran */}
+        <UpdatePembayaranPesananButton pesanan={pesanan} />
 
         {/* Delete */}
         <button
@@ -678,6 +739,374 @@ export function PesananDetailActionButtons({
           </div>,
           document.body
         )}
+    </>
+  );
+}
+
+// ---------- Modal Update Status Pesanan ----------
+// Nilai form dikelola lokal (bukan FormData) karena update dilakukan lewat
+// server action terpisah, bukan submit form create/update pesanan.
+function UpdateStatusPesananModal({
+  pesanan,
+  show,
+  onClose,
+  onSuccessAction,
+}: {
+  pesanan: TabelPesanan;
+  show: boolean;
+  onClose: () => void;
+  onSuccessAction?: (updated: TabelPesanan) => void;
+}) {
+  const router = useRouter();
+  const [selectedStatus, setSelectedStatus] = useState<StatusPesanan>(
+    pesanan.status_pesanan,
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Reset pilihan ke status terbaru setiap kali modal dibuka
+  useEffect(() => {
+    if (show) {
+      setSelectedStatus(pesanan.status_pesanan);
+      setErrorMsg(null);
+    }
+  }, [show, pesanan.status_pesanan]);
+
+  if (!show) return null;
+
+  async function handleSave() {
+    setIsSaving(true);
+    setErrorMsg(null);
+    try {
+      const result = await updateStatusPesanan(pesanan.id, selectedStatus);
+      if (!result.success || !result.pesanan) {
+        setErrorMsg(result.message ?? "Gagal memperbarui status pesanan.");
+        return;
+      }
+      router.refresh();
+      onSuccessAction?.(result.pesanan);
+      onClose();
+    } catch (error) {
+      console.error("Failed to update status pesanan:", error);
+      setErrorMsg("Gagal memperbarui status pesanan.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl border border-gray-100 dark:bg-slate-900 dark:border-slate-800">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+          <ArrowPathIcon className="h-8 w-8" />
+        </div>
+
+        <h3 className="mb-1 text-lg font-bold text-gray-900 dark:text-gray-100">
+          Update Status Pesanan
+        </h3>
+        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          {pesanan.nomor_pesanan ?? "-"} • {pesanan.nama_pelanggan ?? "-"}
+        </p>
+
+        <div className="mb-4 grid grid-cols-2 gap-2">
+          {(Object.keys(statusPesananText) as StatusPesanan[]).map((status) => {
+            const isSelected = selectedStatus === status;
+            return (
+              <button
+                key={status}
+                type="button"
+                onClick={() => setSelectedStatus(status)}
+                className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isSelected
+                    ? "border-primary-600 bg-primary-50 text-primary-700 dark:border-primary-500 dark:bg-primary-950/40 dark:text-primary-300"
+                    : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-200 dark:hover:bg-slate-700"
+                }`}
+              >
+                {statusPesananText[status]}
+              </button>
+            );
+          })}
+        </div>
+
+        {errorMsg && (
+          <p className="mb-4 text-sm font-medium text-red-600 dark:text-red-400">
+            {errorMsg}
+          </p>
+        )}
+
+        <div className="flex gap-3">
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={onClose}
+            className="flex-1 touch-manipulation rounded-xl border border-gray-200 bg-gray-50 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            disabled={isSaving || selectedStatus === pesanan.status_pesanan}
+            onClick={() => handleSave()}
+            className="flex-1 touch-manipulation rounded-xl bg-primary-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-500 disabled:opacity-50"
+          >
+            {isSaving ? "Menyimpan..." : "Simpan"}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// ---------- Tombol Update Status Pesanan (halaman detail) ----------
+export function UpdateStatusPesananButton({
+  pesanan,
+  onSuccessAction,
+}: {
+  pesanan: TabelPesanan;
+  onSuccessAction?: (updated: TabelPesanan) => void;
+}) {
+  const [showModal, setShowModal] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(e) => {
+          // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
+          e.stopPropagation();
+          setShowModal(true);
+        }}
+        title="Update Status Pesanan"
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100 shadow-sm dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-400"
+      >
+        <span className="sr-only">Update Status Pesanan</span>
+        <ArrowPathIcon className="h-5 w-5" />
+      </button>
+
+      <UpdateStatusPesananModal
+        pesanan={pesanan}
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onSuccessAction={onSuccessAction}
+      />
+    </>
+  );
+}
+
+// ---------- Modal Update Pembayaran Pesanan ----------
+// Hanya mengubah jumlah_bayar & metode_pembayaran; status_pembayaran dan
+// kurang_bayar dihitung ulang di server dari total_bayar saat ini.
+function UpdatePembayaranModal({
+  pesanan,
+  show,
+  onClose,
+  onSuccessAction,
+}: {
+  pesanan: TabelPesanan;
+  show: boolean;
+  onClose: () => void;
+  onSuccessAction?: (updated: TabelPesanan) => void;
+}) {
+  const router = useRouter();
+  const [jumlahBayar, setJumlahBayar] = useState<string>(
+    String(Number(pesanan.jumlah_bayar) || 0),
+  );
+  const [metode, setMetode] = useState<MetodePembayaran | "">(
+    pesanan.metode_pembayaran ?? "",
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const totalBayar = Number(pesanan.total_bayar) || 0;
+  const jumlah = Number(jumlahBayar) || 0;
+  const kurangBayar = Math.max(0, totalBayar - jumlah);
+  const previewStatus =
+    jumlah <= 0 ? "belum_bayar" : jumlah >= totalBayar ? "lunas" : "DP";
+
+  // Reset form ke nilai terbaru setiap kali modal dibuka
+  useEffect(() => {
+    if (show) {
+      setJumlahBayar(String(Number(pesanan.jumlah_bayar) || 0));
+      setMetode(pesanan.metode_pembayaran ?? "");
+      setErrorMsg(null);
+    }
+  }, [show, pesanan.jumlah_bayar, pesanan.metode_pembayaran]);
+
+  if (!show) return null;
+
+  async function handleSave() {
+    setIsSaving(true);
+    setErrorMsg(null);
+    try {
+      const result = await updatePembayaranPesanan(pesanan.id, jumlah, metode || undefined);
+      if (!result.success || !result.pesanan) {
+        setErrorMsg(result.message ?? "Gagal memperbarui pembayaran.");
+        return;
+      }
+      router.refresh();
+      onSuccessAction?.(result.pesanan);
+      onClose();
+    } catch (error) {
+      console.error("Failed to update pembayaran:", error);
+      setErrorMsg("Gagal memperbarui pembayaran.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  const metodeOptions: { id: MetodePembayaran; label: string }[] = [
+    { id: "tunai", label: "Tunai" },
+    { id: "non_tunai", label: "Non Tunai" },
+  ];
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-gray-100 dark:bg-slate-900 dark:border-slate-800">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-50 text-green-600 dark:bg-green-950/60 dark:text-green-400">
+            <BanknotesIcon className="h-6 w-6" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              Update Pembayaran
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {pesanan.nomor_pesanan ?? "-"} • {pesanan.nama_pelanggan ?? "-"}
+            </p>
+          </div>
+        </div>
+
+        {/* Jumlah Bayar (format rupiah) */}
+        <label htmlFor="update-bayar-jumlah" className="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-100">
+          Jumlah Bayar
+        </label>
+        <div className="relative mb-3">
+          <input
+            id="update-bayar-jumlah"
+            type="text"
+            inputMode="numeric"
+            value={jumlahBayar === "" ? "" : formatRupiah(Number(jumlahBayar))}
+            onChange={(e) => setJumlahBayar(e.target.value.replace(/[^0-9]/g, ""))}
+            placeholder="Masukkan jumlah bayar"
+            className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 pr-3 text-sm outline-2 placeholder:text-gray-500 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-100"
+          />
+          <BanknotesIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+        </div>
+
+        {/* Metode Pembayaran */}
+        <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-100">
+          Metode Pembayaran
+        </label>
+        <div className="mb-3 grid grid-cols-2 gap-2">
+          {metodeOptions.map((option) => {
+            const isSelected = metode === option.id;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setMetode(option.id)}
+                className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isSelected
+                    ? "border-primary-600 bg-primary-50 text-primary-700 dark:border-primary-500 dark:bg-primary-950/40 dark:text-primary-300"
+                    : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-200 dark:hover:bg-slate-700"
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+        {/* Ringkasan */}
+        <div className="mb-4 space-y-1.5 rounded-lg bg-gray-50 px-3 py-2.5 text-sm dark:bg-slate-800">
+          <div className="flex items-center justify-between">
+            <span className="text-gray-500 dark:text-gray-400">Total Tagihan</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">
+              {formatRupiah(totalBayar)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-500 dark:text-gray-400">Kurang Bayar</span>
+            <span className="font-semibold text-gray-900 dark:text-gray-100">
+              {formatRupiah(kurangBayar)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-500 dark:text-gray-400">Status Pembayaran</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">
+              {statusPembayaranText[previewStatus]}
+            </span>
+          </div>
+        </div>
+
+        {errorMsg && (
+          <p className="mb-4 text-sm font-medium text-red-600 dark:text-red-400">
+            {errorMsg}
+          </p>
+        )}
+
+        <div className="flex gap-3">
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={onClose}
+            className="flex-1 touch-manipulation rounded-xl border border-gray-200 bg-gray-50 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            disabled={isSaving || (jumlah > 0 && !metode)}
+            onClick={() => handleSave()}
+            className="flex-1 touch-manipulation rounded-xl bg-primary-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-500 disabled:opacity-50"
+          >
+            {isSaving ? "Menyimpan..." : "Simpan"}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// ---------- Tombol Update Pembayaran (halaman detail) ----------
+export function UpdatePembayaranPesananButton({
+  pesanan,
+  onSuccessAction,
+}: {
+  pesanan: TabelPesanan;
+  onSuccessAction?: (updated: TabelPesanan) => void;
+}) {
+  const [showModal, setShowModal] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(e) => {
+          // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
+          e.stopPropagation();
+          setShowModal(true);
+        }}
+        title="Update Pembayaran"
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-green-200 bg-green-50 text-green-600 transition-colors hover:bg-green-100 shadow-sm dark:border-green-900 dark:bg-green-950/40 dark:text-green-400"
+      >
+        <span className="sr-only">Update Pembayaran</span>
+        <BanknotesIcon className="h-5 w-5" />
+      </button>
+
+      <UpdatePembayaranModal
+        pesanan={pesanan}
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onSuccessAction={onSuccessAction}
+      />
     </>
   );
 }

@@ -47,6 +47,13 @@ export default function InfiniteList({
     setPesananList((prev) => prev.filter((pesanan) => pesanan.id !== id));
   }, []);
 
+  // Mengganti baris dengan data terbaru setelah update status/pembayaran sukses
+  const handleUpdate = useCallback((updated: TabelPesanan) => {
+    setPesananList((prev) =>
+      prev.map((pesanan) => (pesanan.id === updated.id ? updated : pesanan)),
+    );
+  }, []);
+
   const { ref, inView } = useInView();
 
   const loadMore = useCallback(async () => {
@@ -136,6 +143,7 @@ export default function InfiniteList({
                   <PesananActionMenu
                     pesanan={pesanan}
                     onDeleteAction={handleDelete}
+                    onUpdateAction={handleUpdate}
                   />
                 </div>
               </div>
