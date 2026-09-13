@@ -6,12 +6,14 @@ const statusPesananStyles: Record<StatusPesanan, string> = {
   diproses: "bg-amber-100 text-amber-700",
   selesai: "bg-green-100 text-green-700",
   diambil: "bg-gray-200 text-gray-600",
+  batal: "bg-red-100 text-red-700",
 };
 
 const statusPesananLabels: Record<StatusPesanan, string> = {
   diproses: "Diproses",
   selesai: "Selesai",
   diambil: "Diambil",
+  batal: "Batal",
 };
 
 export function StatusPesananBadge({ status }: { status: StatusPesanan }) {

@@ -130,7 +130,8 @@ export type UserTokoDetail = {
 
 // Status pesanan mengikuti alur kerja laundry:
 // diproses -> selesai -> diambil (sesuai kolom tgl_selesai & tgl_diambil)
-export type StatusPesanan = 'diproses' | 'selesai' | 'diambil';
+// 'batal' dipakai saat pesanan dibatalkan.
+export type StatusPesanan = 'diproses' | 'selesai' | 'diambil' | 'batal';
 
 export type StatusPembayaran = 'belum_bayar'| 'DP' | 'lunas';
 
@@ -174,7 +175,8 @@ export type TabelPesanan = Pesanan & {
 
 // Status item pesanan mengikuti alur kerja laundry per item:
 // diproses -> selesai -> diambil (kolom status_item, default 'diproses')
-export type StatusItem = 'diproses' | 'selesai' | 'diambil';
+// 'batal' dipakai saat item pesanan dibatalkan.
+export type StatusItem = 'diproses' | 'selesai' | 'diambil' | 'batal';
 
 export type ItemPesanan = {
   id: string;

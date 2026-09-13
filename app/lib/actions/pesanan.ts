@@ -114,7 +114,14 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
   const nowIso = now.toISOString();
   const pad = (n: number) => String(n).padStart(2, "0");
   const stamp = `${String(now.getFullYear()).slice(-2)}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}`;
-  const nomorPesanan = `PSN-${stamp}`;
+  // Ambil nama toko yang dipilih untuk prefix nomor pesanan (huruf awal nama toko)
+  const tokoRows = await sql<{ nama_toko: string }[]>`
+    SELECT nama_toko
+    FROM toko
+    WHERE id = ${selectedToko}
+  `;
+  const prefixNomor = tokoRows[0]?.nama_toko?.charAt(0).toUpperCase() || "PSN";
+  const nomorPesanan = `${prefixNomor}-${stamp}`;
   // Ambil data referensi untuk snapshot item pesanan
   const layananIds = items.map((item) => item.layanan_id);
   const layananRows = await sql<TabelLayanan[]>`
@@ -553,14 +560,68 @@ export async function updatePesanan(
   redirect("/laundry/pesanan");
 }
 
-export async function deletePesanan(id: string) {
+// Hasil delete pesanan. Alasan penolakan dikembalikan sebagai pesan
+// (bukan throw) agar UI bisa menampilkannya apa adanya tanpa error 500.
+export type DeletePesananResult = {
+  success: boolean;
+  message?: string;
+};
+
+export async function deletePesanan(id: string): Promise<DeletePesananResult> {
   await getCurrentUser();
-  try {
-    await sql`DELETE FROM pesanan WHERE id = ${id}`;
-  } catch (error) {
-    throw new Error("Database Error: Failed to Delete Pesanan.");
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value || null;
+
+  // Pastikan pesanan ada dan milik toko yang sedang dipilih
+  const existingPesanan = await fetchPesananById(id);
+  if (!existingPesanan || existingPesanan.toko_id !== selectedToko) {
+    return {
+      success: false,
+      message: "Pesanan tidak ditemukan. Gagal menghapus pesanan.",
+    };
   }
+
+  // Pesanan yang sudah selesai/diambil tidak boleh dihapus (riwayat transaksi)
+  if (
+    existingPesanan.status_pesanan === "selesai" ||
+    existingPesanan.status_pesanan === "diambil"
+  ) {
+    const label =
+      existingPesanan.status_pesanan === "selesai" ? "Selesai" : "Diambil";
+    return {
+      success: false,
+      message: `Pesanan berstatus ${label} tidak dapat dihapus.`,
+    };
+  }
+
+  // Pesanan yang sudah ada pembayaran tidak boleh dihapus
+  if (
+    Number(existingPesanan.jumlah_bayar) > 0 ||
+    existingPesanan.status_pembayaran === "DP" ||
+    existingPesanan.status_pembayaran === "lunas"
+  ) {
+    return {
+      success: false,
+      message:
+        "Pesanan yang sudah ada pembayaran tidak dapat dihapus. Gunakan status 'Batal' jika transaksi dibatalkan.",
+    };
+  }
+
+  try {
+    await sql.begin(async (tx) => {
+      await tx`DELETE FROM item_pesanan WHERE pesanan_id = ${id}`;
+      await tx`DELETE FROM pesanan WHERE id = ${id}`;
+    });
+  } catch (error) {
+    console.error("Database Error: Gagal menghapus pesanan.", error);
+    return {
+      success: false,
+      message: "Database Error: Gagal menghapus pesanan.",
+    };
+  }
+
   revalidatePath("/laundry/pesanan");
+  return { success: true };
 }
 
 export async function fetchMorePesanan(

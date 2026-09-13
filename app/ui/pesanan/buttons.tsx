@@ -42,6 +42,7 @@ const statusPesananText: Record<StatusPesanan, string> = {
   diproses: "Diproses",
   selesai: "Selesai",
   diambil: "Diambil",
+  batal: "Batal",
 };
 
 export const metodePembayaranText: Record<MetodePembayaran, string> = {
@@ -95,17 +96,23 @@ export function DeletePesanan({
 }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleConfirm() {
     setIsDeleting(true);
     try {
-      await deletePesanan(id);
+      const result = await deletePesanan(id);
+      if (!result.success) {
+        setErrorMsg(result.message ?? "Gagal menghapus pesanan.");
+        return;
+      }
       if (onDeleteAction) {
         onDeleteAction(id);
       }
       setShowConfirm(false);
     } catch (error) {
       console.error("Failed to delete pesanan:", error);
+      setErrorMsg("Gagal menghapus pesanan.");
     } finally {
       setIsDeleting(false);
     }
@@ -118,6 +125,7 @@ export function DeletePesanan({
         onClick={(e) => {
           // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
           e.stopPropagation();
+          setErrorMsg(null);
           setShowConfirm(true);
         }}
         title="Hapus"
@@ -145,6 +153,12 @@ export function DeletePesanan({
               <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
                 Apakah Anda yakin akan menghapus pesanan ini?
               </p>
+
+              {errorMsg && (
+                <p className="mb-4 text-sm font-medium text-red-600 dark:text-red-400">
+                  {errorMsg}
+                </p>
+              )}
 
               <div className="flex gap-3">
                 <button
@@ -331,6 +345,7 @@ export function PesananActionMenu({
   const [open, setOpen] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -349,11 +364,16 @@ export function PesananActionMenu({
   async function handleConfirmDelete() {
     setIsDeleting(true);
     try {
-      await deletePesanan(pesanan.id);
+      const result = await deletePesanan(pesanan.id);
+      if (!result.success) {
+        setErrorMsg(result.message ?? "Gagal menghapus pesanan.");
+        return;
+      }
       onDeleteAction?.(pesanan.id);
       setShowConfirm(false);
     } catch (error) {
       console.error("Failed to delete pesanan:", error);
+      setErrorMsg("Gagal menghapus pesanan.");
     } finally {
       setIsDeleting(false);
     }
@@ -440,6 +460,7 @@ export function PesananActionMenu({
                 // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
                 e.stopPropagation();
                 setOpen(false);
+                setErrorMsg(null);
                 setShowConfirm(true);
               }}
             >
@@ -468,6 +489,12 @@ export function PesananActionMenu({
               <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
                 Apakah Anda yakin akan menghapus pesanan {pesanan.nomor_pesanan ?? "ini"}?
               </p>
+
+              {errorMsg && (
+                <p className="mb-4 text-sm font-medium text-red-600 dark:text-red-400">
+                  {errorMsg}
+                </p>
+              )}
 
               <div className="flex gap-3">
                 <button
@@ -512,11 +539,16 @@ export function PesananDetailActionButtons({
   const router = useRouter();
   const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleConfirmDelete() {
     setIsDeleting(true);
     try {
-      await deletePesanan(pesanan.id);
+      const result = await deletePesanan(pesanan.id);
+      if (!result.success) {
+        setErrorMsg(result.message ?? "Gagal menghapus pesanan.");
+        return;
+      }
       if (onDeleteSuccessAction) {
         onDeleteSuccessAction();
       } else {
@@ -525,6 +557,7 @@ export function PesananDetailActionButtons({
       setShowConfirm(false);
     } catch (error) {
       console.error("Failed to delete pesanan:", error);
+      setErrorMsg("Gagal menghapus pesanan.");
     } finally {
       setIsDeleting(false);
     }
@@ -580,6 +613,7 @@ export function PesananDetailActionButtons({
           onClick={(e) => {
             // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
             e.stopPropagation();
+            setErrorMsg(null);
             setShowConfirm(true);
           }}
           title="Hapus Pesanan"
@@ -608,6 +642,12 @@ export function PesananDetailActionButtons({
               <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
                 Apakah Anda yakin akan menghapus pesanan {pesanan.nomor_pesanan ?? "ini"}?
               </p>
+
+              {errorMsg && (
+                <p className="mb-4 text-sm font-medium text-red-600 dark:text-red-400">
+                  {errorMsg}
+                </p>
+              )}
 
               <div className="flex gap-3">
                 <button
