@@ -18,7 +18,7 @@ export default async function Page(props: {
   const totalPages = await fetchTokoPages(query);
     return (
       <div className="flex h-full w-full flex-col -mt-2">
-        <div className="sticky top-0 z-10 bg-gradient-to-b from-primary-400 to-primary-800 pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 shadow-md pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
           <div className="flex w-full items-center justify-between">
               <h1 className={`text-2xl text-white md:text-gray-900`}>Pengaturan Toko</h1>
            </div>

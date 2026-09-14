@@ -42,17 +42,17 @@ export default function NavLinks() {
             key={link.name}
             href={link.href}
             className={clsx(
-              "flex h-auto grow flex-col items-center justify-center rounded-md font-medium transition-colors hover:bg-sky-100 hover:text-blue-600 dark:hover:bg-sky-500/15 dark:hover:text-sky-400 md:flex-row md:w-full md:justify-start md:gap-2 md:p-2 md:px-3 md:text-sm",
+              "flex h-auto grow flex-col items-center justify-center rounded-xl font-medium transition-all md:flex-row md:w-full md:justify-start md:gap-2.5 md:p-2.5 md:px-3.5 md:text-sm",
               // Portrait mobile: padding dan gap lebih ringkas untuk mencapai ~75% tinggi
               "portrait:py-1.5 portrait:px-1 portrait:gap-0.5",
               // Landscape mobile: padding dan gap standar
-              "landscape:p-3 landscape:gap-1 landscape:text-sm",
+              "landscape:p-2.5 landscape:gap-1.5 landscape:text-xs",
               isActive
-                ? "bg-sky-100 text-blue-600 dark:bg-sky-500/15 dark:text-sky-400"
-                : "bg-transparent text-gray-700 landscape:bg-gray-50 md:bg-gray-50",
+                ? "bg-white text-blue-700 shadow-sm border border-slate-200/80 font-bold dark:bg-blue-600 dark:text-white dark:border-blue-500 dark:shadow-md"
+                : "text-slate-700 dark:text-slate-200 bg-transparent portrait:hover:bg-slate-100 dark:portrait:hover:bg-slate-800 landscape:bg-slate-50/80 md:bg-slate-50/80 dark:landscape:bg-slate-800/60 dark:md:bg-slate-800/60 border border-transparent landscape:border-slate-200/60 md:border-slate-200/60 dark:landscape:border-slate-700/60 dark:md:border-slate-700/60 hover:bg-white dark:hover:bg-slate-800 hover:text-blue-700 dark:hover:text-blue-300 hover:border-slate-200 dark:hover:border-slate-600 hover:shadow-sm",
             )}
           >
-            <LinkIcon className="w-6 portrait:w-5 portrait:h-5 landscape:w-6 md:w-6 flex-shrink-0" />
+            <LinkIcon className="w-6 portrait:w-5 portrait:h-5 landscape:w-5 landscape:h-5 md:w-5 md:h-5 flex-shrink-0" />
             <p className="block text-[10px] md:text-sm leading-tight md:leading-normal">
               {link.name}
             </p>

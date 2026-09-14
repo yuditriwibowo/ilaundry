@@ -25,13 +25,13 @@ import { TabelPesanan, StatusPesanan, StatusPembayaran, MetodePembayaran } from 
 import { formatDateTimeToLocal, formatRupiah } from "@/app/lib/utils";
 
 const actionButtonClass =
-  "flex h-8 w-8 touch-manipulation items-center justify-center rounded-full border p-2 transition-colors hover:bg-gray-100";
+  "flex h-8 w-8 touch-manipulation items-center justify-center rounded-xl border p-1.5 transition-all";
 
 export function CreatePesanan() {
   return (
     <Link
       href="/laundry/pesanan/create"
-      className="flex h-10 items-center rounded-lg border border-gray-200 bg-gray-50 text-primary-600 md:border-primary-600 md:bg-primary-600 md:text-white px-4 text-sm font-medium transition-colors hover:bg-primary-50 md:hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+      className="flex h-10 items-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/20 px-4 text-sm font-bold transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
     >
       <span className="hidden md:block">Tambah Pesanan</span>{" "}
       <PlusIcon className="h-5 md:ml-4" />
@@ -73,7 +73,7 @@ export function ViewPesananDetail({ id }: { id: string }) {
     <Link
       href={`/laundry/pesanan/${id}/detail`}
       title="Lihat Detail"
-      className={`${actionButtonClass} border-gray-200 text-gray-600`}
+      className={`${actionButtonClass} border-slate-200 bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700`}
     >
       <span className="sr-only">Lihat Detail</span>
       <EyeIcon className="h-4 w-4" />
@@ -86,7 +86,7 @@ export function UpdatePesanan({ id }: { id: string }) {
     <Link
       href={`/laundry/pesanan/${id}/edit`}
       title="Edit"
-      className={`${actionButtonClass} border-gray-200 text-gray-600`}
+      className={`${actionButtonClass} border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700`}
     >
       <span className="sr-only">Edit</span>
       <PencilIcon className="h-4 w-4" />
@@ -223,7 +223,7 @@ export function KirimWaPesanan({
     <button
       onClick={handleClick}
       title="Kirim WA"
-      className={`${actionButtonClass} border-green-200 bg-green-50 text-green-600 hover:bg-green-100`}
+      className={`${actionButtonClass} border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:border-emerald-800/60 dark:bg-emerald-950/50 dark:text-emerald-400`}
     >
       <span className="sr-only">Kirim WA</span>
       <MessageCircleIcon className="h-4 w-4" />
@@ -240,7 +240,7 @@ export function PrintPesanan({ pesanan }: { pesanan: TabelPesanan }) {
     <button
       onClick={handleClick}
       title="Print"
-      className={`${actionButtonClass} border-gray-200 text-gray-600`}
+      className={`${actionButtonClass} border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700`}
     >
       <span className="sr-only">Print</span>
       <PrinterIcon className="h-4 w-4" />
@@ -635,7 +635,7 @@ export function PesananDetailActionButtons({
             })
           }
           title="Kirim WhatsApp"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-green-200 bg-green-50 text-green-600 transition-colors hover:bg-green-100 shadow-sm"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600 transition-all hover:bg-emerald-100 dark:border-emerald-800/60 dark:bg-emerald-950/50 dark:text-emerald-400 shadow-sm"
         >
           <span className="sr-only">Kirim WhatsApp</span>
           <MessageCircleIcon className="h-5 w-5" />
@@ -646,7 +646,7 @@ export function PesananDetailActionButtons({
           type="button"
           onClick={() => printStruk(pesanan)}
           title="Print Struk"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700 shadow-sm"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 transition-all hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 shadow-sm"
         >
           <span className="sr-only">Print</span>
           <PrinterIcon className="h-5 w-5" />
@@ -656,7 +656,7 @@ export function PesananDetailActionButtons({
         <Link
           href={`/laundry/pesanan/${pesanan.id}/edit`}
           title="Edit Pesanan"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700 shadow-sm"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 transition-all hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 shadow-sm"
         >
           <span className="sr-only">Edit</span>
           <PencilIcon className="h-5 w-5" />
@@ -678,7 +678,7 @@ export function PesananDetailActionButtons({
             setShowConfirm(true);
           }}
           title="Hapus Pesanan"
-          className="flex h-9 w-9 touch-manipulation items-center justify-center rounded-full border border-red-200 bg-white text-red-600 transition-colors hover:bg-red-50 dark:border-slate-700 dark:bg-slate-800 dark:text-red-400 dark:hover:bg-red-950/50 shadow-sm"
+          className="flex h-9 w-9 touch-manipulation items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600 transition-all hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-400 shadow-sm"
         >
           <span className="sr-only">Hapus</span>
           <TrashIcon className="h-5 w-5" />
@@ -764,13 +764,15 @@ function UpdateStatusPesananModal({
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Reset pilihan ke status terbaru setiap kali modal dibuka
-  useEffect(() => {
-    if (show) {
-      setSelectedStatus(pesanan.status_pesanan);
-      setErrorMsg(null);
-    }
-  }, [show, pesanan.status_pesanan]);
+  // Reset pilihan ke status terbaru setiap kali modal dibuka (pola resmi React)
+  const [prevPesanan, setPrevPesanan] = useState(pesanan);
+  const [prevShow, setPrevShow] = useState(show);
+  if ((show && !prevShow) || pesanan.status_pesanan !== prevPesanan.status_pesanan) {
+    setPrevShow(show);
+    setPrevPesanan(pesanan);
+    setSelectedStatus(pesanan.status_pesanan);
+    setErrorMsg(null);
+  }
 
   if (!show) return null;
 
@@ -927,14 +929,20 @@ function UpdatePembayaranModal({
   const previewStatus =
     jumlah <= 0 ? "belum_bayar" : jumlah >= totalBayar ? "lunas" : "DP";
 
-  // Reset form ke nilai terbaru setiap kali modal dibuka
-  useEffect(() => {
-    if (show) {
-      setJumlahBayar(String(Number(pesanan.jumlah_bayar) || 0));
-      setMetode(pesanan.metode_pembayaran ?? "");
-      setErrorMsg(null);
-    }
-  }, [show, pesanan.jumlah_bayar, pesanan.metode_pembayaran]);
+  // Reset form ke nilai terbaru setiap kali modal dibuka (pola resmi React)
+  const [prevPesanan, setPrevPesanan] = useState(pesanan);
+  const [prevShow, setPrevShow] = useState(show);
+  if (
+    (show && !prevShow) ||
+    pesanan.jumlah_bayar !== prevPesanan.jumlah_bayar ||
+    pesanan.metode_pembayaran !== prevPesanan.metode_pembayaran
+  ) {
+    setPrevShow(show);
+    setPrevPesanan(pesanan);
+    setJumlahBayar(String(Number(pesanan.jumlah_bayar) || 0));
+    setMetode(pesanan.metode_pembayaran ?? "");
+    setErrorMsg(null);
+  }
 
   if (!show) return null;
 

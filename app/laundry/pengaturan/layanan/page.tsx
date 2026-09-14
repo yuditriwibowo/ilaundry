@@ -29,7 +29,7 @@ export default async function Page(props: {
       <div className="flex h-full w-full flex-col -mt-2">
         <div className="sticky top-0 z-10 md:static md:bg-gray-50">
           {/* Header biru: hanya membungkus judul + Search, rounded-b di bawah Search */}
-          <div className="bg-gradient-to-b from-primary-400 to-primary-800 pb-3 px-4 pt-6 -mx-4 rounded-b-xl md:bg-none md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none short-screen:pb-2 short-screen:pt-3">
+          <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 shadow-md pb-3 px-4 pt-6 -mx-4 rounded-b-xl md:bg-none md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none short-screen:pb-2 short-screen:pt-3">
             <div className="flex w-full items-center justify-between">
               <h1 className={`text-2xl text-white md:text-gray-900`}>Pengaturan Layanan</h1>
             </div>

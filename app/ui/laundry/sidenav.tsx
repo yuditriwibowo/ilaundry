@@ -4,7 +4,7 @@ import { PowerIcon } from "@heroicons/react/24/outline";
 
 export default function SideNav() {
   return (
-    <div className="flex flex-col px-3 py-2 portrait:py-1.5 portrait:px-2 landscape:py-2 landscape:px-3 md:h-full md:py-4 md:px-2 bg-gray-100 shadow-md">
+    <div className="flex flex-col px-3 py-2 portrait:py-1.5 portrait:px-2 landscape:py-2 landscape:px-3 md:h-full md:py-4 md:px-2 bg-gray-100 border-t md:border-r md:border-t-0 border-gray-200 shadow-sm">
       <div className="flex flex-row justify-between items-center space-x-2 md:flex-col md:space-x-0 md:space-y-2 md:items-start">
         <div className="grow flex flex-row justify-between items-center gap-2 md:contents">
           <NavLinks />
@@ -15,7 +15,7 @@ export default function SideNav() {
               </button>
             </form> */}
         </div>
-        <div className="hidden h-auto w-full grow rounded-md bg-gray-50 md:block"></div>
+        <div className="hidden h-auto w-full grow md:block"></div>
       </div>
     </div>
   );

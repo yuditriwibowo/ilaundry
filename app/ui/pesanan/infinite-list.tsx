@@ -92,11 +92,11 @@ export default function InfiniteList({
               role="button"
               aria-label={`Lihat detail pesanan ${pesanan.nomor_pesanan ?? ''}`}
               onClick={() => router.push(`/laundry/pesanan/${pesanan.id}/detail`)}
-              className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm cursor-pointer transition-colors hover:bg-gray-50 active:scale-[0.99]"
+              className="mb-2.5 w-full rounded-2xl bg-white p-4 shadow-sm border border-slate-200/80 cursor-pointer transition-all hover:border-blue-300 dark:bg-slate-900 dark:border-slate-800 active:scale-[0.99]"
             >
               <div className="flex items-start justify-between gap-2 text-sm">
                 <div className="flex min-w-0 gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-700">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 border border-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-950/60 dark:border-blue-900/60 dark:text-blue-300">
                     {getInitials(pesanan.nama_pelanggan)}
                   </div>
                   <div className="flex min-w-0 flex-col">

@@ -24,7 +24,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
   return (
     <div className="flex min-h-full w-full flex-col">
-      <div className="portrait:sticky portrait:top-0 portrait:z-30 portrait:bg-gradient-to-b portrait:from-primary-400 portrait:to-primary-800 portrait:px-4 portrait:-mx-4 portrait:rounded-b-xl portrait:pt-3 portrait:pb-3 portrait:min-h-[58px] portrait:flex portrait:items-center portrait:mb-2 landscape:bg-transparent landscape:px-0 landscape:mx-0 landscape:pt-1.5 landscape:pb-6 landscape:min-h-0 landscape:rounded-none landscape:static md:bg-transparent md:px-0 md:mx-0 md:pt-2 md:min-h-0 md:rounded-none md:mb-3 md:landscape:pb-4">
+      <div className="portrait:sticky portrait:top-0 portrait:z-30 portrait:bg-gradient-to-r portrait:from-blue-700 portrait:via-blue-600 portrait:to-indigo-700 portrait:shadow-md portrait:px-4 portrait:-mx-4 portrait:rounded-b-xl portrait:pt-3 portrait:pb-3 portrait:min-h-[58px] portrait:flex portrait:items-center portrait:mb-2 landscape:bg-transparent landscape:px-0 landscape:mx-0 landscape:pt-1.5 landscape:pb-6 landscape:min-h-0 landscape:rounded-none landscape:static md:bg-transparent md:px-0 md:mx-0 md:pt-2 md:min-h-0 md:rounded-none md:mb-3 md:landscape:pb-4">
         <Breadcrumbs
           className="mb-0"
           breadcrumbs={[

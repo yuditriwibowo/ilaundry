@@ -54,7 +54,7 @@ export function EntityNameCell({
   return (
     <td className="whitespace-nowrap py-3 pl-6 pr-3">
       <div className="flex items-center gap-3">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm">
           <Icon className="h-4 w-4 text-white" />
         </div>
         <p className="font-medium">{name}</p>
@@ -95,12 +95,12 @@ export function EntityCard({
           router.push(detailHref);
         }
       }}
-      className="mb-2 w-full rounded-lg bg-white p-4 shadow-sm cursor-pointer transition-colors hover:bg-gray-50 active:scale-[0.99]"
+      className="mb-2.5 w-full rounded-2xl bg-white p-4 shadow-sm border border-slate-200/80 cursor-pointer transition-all hover:border-blue-300 dark:bg-slate-900 dark:border-slate-800 active:scale-[0.99]"
     >
       <div className="flex items-start justify-between gap-2 text-sm">
         <div className="flex min-w-0 gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600">
-            <Icon className="h-5 w-5 text-white" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 border border-blue-100 text-blue-600 dark:bg-blue-950/60 dark:border-blue-900/60 dark:text-blue-300">
+            <Icon className="h-5 w-5" />
           </div>
           <div className="flex min-w-0 flex-col">
             <p className="truncate text-base font-medium text-gray-900">
