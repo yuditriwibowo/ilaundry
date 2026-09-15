@@ -219,6 +219,76 @@ export async function fetchItemPesananPages(pesananId: string) {
   }
 }
 
+// Ringkasan pesanan hari ini untuk kartu overview (LaundryCard).
+// - totalRp & totalPesanan: agregasi dari tabel pesanan
+// - kiloanKg, satuanPcs, meteranM: agregasi jumlah item dari tabel item_pesanan
+// Hanya pesanan yang dibuat hari ini (tgl_pesanan), status 'batal' diabaikan,
+// dan difilter sesuai toko yang dipilih (cookie selected_toko).
+export type RingkasanHariIni = {
+  totalRp: number;
+  totalPesanan: number;
+  kiloanKg: number;
+  satuanPcs: number;
+  meteranM: number;
+};
+
+export async function fetchRingkasanHariIni(): Promise<RingkasanHariIni> {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  // Belum ada toko yang dipilih — tampilkan nol (pola sama dengan query lain: 1=0).
+  if (!selectedToko) {
+    return {
+      totalRp: 0,
+      totalPesanan: 0,
+      kiloanKg: 0,
+      satuanPcs: 0,
+      meteranM: 0,
+    };
+  }
+
+  try {
+    const [pesananAgg, itemAgg] = await Promise.all([
+      sql`
+        SELECT
+          COUNT(*) AS total_pesanan,
+          COALESCE(SUM(p.total_bayar), 0) AS total_rp
+        FROM public.pesanan AS p
+        WHERE
+          p.toko_id = ${selectedToko} AND
+          p.status_pesanan <> 'batal' AND
+          p.tgl_pesanan::date = CURRENT_DATE
+      `,
+      sql`
+        SELECT
+          COALESCE(SUM(ip.jumlah) FILTER (WHERE ip.satuan = 'kg'), 0) AS kiloan_kg,
+          COALESCE(SUM(ip.jumlah) FILTER (WHERE ip.satuan = 'pcs'), 0) AS satuan_pcs,
+          COALESCE(SUM(ip.jumlah) FILTER (WHERE ip.satuan = 'm'), 0) AS meteran_m
+        FROM public.item_pesanan AS ip
+        JOIN public.pesanan AS p
+          ON p.id = ip.pesanan_id
+        WHERE
+          p.toko_id = ${selectedToko} AND
+          p.status_pesanan <> 'batal' AND
+          ip.status_item <> 'batal' AND
+          p.tgl_pesanan::date = CURRENT_DATE
+      `,
+    ]);
+
+    // COUNT/SUM pada postgres dikembalikan sebagai string — konversi ke number.
+    return {
+      totalRp: Number(pesananAgg[0]?.total_rp ?? 0),
+      totalPesanan: Number(pesananAgg[0]?.total_pesanan ?? 0),
+      kiloanKg: Number(itemAgg[0]?.kiloan_kg ?? 0),
+      satuanPcs: Number(itemAgg[0]?.satuan_pcs ?? 0),
+      meteranM: Number(itemAgg[0]?.meteran_m ?? 0),
+    };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil ringkasan pesanan hari ini.");
+  }
+}
+
 // Mengambil seluruh item pesanan tanpa pagination.
 // Dipakai untuk mengisi (prefill) form edit pesanan.
 export async function fetchAllItemPesananByPesananId(pesananId: string) {
