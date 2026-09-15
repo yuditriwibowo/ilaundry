@@ -222,8 +222,11 @@ export async function fetchItemPesananPages(pesananId: string) {
 // Ringkasan pesanan hari ini untuk kartu overview (LaundryCard).
 // - totalRp & totalPesanan: agregasi dari tabel pesanan
 // - kiloanKg, satuanPcs, meteranM: agregasi jumlah item dari tabel item_pesanan
-// Hanya pesanan yang dibuat hari ini (tgl_pesanan), status 'batal' diabaikan,
-// dan difilter sesuai toko yang dipilih (cookie selected_toko).
+// Hanya pesanan yang dibuat hari ini menurut WIB (tgl_pesanan), status 'batal'
+// diabaikan, dan difilter sesuai toko yang dipilih (cookie selected_toko).
+// Pembanding tanggal eksplisit pakai AT TIME ZONE 'Asia/Jakarta' — jangan
+// pakai CURRENT_DATE / ::date polos karena timezone session DB bisa berbeda
+// (default Supabase = UTC, membuat "hari ini" bergeser 7 jam).
 export type RingkasanHariIni = {
   totalRp: number;
   totalPesanan: number;
@@ -257,7 +260,8 @@ export async function fetchRingkasanHariIni(): Promise<RingkasanHariIni> {
         WHERE
           p.toko_id = ${selectedToko} AND
           p.status_pesanan <> 'batal' AND
-          p.tgl_pesanan::date = CURRENT_DATE
+          (p.tgl_pesanan AT TIME ZONE 'Asia/Jakarta')::date
+            = (now() AT TIME ZONE 'Asia/Jakarta')::date
       `,
       sql`
         SELECT
@@ -271,7 +275,8 @@ export async function fetchRingkasanHariIni(): Promise<RingkasanHariIni> {
           p.toko_id = ${selectedToko} AND
           p.status_pesanan <> 'batal' AND
           ip.status_item <> 'batal' AND
-          p.tgl_pesanan::date = CURRENT_DATE
+          (p.tgl_pesanan AT TIME ZONE 'Asia/Jakarta')::date
+            = (now() AT TIME ZONE 'Asia/Jakarta')::date
       `,
     ]);
 
