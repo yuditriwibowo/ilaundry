@@ -26,17 +26,19 @@ export default function LaundryCard({
             {/* Ikon disesuaikan dengan tema ylaundry-logo */}
             <DocumentDuplicateIcon className="h-10 w-10 text-white opacity-90" />
             <div>
-              <h3 className="text-base font-medium leading-tight text-white">
+              <h3 className="text-base landscape:not-short-screen:text-[2rem] font-medium leading-tight text-white">
                 Pesanan
               </h3>
-              <p className="text-sm text-blue-100 italic">Hari Ini</p>
+              <p className="text-sm landscape:not-short-screen:text-[1.75rem] landscape:not-short-screen:mt-2 text-blue-100 italic">
+                Hari Ini
+              </p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-lg font-semibold text-white">
+            <p className="text-lg landscape:not-short-screen:text-[2.25rem] font-semibold text-white">
               Rp {totalRp.toLocaleString("id-ID")}
             </p>
-            <p className="text-sm text-blue-100 italic">
+            <p className="text-sm landscape:not-short-screen:text-[1.75rem] landscape:not-short-screen:mt-2 text-blue-100 italic">
               {totalPesanan} Pesanan
             </p>
           </div>
@@ -49,26 +51,41 @@ export default function LaundryCard({
         <div className="grid grid-cols-3 text-center mt-2">
           {/* Kiloan */}
           <div>
-            <p className="text-xl font-bold text-white">
-              {kiloanKg} <span className="text-base font-normal">kg</span>
+            <p className="text-xl landscape:not-short-screen:text-[2.5rem] font-bold text-white">
+              {kiloanKg}{" "}
+              <span className="text-base landscape:not-short-screen:text-[2rem] font-normal">
+                kg
+              </span>
             </p>
-            <p className="text-sm text-blue-100 italic mt-1">Kiloan</p>
+            <p className="text-sm landscape:not-short-screen:text-[1.75rem] landscape:not-short-screen:mt-2 text-blue-100 italic mt-1">
+              Kiloan
+            </p>
           </div>
 
           {/* Satuan */}
           <div className="border-x border-white/20">
-            <p className="text-xl font-bold text-white">
-              {satuanPcs} <span className="text-base font-normal">pcs</span>
+            <p className="text-xl landscape:not-short-screen:text-[2.5rem] font-bold text-white">
+              {satuanPcs}{" "}
+              <span className="text-base landscape:not-short-screen:text-[2rem] font-normal">
+                pcs
+              </span>
             </p>
-            <p className="text-sm text-blue-100 italic mt-1">Satuan</p>
+            <p className="text-sm landscape:not-short-screen:text-[1.75rem] landscape:not-short-screen:mt-2 text-blue-100 italic mt-1">
+              Satuan
+            </p>
           </div>
 
           {/* Meteran */}
           <div>
-            <p className="text-xl font-bold text-white">
-              {meteranM} <span className="text-base font-normal">m</span>
+            <p className="text-xl landscape:not-short-screen:text-[2.5rem] font-bold text-white">
+              {meteranM}{" "}
+              <span className="text-base landscape:not-short-screen:text-[2rem] font-normal">
+                m
+              </span>
             </p>
-            <p className="text-sm text-primary-100 italic mt-1">Meteran</p>
+            <p className="text-sm landscape:not-short-screen:text-[1.75rem] landscape:not-short-screen:mt-2 text-primary-100 italic mt-1">
+              Meteran
+            </p>
           </div>
         </div>
       </div>

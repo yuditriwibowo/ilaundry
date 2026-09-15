@@ -11,6 +11,9 @@ const config: Config = {
     extend: {
       screens: {
         'short-screen': { raw: '(max-height: 500px)' },
+        // Kebalikan short-screen: perangkat yang bukan short screen (tinggi > 500px),
+        // dipakai bertumpuk mis. landscape:not-short-screen: untuk landscape non-short
+        'not-short-screen': { raw: '(min-height: 501px)' },
       },
       gridTemplateColumns: {
         '13': 'repeat(13, minmax(0, 1fr))',
