@@ -1,5 +1,6 @@
 import LaundryCard from "@/app/ui/laundry/laundrycards";
 import QuickActions from "@/app/ui/laundry/quick-actions";
+import InfoCarousel from "@/app/ui/laundry/info-carousel";
 import SelectToko from "@/app/ui/laundry/select-toko";
 import { fetchToko, fetchRingkasanHariIni } from "@/app/lib/data";
 import { CreateToko } from "@/app/ui/button";
@@ -37,6 +38,9 @@ export default async function Page() {
             meteranM={ringkasan.meteranM}
           />
           <QuickActions />
+        </div>
+        <div className="mt-6">
+          <InfoCarousel />
         </div>
       </div>
     </div>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-label="Info Jam Operasional">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="400" fill="url(#bg)"/>
+  <circle cx="1100" cy="330" r="130" fill="#ffffff" opacity="0.08"/>
+  <circle cx="140" cy="60" r="100" fill="#ffffff" opacity="0.08"/>
+  <circle cx="980" cy="80" r="18" fill="#ffffff" opacity="0.25"/>
+  <g transform="translate(540 60)">
+    <circle cx="60" cy="60" r="58" fill="none" stroke="#ffffff" stroke-width="8" opacity="0.9"/>
+    <line x1="60" y1="60" x2="60" y2="25" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+    <line x1="60" y1="60" x2="88" y2="72" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="600" y="255" font-size="58" font-weight="bold" fill="#ffffff">Jam Operasional</text>
+    <text x="600" y="320" font-size="34" fill="#d1fae5">Setiap hari &#8226; 07.00 &#8211; 21.00 WIB</text>
+  </g>
+</svg>
