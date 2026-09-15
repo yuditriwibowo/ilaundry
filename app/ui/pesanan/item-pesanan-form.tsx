@@ -12,11 +12,14 @@ import {
 } from "@heroicons/react/24/outline";
 import { Button } from "@/app/ui/button";
 import SelectPopup from "@/app/ui/shared/select-popup";
-import { createItemPesanan, State } from "@/app/lib/actions";
+import { createItemPesanan, updateItemPesanan, State } from "@/app/lib/actions";
 import { formatRupiah } from "@/app/lib/utils";
-import type { TabelPesanan } from "@/app/lib/definitions";
+import type { ItemPesanan, TabelPesanan } from "@/app/lib/definitions";
+import { StatusItemBadge } from "@/app/ui/pesanan/detail/status-item";
 import {
   ErrorText,
+  cariLayananId,
+  cariParfumId,
   hitungItem,
   inputClass,
   satuanDariTipe,
@@ -26,33 +29,51 @@ import {
 } from "@/app/ui/pesanan/pesanan-form-shared";
 
 /**
- * Form tambah SATU item pesanan dari halaman detail pesanan.
+ * Form SATU item pesanan di halaman detail pesanan.
+ * - Tanpa prop `item`  -> mode tambah (server action createItemPesanan)
+ * - Dengan prop `item` -> mode ubah  (server action updateItemPesanan)
  * Nilai layanan/parfum/diskon dikirim lewat hidden input (pola sama dengan
  * create-form), satuan dihitung otomatis dari tipe layanan yang dipilih.
- * Perhitungan di sini hanya pratinjau — perhitungan final dilakukan di server
- * action createItemPesanan (yang juga menghitung ulang total pesanan).
+ * Perhitungan di sini hanya pratinjau — perhitungan final sekaligus hitung
+ * ulang total pesanan dilakukan di server action.
  */
 export default function ItemPesananForm({
   pesanan,
+  item,
   optionsLayanan,
   optionsParfum,
   optionsDiskon,
 }: {
   pesanan: TabelPesanan;
+  // Diisi saat mengubah item yang sudah ada (mode edit).
+  item?: ItemPesanan;
   optionsLayanan: OpsiLayanan[];
   optionsParfum: OpsiParfum[];
   optionsDiskon: OpsiDiskon[];
 }) {
+  const isEdit = Boolean(item);
+
   const initialState: State = { message: "", errors: {} };
   const [state, formAction] = useActionState(
-    createItemPesanan.bind(null, pesanan.id),
+    item
+      ? updateItemPesanan.bind(null, pesanan.id, item.id)
+      : createItemPesanan.bind(null, pesanan.id),
     initialState,
   );
 
-  const [layananId, setLayananId] = useState("");
-  const [jumlah, setJumlah] = useState("1");
-  const [parfumId, setParfumId] = useState("");
-  const [diskonId, setDiskonId] = useState("");
+  // Nilai awal dari snapshot item (mode edit) atau kosong (mode tambah).
+  // Snapshot hanya menyimpan nama, sehingga layanan/parfum dipetakan kembali
+  // ke id opsi saat ini lewat cariLayananId/cariParfumId.
+  const [layananId, setLayananId] = useState(() =>
+    item ? cariLayananId(item, optionsLayanan) : "",
+  );
+  const [jumlah, setJumlah] = useState(() =>
+    item ? String(item.jumlah) : "1",
+  );
+  const [parfumId, setParfumId] = useState(() =>
+    item ? cariParfumId(item, optionsParfum) : "",
+  );
+  const [diskonId, setDiskonId] = useState(() => item?.diskon_id ?? "");
 
   const layananMap = useMemo(
     () => new Map(optionsLayanan.map((layanan) => [layanan.id, layanan])),
@@ -293,6 +314,7 @@ export default function ItemPesananForm({
                   id="catatan_item"
                   name="catatan_item"
                   rows={3}
+                  defaultValue={item?.catatan_item ?? ""}
                   placeholder="Mis. baju putih dipisah"
                   className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                 />
@@ -310,7 +332,9 @@ export default function ItemPesananForm({
         >
           Batal
         </Link>
-        <Button type="submit">Tambah Item</Button>
+        <Button type="submit">
+          {isEdit ? "Simpan Perubahan" : "Tambah Item"}
+        </Button>
       </div>
 
       {/* General Form Message */}

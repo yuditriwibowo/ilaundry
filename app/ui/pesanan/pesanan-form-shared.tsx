@@ -5,6 +5,8 @@
  * perhitungan final di server action (app/lib/actions/pesanan.ts).
  */
 
+import type { ItemPesanan } from "@/app/lib/definitions";
+
 export type OpsiLayanan = {
   id: string;
   nama_layanan: string;
@@ -94,4 +96,47 @@ export function hitungItem(
     : 0;
   const subtotalFinal = Math.max(0, subtotal - nilaiDiskon);
   return { subtotal, nilaiDiskon, subtotalFinal };
+}
+
+/**
+ * Memetakan snapshot item pesanan ke id opsi layanan saat ini.
+ * item_pesanan hanya menyimpan snapshot nama (bukan id), sehingga pencocokan
+ * dilakukan berdasarkan nama_layanan, dipersempit dengan tipe & durasi bila
+ * ada lebih dari satu kandidat. Jika tidak ditemukan, dikembalikan "" agar user
+ * memilih ulang (validasi "Layanan wajib dipilih" akan menangkapnya).
+ */
+export function cariLayananId(
+  item: ItemPesanan,
+  optionsLayanan: OpsiLayanan[],
+): string {
+  const kandidat = optionsLayanan.filter(
+    (option) => option.nama_layanan === item.nama_layanan_snapshot,
+  );
+  if (kandidat.length === 0) return "";
+  if (kandidat.length === 1) return kandidat[0].id;
+  const byTipe = kandidat.filter(
+    (option) => option.nama_tipe === item.tipe_layanan_snapshot,
+  );
+  const daftar = byTipe.length > 0 ? byTipe : kandidat;
+  const byDurasi = daftar.filter(
+    (option) => (option.nama_durasi ?? null) === (item.durasi_snapshot ?? null),
+  );
+  return (byDurasi[0] ?? daftar[0]).id;
+}
+
+/**
+ * Memetakan snapshot nama parfum item pesanan ke id opsi parfum saat ini.
+ * Parfum tidak disimpan sebagai id di item_pesanan, sehingga pencocokan
+ * dilakukan berdasarkan nama (pola sama dengan edit-form pesanan).
+ */
+export function cariParfumId(
+  item: ItemPesanan,
+  optionsParfum: OpsiParfum[],
+): string {
+  if (!item.nama_parfum_snapshot) return "";
+  return (
+    optionsParfum.find(
+      (option) => option.nama_parfum === item.nama_parfum_snapshot,
+    )?.id ?? ""
+  );
 }

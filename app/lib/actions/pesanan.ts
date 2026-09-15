@@ -9,6 +9,7 @@ import { getCurrentUser } from "../auth";
 import {
   fetchFilteredPesanan,
   fetchItemPesananByPesananId,
+  fetchItemPesananById,
   fetchAllItemPesananByPesananId,
   fetchPesananById,
 } from "../data/pesanan";
@@ -827,6 +828,184 @@ export async function updatePembayaranPesanan(
   return { success: true, pesanan: updated };
 }
 
+// Tipe transaksi postgres.js diambil dari instance `sql` aplikasi, sehingga
+// helper di bawah selalu cocok dengan transaksi yang diberikan `sql.begin`.
+type PesananTx = Parameters<Parameters<typeof sql.begin>[1]>[0];
+
+/**
+ * Hitung ulang kolom biaya pesanan dari SELURUH item pesanan tersebut.
+ * Rumus identik dengan createPesanan/updatePesanan:
+ *   total_layanan = SUM(subtotal)
+ *   nilai_diskon  = SUM(nilai_diskon)
+ *   total_bayar   = max(0, total_layanan + biaya_antar_jemput - nilai_diskon)
+ *   status_pembayaran & kurang_bayar dihitung dari jumlah_bayar
+ *   tgl_estimasi_selesai = MAX(tgl_estimasi_selesai) item
+ * Dipanggil setelah item pesanan ditambah/diubah/dihapus agar angka di list,
+ * detail, dan struk selalu sinkron. WAJIB dipanggil di dalam transaksi yang
+ * sama dengan perubahan item-nya.
+ */
+async function recalcPesananTotals(
+  tx: PesananTx,
+  pesananId: string,
+  nowIso: string,
+  userId: string | null,
+) {
+  const totals = await tx<
+    {
+      total_layanan: string;
+      nilai_diskon: string;
+      tgl_estimasi_selesai: string | Date | null;
+    }[]
+  >`
+    SELECT
+      COALESCE(SUM(subtotal), 0) AS total_layanan,
+      COALESCE(SUM(nilai_diskon), 0) AS nilai_diskon,
+      MAX(tgl_estimasi_selesai) AS tgl_estimasi_selesai
+    FROM item_pesanan
+    WHERE pesanan_id = ${pesananId}
+  `;
+  const totalLayanan = Number(totals[0]?.total_layanan ?? 0);
+  const totalDiskon = Number(totals[0]?.nilai_diskon ?? 0);
+  const estimasiRaw = totals[0]?.tgl_estimasi_selesai ?? null;
+  const estimasiDate = estimasiRaw ? new Date(estimasiRaw) : null;
+  const tglEstimasiSelesai =
+    estimasiDate && !Number.isNaN(estimasiDate.getTime())
+      ? estimasiDate.toISOString()
+      : null;
+
+  // biaya_antar_jemput & jumlah_bayar tidak diubah oleh aksi item; keduanya
+  // dibaca langsung di SQL agar total bayar, kurang bayar, dan status
+  // pembayaran selalu konsisten dengan nilai terbaru di database.
+  await tx`
+    UPDATE pesanan SET
+      total_layanan = ${totalLayanan},
+      nilai_diskon = ${totalDiskon},
+      total_bayar = GREATEST(0, ${totalLayanan} + biaya_antar_jemput - ${totalDiskon}),
+      status_pembayaran = CASE
+        WHEN jumlah_bayar <= 0 THEN 'belum_bayar'
+        WHEN jumlah_bayar >= GREATEST(0, ${totalLayanan} + biaya_antar_jemput - ${totalDiskon}) THEN 'lunas'
+        ELSE 'DP'
+      END,
+      kurang_bayar = GREATEST(
+        0,
+        GREATEST(0, ${totalLayanan} + biaya_antar_jemput - ${totalDiskon}) - jumlah_bayar
+      ),
+      tgl_estimasi_selesai = ${tglEstimasiSelesai},
+      last_update = ${nowIso},
+      update_by = ${userId}
+    WHERE id = ${pesananId}
+  `;
+}
+
+type ItemSnapshot =
+  | {
+      snapshot: {
+        layanan: TabelLayanan;
+        namaParfum: string | null;
+        diskonId: string | null;
+        subtotal: number;
+        nilaiDiskon: number;
+        subtotalFinal: number;
+        estimasi: string | null;
+      };
+    }
+  | { error: string };
+
+/**
+ * Ambil snapshot layanan/parfum/diskon dari database (harga TIDAK dipercaya
+ * dari klien) lalu hitung biaya item. Dipakai bersama oleh createItemPesanan &
+ * updateItemPesanan agar aturan harga, diskon, dan estimasi selalu identik
+ * dengan createPesanan/updatePesanan:
+ * - diskon Persentase: (nilai_diskon / 100) * subtotal
+ * - diskon Nominal: nilai_diskon langsung dipakai
+ * - nilai diskon dibatasi maksimal subtotal item
+ * - estimasi = sekarang + lama_durasi layanan
+ */
+async function resolveItemSnapshot(input: {
+  layanan_id: string;
+  jumlah: number;
+  parfum_id?: string;
+  diskon_id?: string;
+  now: Date;
+}): Promise<ItemSnapshot> {
+  const { layanan_id, jumlah, parfum_id, diskon_id, now } = input;
+
+  // Snapshot layanan (join tipe & durasi) — sumber harga yang sah
+  const layananRows = await sql<TabelLayanan[]>`
+    SELECT
+      l.id,
+      l.nama_layanan,
+      l.harga,
+      tl.nama_tipe,
+      d.nama_durasi,
+      d.lama_durasi,
+      t.nama_toko
+    FROM layanan l
+    JOIN tipe_layanan tl ON l.tipe_id = tl.id
+    JOIN durasi d ON l.durasi_id = d.id
+    LEFT JOIN toko t ON l.toko_id = t.id
+    WHERE l.id = ${layanan_id}
+  `;
+  const layanan = layananRows[0];
+  if (!layanan) {
+    return {
+      error: "Layanan tidak ditemukan. Silakan periksa kembali item pesanan.",
+    };
+  }
+
+  let namaParfum: string | null = null;
+  if (parfum_id) {
+    const parfumRows = await sql<{ id: string; nama_parfum: string }[]>`
+      SELECT id, nama_parfum FROM parfum WHERE id = ${parfum_id}
+    `;
+    namaParfum = parfumRows[0]?.nama_parfum ?? null;
+  }
+
+  const subtotal = Number(layanan.harga) * jumlah;
+  let diskonId: string | null = null;
+  let nilaiDiskon = 0;
+  if (diskon_id) {
+    const diskonRows = await sql<
+      Pick<Diskon, "id" | "tipe_diskon" | "nilai_diskon">[]
+    >`
+      SELECT id, tipe_diskon, nilai_diskon FROM diskon WHERE id = ${diskon_id}
+    `;
+    const diskon = diskonRows[0];
+    if (diskon) {
+      diskonId = diskon.id;
+      nilaiDiskon = Math.min(
+        Math.max(
+          0,
+          diskon.tipe_diskon === "Persentase"
+            ? Math.round((Number(diskon.nilai_diskon) / 100) * subtotal)
+            : Number(diskon.nilai_diskon),
+        ),
+        subtotal,
+      );
+    }
+  }
+
+  const subtotalFinal = Math.max(0, subtotal - nilaiDiskon);
+  const estimasi =
+    layanan.lama_durasi != null
+      ? new Date(
+          now.getTime() + Number(layanan.lama_durasi) * 60 * 60 * 1000,
+        ).toISOString()
+      : null;
+
+  return {
+    snapshot: {
+      layanan,
+      namaParfum,
+      diskonId,
+      subtotal,
+      nilaiDiskon,
+      subtotalFinal,
+      estimasi,
+    },
+  };
+}
+
 // ===== Tambah item pesanan (dari halaman detail pesanan) =====
 // Hanya menambah SATU item pesanan per submit. Snapshot layanan/parfum/diskon
 // diambil dari database (tidak dipercaya dari klien), lalu kolom biaya pesanan
@@ -893,76 +1072,29 @@ export async function createItemPesanan(
   const now = new Date();
   const nowIso = now.toISOString();
 
-  // Snapshot layanan (join tipe & durasi) — sumber harga yang sah
-  const layananRows = await sql<TabelLayanan[]>`
-    SELECT
-      l.id,
-      l.nama_layanan,
-      l.harga,
-      tl.nama_tipe,
-      d.nama_durasi,
-      d.lama_durasi,
-      t.nama_toko
-    FROM layanan l
-    JOIN tipe_layanan tl ON l.tipe_id = tl.id
-    JOIN durasi d ON l.durasi_id = d.id
-    LEFT JOIN toko t ON l.toko_id = t.id
-    WHERE l.id = ${layanan_id}
-  `;
-  const layanan = layananRows[0];
-  if (!layanan) {
+  // Snapshot harga/diskon + estimasi dari database (helper bersama)
+  const resolved = await resolveItemSnapshot({
+    layanan_id,
+    jumlah,
+    parfum_id,
+    diskon_id,
+    now,
+  });
+  if ("error" in resolved) {
     return {
-      errors: {
-        layanan_id: [
-          "Layanan tidak ditemukan. Silakan periksa kembali item pesanan.",
-        ],
-      },
+      errors: { layanan_id: [resolved.error] },
       message: "Beberapa field tidak valid. Gagal menambah item pesanan.",
     };
   }
-
-  let namaParfum: string | null = null;
-  if (parfum_id) {
-    const parfumRows = await sql<{ id: string; nama_parfum: string }[]>`
-      SELECT id, nama_parfum FROM parfum WHERE id = ${parfum_id}
-    `;
-    namaParfum = parfumRows[0]?.nama_parfum ?? null;
-  }
-
-  // Perhitungan diskon per item (rumus sama dengan create/update pesanan):
-  // - Persentase: (diskon.nilai_diskon / 100) * subtotal item
-  // - Nominal: diskon.nilai_diskon langsung dipakai
-  // Dibatasi maksimal subtotal item agar subtotal_final tidak negatif.
-  const subtotal = Number(layanan.harga) * jumlah;
-  let diskonId: string | null = null;
-  let nilaiDiskon = 0;
-  if (diskon_id) {
-    const diskonRows = await sql<
-      Pick<Diskon, "id" | "tipe_diskon" | "nilai_diskon">[]
-    >`
-      SELECT id, tipe_diskon, nilai_diskon FROM diskon WHERE id = ${diskon_id}
-    `;
-    const diskon = diskonRows[0];
-    if (diskon) {
-      diskonId = diskon.id;
-      nilaiDiskon = Math.min(
-        Math.max(
-          0,
-          diskon.tipe_diskon === "Persentase"
-            ? Math.round((Number(diskon.nilai_diskon) / 100) * subtotal)
-            : Number(diskon.nilai_diskon),
-        ),
-        subtotal,
-      );
-    }
-  }
-  const subtotalFinal = Math.max(0, subtotal - nilaiDiskon);
-  const estimasi =
-    layanan.lama_durasi != null
-      ? new Date(
-          now.getTime() + Number(layanan.lama_durasi) * 60 * 60 * 1000,
-        ).toISOString()
-      : null;
+  const {
+    layanan,
+    namaParfum,
+    diskonId,
+    subtotal,
+    nilaiDiskon,
+    subtotalFinal,
+    estimasi,
+  } = resolved.snapshot;
 
   // Status item baru mengikuti status pesanan saat ini (logika sama dengan
   // updatePesanan) agar item tidak salah tampil 'diproses' pada pesanan yang
@@ -1008,58 +1140,133 @@ export async function createItemPesanan(
         )
       `;
 
-      const totals = await tx<
-        {
-          total_layanan: string;
-          nilai_diskon: string;
-          tgl_estimasi_selesai: string | Date | null;
-        }[]
-      >`
-        SELECT
-          COALESCE(SUM(subtotal), 0) AS total_layanan,
-          COALESCE(SUM(nilai_diskon), 0) AS nilai_diskon,
-          MAX(tgl_estimasi_selesai) AS tgl_estimasi_selesai
-        FROM item_pesanan
-        WHERE pesanan_id = ${pesananId}
-      `;
-      const totalLayanan = Number(totals[0]?.total_layanan ?? 0);
-      const totalDiskon = Number(totals[0]?.nilai_diskon ?? 0);
-      const estimasiRaw = totals[0]?.tgl_estimasi_selesai ?? null;
-      const estimasiDate = estimasiRaw ? new Date(estimasiRaw) : null;
-      const tglEstimasiSelesai =
-        estimasiDate && !Number.isNaN(estimasiDate.getTime())
-          ? estimasiDate.toISOString()
-          : null;
-
-      // Biaya antar jemput & jumlah bayar tidak diubah aksi ini; status
-      // pembayaran & kurang bayar dihitung ulang dari total_bayar yang baru.
-      const biayaAntarJemput = Number(existingPesanan.biaya_antar_jemput) || 0;
-      const jumlahBayar = Number(existingPesanan.jumlah_bayar) || 0;
-      const totalBayar = Math.max(0, totalLayanan + biayaAntarJemput - totalDiskon);
-      const kurangBayar = Math.max(0, totalBayar - jumlahBayar);
-      const statusPembayaran =
-        jumlahBayar <= 0
-          ? "belum_bayar"
-          : jumlahBayar >= totalBayar
-            ? "lunas"
-            : "DP";
-
-      await tx`
-        UPDATE pesanan SET
-          total_layanan = ${totalLayanan},
-          nilai_diskon = ${totalDiskon},
-          total_bayar = ${totalBayar},
-          status_pembayaran = ${statusPembayaran},
-          kurang_bayar = ${kurangBayar},
-          tgl_estimasi_selesai = ${tglEstimasiSelesai},
-          last_update = ${nowIso},
-          update_by = ${userId}
-        WHERE id = ${pesananId}
-      `;
+      // Hitung ulang kolom biaya pesanan dari seluruh item (helper bersama).
+      await recalcPesananTotals(tx, pesananId, nowIso, userId);
     });
   } catch (error) {
     console.error("Database Error: Gagal menambah item pesanan.", error);
     return { message: "Database Error: Gagal menambah item pesanan." };
+  }
+
+  revalidatePath("/laundry/pesanan");
+  revalidatePath(detailHref);
+  redirect(detailHref);
+}
+
+// ===== Ubah item pesanan (dari halaman detail pesanan) =====
+// Mengubah SATU item pesanan yang sudah ada. Nomor item, status item, tanggal
+// item dibuat, dan tanggal item selesai TIDAK diubah oleh aksi ini. Setelah
+// item diperbarui, seluruh kolom biaya pesanan dihitung ulang dari semua item
+// (helper recalcPesananTotals) supaya total di list, detail, dan struk sinkron.
+export async function updateItemPesanan(
+  pesananId: string,
+  itemId: string,
+  prevState: State,
+  formData: FormData,
+): Promise<State> {
+  await getCurrentUser();
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value || null;
+  const userId = cookieStore.get("user_id")?.value || null;
+  const detailHref = `/laundry/pesanan/${pesananId}/detail`;
+
+  // Pastikan pesanan ada dan milik toko yang sedang dipilih
+  const existingPesanan = await fetchPesananById(pesananId);
+  if (!existingPesanan || existingPesanan.toko_id !== selectedToko) {
+    return {
+      message: "Pesanan tidak ditemukan. Gagal memperbarui item pesanan.",
+    };
+  }
+
+  // Pastikan item ada dan memang milik pesanan tersebut
+  const existingItem = await fetchItemPesananById(itemId);
+  if (!existingItem || existingItem.pesanan_id !== pesananId) {
+    return {
+      message: "Item pesanan tidak ditemukan. Gagal memperbarui item pesanan.",
+    };
+  }
+
+  const validatedFields = ItemPesananFormSchema.safeParse({
+    layanan_id: formData.get("layanan_id"),
+    jumlah: formData.get("jumlah"),
+    satuan: formData.get("satuan"),
+    parfum_id: formData.get("parfum_id"),
+    diskon_id: formData.get("diskon_id"),
+    catatan_item: formData.get("catatan_item"),
+  });
+
+  if (!validatedFields.success) {
+    const fieldErrors = validatedFields.error.flatten().fieldErrors;
+    return {
+      errors: {
+        layanan_id: fieldErrors.layanan_id,
+        jumlah: fieldErrors.jumlah,
+        satuan: fieldErrors.satuan,
+      },
+      message: "Beberapa field tidak valid. Gagal memperbarui item pesanan.",
+    };
+  }
+
+  const { layanan_id, jumlah, satuan, parfum_id, diskon_id, catatan_item } =
+    validatedFields.data;
+
+  const now = new Date();
+  const nowIso = now.toISOString();
+
+  // Snapshot harga/diskon + estimasi dari database (helper bersama)
+  const resolved = await resolveItemSnapshot({
+    layanan_id,
+    jumlah,
+    parfum_id,
+    diskon_id,
+    now,
+  });
+  if ("error" in resolved) {
+    return {
+      errors: { layanan_id: [resolved.error] },
+      message: "Beberapa field tidak valid. Gagal memperbarui item pesanan.",
+    };
+  }
+  const {
+    layanan,
+    namaParfum,
+    diskonId,
+    subtotal,
+    nilaiDiskon,
+    subtotalFinal,
+    estimasi,
+  } = resolved.snapshot;
+
+  // Update item + hitung ulang kolom biaya pesanan dalam satu transaksi.
+  try {
+    await sql.begin(async (tx) => {
+      await tx`
+        UPDATE item_pesanan SET
+          nama_parfum_snapshot = ${namaParfum},
+          nama_layanan_snapshot = ${layanan.nama_layanan},
+          tipe_layanan_snapshot = ${layanan.nama_tipe},
+          durasi_snapshot = ${layanan.nama_durasi},
+          harga_satuan = ${layanan.harga},
+          jumlah = ${jumlah},
+          satuan = ${satuan},
+          subtotal = ${subtotal},
+          catatan_item = ${catatan_item || null},
+          diskon_id = ${diskonId},
+          nilai_diskon = ${nilaiDiskon},
+          nilai_durasi = ${layanan.lama_durasi ?? null},
+          tgl_estimasi_selesai = ${estimasi},
+          subtotal_final = ${subtotalFinal},
+          last_update = ${nowIso},
+          update_by = ${userId}
+        WHERE id = ${itemId} AND pesanan_id = ${pesananId}
+      `;
+
+      // Hitung ulang kolom biaya pesanan dari seluruh item (helper bersama).
+      await recalcPesananTotals(tx, pesananId, nowIso, userId);
+    });
+  } catch (error) {
+    console.error("Database Error: Gagal memperbarui item pesanan.", error);
+    return { message: "Database Error: Gagal memperbarui item pesanan." };
   }
 
   revalidatePath("/laundry/pesanan");
@@ -1082,11 +1289,24 @@ export async function fetchMoreItemPesanan(pesananId: string, page: number) {
   return await fetchItemPesananByPesananId(pesananId, page);
 }
 
+// Item dihapus permanen, lalu kolom biaya pesanan dihitung ulang dari item
+// yang tersisa agar total di list & detail tidak menyimpan nilai item yang
+// sudah dihapus.
 export async function deleteItemPesanan(id: string, pesananId: string) {
   await getCurrentUser();
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("user_id")?.value || null;
+  const nowIso = new Date().toISOString();
   try {
-    await sql`DELETE FROM public.item_pesanan WHERE id = ${id}`;
+    await sql.begin(async (tx) => {
+      await tx`
+        DELETE FROM public.item_pesanan
+        WHERE id = ${id} AND pesanan_id = ${pesananId}
+      `;
+      await recalcPesananTotals(tx, pesananId, nowIso, userId);
+    });
   } catch (error) {
+    console.error("Database Error: Failed to Delete Item Pesanan.", error);
     throw new Error("Database Error: Failed to Delete Item Pesanan.");
   }
   revalidatePath(`/laundry/pesanan/${pesananId}/detail`);

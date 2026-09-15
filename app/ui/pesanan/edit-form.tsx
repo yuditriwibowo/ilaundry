@@ -22,6 +22,8 @@ import SelectPelanggan, {
 import SelectPopup from "@/app/ui/shared/select-popup";
 import {
   ErrorText,
+  cariLayananId,
+  cariParfumId,
   hitungItem,
   inputClass,
   satuanDariTipe,
@@ -33,27 +35,6 @@ import {
 } from "@/app/ui/pesanan/pesanan-form-shared";
 
 // __COMPONENT_START__
-
-// Memetakan snapshot item pesanan ke id opsi layanan saat ini.
-// item_pesanan hanya menyimpan snapshot nama (bukan id), sehingga pencocokan
-// dilakukan berdasarkan nama_layanan, dipersempit dengan tipe & durasi bila
-// ada lebih dari satu kandidat. Jika tidak ditemukan, dikosongkan agar user
-// memilih ulang (validasi "Layanan wajib dipilih" akan menangkapnya).
-function cariLayananId(item: ItemPesanan, optionsLayanan: OpsiLayanan[]): string {
-  const kandidat = optionsLayanan.filter(
-    (option) => option.nama_layanan === item.nama_layanan_snapshot,
-  );
-  if (kandidat.length === 0) return "";
-  if (kandidat.length === 1) return kandidat[0].id;
-  const byTipe = kandidat.filter(
-    (option) => option.nama_tipe === item.tipe_layanan_snapshot,
-  );
-  const daftar = byTipe.length > 0 ? byTipe : kandidat;
-  const byDurasi = daftar.filter(
-    (option) => (option.nama_durasi ?? null) === (item.durasi_snapshot ?? null),
-  );
-  return (byDurasi[0] ?? daftar[0]).id;
-}
 
 // __STATE_AND_HELPERS__
 
@@ -88,10 +69,7 @@ export default function EditForm({
           key: index,
           layanan_id: cariLayananId(item, optionsLayanan),
           jumlah: String(item.jumlah),
-          parfum_id:
-            optionsParfum.find(
-              (option) => option.nama_parfum === item.nama_parfum_snapshot,
-            )?.id ?? "",
+          parfum_id: cariParfumId(item, optionsParfum),
           diskon_id: item.diskon_id ?? "",
         }))
       : [{ key: 0, layanan_id: "", jumlah: "1", parfum_id: "", diskon_id: "" }],
