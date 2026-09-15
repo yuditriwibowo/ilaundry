@@ -37,6 +37,11 @@ export type State = {
     antar_jemput_id?: string[];
     metode_pembayaran?: string[];
     jumlah_bayar?: string[];
+
+    // Field form tambah item pesanan (createItemPesanan)
+    layanan_id?: string[];
+    jumlah?: string[];
+    satuan?: string[];
   };
   message: string;
   conflict?: "existing_user" | "existing_user_toko";
