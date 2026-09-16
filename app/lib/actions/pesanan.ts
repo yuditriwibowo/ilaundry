@@ -1315,9 +1315,13 @@ export async function deleteItemPesanan(id: string, pesananId: string) {
 // Update status satu item pesanan (workflow per item: diproses -> selesai ->
 // diambil, atau batal). tgl_selesai item ikut disesuaikan: selesai/diambil
 // mengisinya (memakai nilai lama bila pernah diisi), kembali ke diproses/batal
-// mengosongkannya. Status pesanan induk tidak diubah — mengikuti alur existing,
-// status pesanan diatur lewat updateStatusPesanan (yang menyinkronkan semua
-// item pesanannya).
+// mengosongkannya. Aturan validasi & sinkronisasi dengan pesanan induk:
+// - Pesanan yang sudah 'diambil' tidak boleh mengubah status item lagi.
+// - Item yang kembali 'diproses' mengembalikan status pesanan ke 'diproses'
+//   (tgl_selesai/tgl_diambil pesanan dikosongkan, konsisten dengan
+//   updateStatusPesanan kembali ke diproses), dan estimasi selesai pesanan
+//   diambil dari estimasi TERLAMA (MAX) item pesanan yang masih 'diproses'.
+// Untuk status item lain, status pesanan tidak diubah.
 export type UpdateItemStatusResult = {
   success: boolean;
   message?: string;
@@ -1353,6 +1357,15 @@ export async function updateStatusItemPesanan(
     };
   }
 
+  // Pesanan yang sudah 'diambil' tidak boleh mengubah status item lagi.
+  if (existingPesanan.status_pesanan === "diambil") {
+    return {
+      success: false,
+      message:
+        "Pesanan sudah diambil. Status item pesanan tidak dapat diubah lagi.",
+    };
+  }
+
   // Enum status item sama dengan enum status pesanan
   const parsedStatus = StatusPesananSchema.safeParse(status_item);
   if (!parsedStatus.success) {
@@ -1362,18 +1375,53 @@ export async function updateStatusItemPesanan(
 
   const nowIso = new Date().toISOString();
   try {
-    await sql`
-      UPDATE item_pesanan SET
-        status_item = ${status},
-        tgl_selesai = CASE
-          WHEN ${status === "selesai" || status === "diambil"}
-            THEN COALESCE(tgl_selesai, ${nowIso})
-          ELSE NULL
-        END,
-        last_update = ${nowIso},
-        update_by = ${userId}
-      WHERE id = ${itemId} AND pesanan_id = ${pesananId}
-    `;
+    if (status === "diproses") {
+      // Item kembali 'diproses' → status pesanan ikut kembali 'diproses'
+      // dalam satu transaksi: tgl_selesai/tgl_diambil pesanan dikosongkan
+      // (konsisten dengan updateStatusPesanan kembali ke diproses), dan
+      // tgl_estimasi_selesai pesanan diambil dari estimasi TERLAMA (MAX)
+      // item pesanan yang statusnya masih 'diproses'.
+      await sql.begin(async (tx) => {
+        await tx`
+          UPDATE item_pesanan SET
+            status_item = ${status},
+            tgl_selesai = NULL,
+            last_update = ${nowIso},
+            update_by = ${userId}
+          WHERE id = ${itemId} AND pesanan_id = ${pesananId}
+        `;
+
+        await tx`
+          UPDATE pesanan SET
+            status_pesanan = ${status},
+            tgl_selesai = NULL,
+            tgl_diambil = NULL,
+            tgl_estimasi_selesai = (
+              SELECT MAX(tgl_estimasi_selesai)
+              FROM item_pesanan
+              WHERE pesanan_id = ${pesananId} AND status_item = ${status}
+            ),
+            last_update = ${nowIso},
+            update_by = ${userId}
+          WHERE id = ${pesananId}
+        `;
+      });
+    } else {
+      // Status item lain: hanya item yang berubah, status pesanan tidak
+      // tersentuh (mengikuti alur existing).
+      await sql`
+        UPDATE item_pesanan SET
+          status_item = ${status},
+          tgl_selesai = CASE
+            WHEN ${status === "selesai" || status === "diambil"}
+              THEN COALESCE(tgl_selesai, ${nowIso})
+            ELSE NULL
+          END,
+          last_update = ${nowIso},
+          update_by = ${userId}
+        WHERE id = ${itemId} AND pesanan_id = ${pesananId}
+      `;
+    }
   } catch (error) {
     console.error("Database Error: Gagal memperbarui status item pesanan.", error);
     return {
