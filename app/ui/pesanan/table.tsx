@@ -1,5 +1,5 @@
 import PesananTableRow from "@/app/ui/pesanan/table-row";
-import { fetchFilteredPesanan, fetchPesananPages } from "@/app/lib/data";
+import { fetchFilteredPesanan } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/pesanan/infinite-list";
 import { TabelPesanan } from "@/app/lib/definitions";
 import NotFound from "@/app/laundry/pesanan/not-found";
@@ -9,14 +9,15 @@ export default async function PesananTable({
   currentPage,
   status,
   bayar,
+  totalPages,
 }: {
   query: string;
   currentPage: number;
   status?: string;
   bayar?: string;
+  totalPages: number;
 }) {
   const pesananList = await fetchFilteredPesanan(query, currentPage, status, bayar);
-  const totalPages = await fetchPesananPages(query, status, bayar);
 
   return (
     <div className="mt-6 flow-root">

@@ -43,7 +43,13 @@ export default async function Page(props: {
       </div>
       <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar">
         <Suspense key={query + currentPage + status + bayar} fallback={<PesananTableSkeleton />}>
-          <Table query={query} currentPage={currentPage} status={status} bayar={bayar} />
+          <Table
+            query={query}
+            currentPage={currentPage}
+            status={status}
+            bayar={bayar}
+            totalPages={totalPages}
+          />
         </Suspense>
         <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">
           <Pagination totalPages={totalPages} />

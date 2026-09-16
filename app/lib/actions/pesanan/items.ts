@@ -315,8 +315,12 @@ export async function updateStatusItemPesanan(
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
   const userId = cookieStore.get("user_id")?.value || null;
 
-  // Pastikan pesanan ada dan milik toko yang sedang dipilih
-  const existingPesanan = await fetchPesananById(pesananId);
+  // Pastikan pesanan ada dan milik toko yang sedang dipilih, dan item ada
+  // dan memang milik pesanan tersebut (kedua query independen → paralel).
+  const [existingPesanan, existingItem] = await Promise.all([
+    fetchPesananById(pesananId),
+    fetchItemPesananById(itemId),
+  ]);
   if (!existingPesanan || existingPesanan.toko_id !== selectedToko) {
     return {
       success: false,
@@ -324,8 +328,6 @@ export async function updateStatusItemPesanan(
     };
   }
 
-  // Pastikan item ada dan memang milik pesanan tersebut
-  const existingItem = await fetchItemPesananById(itemId);
   if (!existingItem || existingItem.pesanan_id !== pesananId) {
     return {
       success: false,

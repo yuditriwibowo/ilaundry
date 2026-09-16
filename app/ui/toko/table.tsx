@@ -1,4 +1,4 @@
-import { fetchFilteredToko, fetchTokoPages } from "@/app/lib/data";
+import { fetchFilteredToko } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/toko/infinite-list";
 import TokoTableRow from "@/app/ui/toko/table-row";
 import NotFound from "@/app/laundry/pengaturan/not-found";
@@ -6,12 +6,13 @@ import NotFound from "@/app/laundry/pengaturan/not-found";
 export default async function TokoTable({
   query,
   currentPage,
+  totalPages,
 }: {
   query: string;
   currentPage: number;
+  totalPages: number;
 }) {
   const tokoList = await fetchFilteredToko(query, currentPage);
-  const totalPages = await fetchTokoPages(query);
 
   return (
     <div className="mt-6 flow-root">

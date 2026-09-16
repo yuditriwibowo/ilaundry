@@ -1,16 +1,17 @@
-import { fetchFilteredPelanggan, fetchPelangganPages } from "@/app/lib/data";
+import { fetchFilteredPelanggan } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/pelanggan/infinite-list";
 import PelangganTableRow from "@/app/ui/pelanggan/table-row";
 
 export default async function PelangganTable({
   query,
   currentPage,
+  totalPages,
 }: {
   query: string;
   currentPage: number;
+  totalPages: number;
 }) {
   const pelangganList = await fetchFilteredPelanggan(query, currentPage);
-  const totalPages = await fetchPelangganPages(query);
 
   return (
     <div className="mt-6 flow-root">

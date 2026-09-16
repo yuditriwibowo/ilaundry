@@ -1,4 +1,4 @@
-import { fetchFilteredDurasi, fetchDurasiPages } from "@/app/lib/data";
+import { fetchFilteredDurasi } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/durasi/infinite-list";
 import DurasiTableRow from "@/app/ui/durasi/table-row";
 import TableShell from "@/app/ui/shared/table-shell";
@@ -6,12 +6,13 @@ import TableShell from "@/app/ui/shared/table-shell";
 export default async function DurasiTable({
   query,
   currentPage,
+  totalPages,
 }: {
   query: string;
   currentPage: number;
+  totalPages: number;
 }) {
   const durasiList = await fetchFilteredDurasi(query, currentPage);
-  const totalPages = await fetchDurasiPages(query);
 
   return (
     <TableShell

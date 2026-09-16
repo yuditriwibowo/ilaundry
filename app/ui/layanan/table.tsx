@@ -1,4 +1,4 @@
-import { fetchFilteredLayanan, fetchLayananPages } from "@/app/lib/data";
+import { fetchFilteredLayanan } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/layanan/infinite-list";
 import LayananTableRow from "@/app/ui/layanan/table-row";
 import TableShell from "@/app/ui/shared/table-shell";
@@ -8,14 +8,15 @@ export default async function LayananTable({
   currentPage,
   tipeId,
   durasiNama,
+  totalPages,
 }: {
   query: string;
   currentPage: number;
   tipeId?: string;
   durasiNama?: string;
+  totalPages: number;
 }) {
   const layananList = await fetchFilteredLayanan(query, currentPage, tipeId, durasiNama);
-  const totalPages = await fetchLayananPages(query, tipeId, durasiNama);
 
   return (
     <TableShell

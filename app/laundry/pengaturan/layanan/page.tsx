@@ -21,9 +21,11 @@ export default async function Page(props: {
   const tipe = searchParams?.tipe || "";
   const durasi = searchParams?.durasi || "";
   
-  const totalPages = await fetchLayananPages(query, tipe, durasi);
-  const optionsTipe = await fetchTipeLayanan();
-  const optionsDurasi = await fetchDurasiForFilter();
+  const [totalPages, optionsTipe, optionsDurasi] = await Promise.all([
+    fetchLayananPages(query, tipe, durasi),
+    fetchTipeLayanan(),
+    fetchDurasiForFilter(),
+  ]);
   
   return (
       <div className="flex h-full w-full flex-col -mt-2">
@@ -45,7 +47,13 @@ export default async function Page(props: {
         </div>
           <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar">
             <Suspense key={query + currentPage + tipe + durasi} fallback={<LayananTableSkeleton />}>
-              <Table query={query} currentPage={currentPage} tipeId={tipe} durasiNama={durasi} />
+              <Table
+                query={query}
+                currentPage={currentPage}
+                tipeId={tipe}
+                durasiNama={durasi}
+                totalPages={totalPages}
+              />
             </Suspense>
             <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">
               <Pagination totalPages={totalPages} />
