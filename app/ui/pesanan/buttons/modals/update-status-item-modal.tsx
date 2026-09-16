@@ -15,12 +15,13 @@ import type { ItemPesanan, StatusItem } from "@/app/lib/definitions";
 export default function UpdateStatusItemModal({
   item,
   show,
-  onClose,
+  onCloseAction,
   onSuccessAction,
 }: {
   item: ItemPesanan;
   show: boolean;
-  onClose: () => void;
+  // Sufiks "Action" agar lolos validasi serializable props komponen "use client".
+  onCloseAction: () => void;
   onSuccessAction?: (updated: ItemPesanan) => void;
 }) {
   const router = useRouter();
@@ -57,7 +58,7 @@ export default function UpdateStatusItemModal({
       }
       router.refresh();
       onSuccessAction?.(result.item);
-      onClose();
+      onCloseAction();
     } catch (error) {
       console.error("Failed to update status item pesanan:", error);
       setErrorMsg("Gagal memperbarui status item.");
@@ -113,7 +114,7 @@ export default function UpdateStatusItemModal({
           <button
             type="button"
             disabled={isSaving}
-            onClick={onClose}
+            onClick={onCloseAction}
             className="flex-1 touch-manipulation rounded-xl border border-gray-200 bg-gray-50 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
           >
             Batal

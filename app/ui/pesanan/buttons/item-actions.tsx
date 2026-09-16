@@ -159,7 +159,7 @@ export function ItemPesananActionButtons({
         <UpdateStatusItemModal
           item={item}
           show
-          onClose={() => setShowStatusModal(false)}
+          onCloseAction={() => setShowStatusModal(false)}
           onSuccessAction={(updated) => onUpdateAction?.(updated)}
         />
       )}

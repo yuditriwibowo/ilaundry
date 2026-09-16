@@ -256,7 +256,7 @@ export function PesananActionMenu({
         <UpdateStatusPesananModal
           pesanan={pesanan}
           show
-          onClose={() => setShowStatusModal(false)}
+          onCloseAction={() => setShowStatusModal(false)}
           onSuccessAction={(updated) => onUpdateAction?.(updated)}
         />
       )}
@@ -266,7 +266,7 @@ export function PesananActionMenu({
         <UpdatePembayaranModal
           pesanan={pesanan}
           show
-          onClose={() => setShowPembayaranModal(false)}
+          onCloseAction={() => setShowPembayaranModal(false)}
           onSuccessAction={(updated) => onUpdateAction?.(updated)}
         />
       )}

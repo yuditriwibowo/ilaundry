@@ -45,7 +45,7 @@ export function UpdateStatusPesananButton({
         <UpdateStatusPesananModal
           pesanan={pesanan}
           show
-          onClose={() => setShowModal(false)}
+          onCloseAction={() => setShowModal(false)}
           onSuccessAction={onSuccessAction}
         />
       )}
@@ -82,7 +82,7 @@ export function UpdatePembayaranPesananButton({
         <UpdatePembayaranModal
           pesanan={pesanan}
           show
-          onClose={() => setShowModal(false)}
+          onCloseAction={() => setShowModal(false)}
           onSuccessAction={onSuccessAction}
         />
       )}

@@ -16,12 +16,13 @@ import { formatRupiah } from "@/app/lib/utils";
 export default function UpdatePembayaranModal({
   pesanan,
   show,
-  onClose,
+  onCloseAction,
   onSuccessAction,
 }: {
   pesanan: TabelPesanan;
   show: boolean;
-  onClose: () => void;
+  // Sufiks "Action" agar lolos validasi serializable props komponen "use client".
+  onCloseAction: () => void;
   onSuccessAction?: (updated: TabelPesanan) => void;
 }) {
   const router = useRouter();
@@ -68,7 +69,7 @@ export default function UpdatePembayaranModal({
       }
       router.refresh();
       onSuccessAction?.(result.pesanan);
-      onClose();
+      onCloseAction();
     } catch (error) {
       console.error("Failed to update pembayaran:", error);
       setErrorMsg("Gagal memperbarui pembayaran.");
@@ -174,7 +175,7 @@ export default function UpdatePembayaranModal({
           <button
             type="button"
             disabled={isSaving}
-            onClick={onClose}
+            onClick={onCloseAction}
             className="flex-1 touch-manipulation rounded-xl border border-gray-200 bg-gray-50 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
           >
             Batal
