@@ -15,5 +15,5 @@ export { createDiskon, updateDiskon, deleteDiskon, fetchMoreDiskon } from "./dis
 export { createAntarJemput, updateAntarJemput, deleteAntarJemput, fetchMoreAntarJemput } from "./antar-jemput";
 export { createLayanan, updateLayanan, deleteLayanan, fetchMoreLayanan } from "./layanan";
 export { createPelanggan, updatePelanggan, deletePelanggan, fetchMorePelanggan } from "./pelanggan";
-export { createPesanan, updatePesanan, deletePesanan, updateStatusPesanan, updatePembayaranPesanan, createItemPesanan, updateItemPesanan, deleteItemPesanan, fetchMorePesanan, fetchMoreItemPesanan } from "./pesanan";
+export { createPesanan, updatePesanan, deletePesanan, updateStatusPesanan, updatePembayaranPesanan, createItemPesanan, updateItemPesanan, updateStatusItemPesanan, deleteItemPesanan, fetchMorePesanan, fetchMoreItemPesanan } from "./pesanan";
 export { createUserToko, updateUserToko, deleteUserToko, fetchMoreUserToko } from "./usertoko";

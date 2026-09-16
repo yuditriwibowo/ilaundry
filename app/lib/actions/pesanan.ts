@@ -13,7 +13,7 @@ import {
   fetchAllItemPesananByPesananId,
   fetchPesananById,
 } from "../data/pesanan";
-import type { TabelLayanan, Diskon, AntarJemput, TabelPesanan } from "../definitions";
+import type { TabelLayanan, Diskon, AntarJemput, TabelPesanan, ItemPesanan } from "../definitions";
 import type { State } from "./types";
 
 const PesananItemSchema = z.object({
@@ -1312,3 +1312,79 @@ export async function deleteItemPesanan(id: string, pesananId: string) {
   revalidatePath(`/laundry/pesanan/${pesananId}/detail`);
   revalidatePath("/laundry/pesanan");
 }
+// Update status satu item pesanan (workflow per item: diproses -> selesai ->
+// diambil, atau batal). tgl_selesai item ikut disesuaikan: selesai/diambil
+// mengisinya (memakai nilai lama bila pernah diisi), kembali ke diproses/batal
+// mengosongkannya. Status pesanan induk tidak diubah — mengikuti alur existing,
+// status pesanan diatur lewat updateStatusPesanan (yang menyinkronkan semua
+// item pesanannya).
+export type UpdateItemStatusResult = {
+  success: boolean;
+  message?: string;
+  // Item pesanan terbaru setelah update, untuk refresh data di klien.
+  item?: ItemPesanan;
+};
+
+export async function updateStatusItemPesanan(
+  itemId: string,
+  pesananId: string,
+  status_item: string,
+): Promise<UpdateItemStatusResult> {
+  await getCurrentUser();
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value || null;
+  const userId = cookieStore.get("user_id")?.value || null;
+
+  // Pastikan pesanan ada dan milik toko yang sedang dipilih
+  const existingPesanan = await fetchPesananById(pesananId);
+  if (!existingPesanan || existingPesanan.toko_id !== selectedToko) {
+    return {
+      success: false,
+      message: "Pesanan tidak ditemukan. Gagal memperbarui status item.",
+    };
+  }
+
+  // Pastikan item ada dan memang milik pesanan tersebut
+  const existingItem = await fetchItemPesananById(itemId);
+  if (!existingItem || existingItem.pesanan_id !== pesananId) {
+    return {
+      success: false,
+      message: "Item pesanan tidak ditemukan. Gagal memperbarui status item.",
+    };
+  }
+
+  // Enum status item sama dengan enum status pesanan
+  const parsedStatus = StatusPesananSchema.safeParse(status_item);
+  if (!parsedStatus.success) {
+    return { success: false, message: "Status item tidak valid." };
+  }
+  const status = parsedStatus.data;
+
+  const nowIso = new Date().toISOString();
+  try {
+    await sql`
+      UPDATE item_pesanan SET
+        status_item = ${status},
+        tgl_selesai = CASE
+          WHEN ${status === "selesai" || status === "diambil"}
+            THEN COALESCE(tgl_selesai, ${nowIso})
+          ELSE NULL
+        END,
+        last_update = ${nowIso},
+        update_by = ${userId}
+      WHERE id = ${itemId} AND pesanan_id = ${pesananId}
+    `;
+  } catch (error) {
+    console.error("Database Error: Gagal memperbarui status item pesanan.", error);
+    return {
+      success: false,
+      message: "Database Error: Gagal memperbarui status item pesanan.",
+    };
+  }
+
+  revalidatePath("/laundry/pesanan");
+  revalidatePath(`/laundry/pesanan/${pesananId}/detail`);
+  const updated = await fetchItemPesananById(itemId);
+  return { success: true, item: updated ?? undefined };
+}
+

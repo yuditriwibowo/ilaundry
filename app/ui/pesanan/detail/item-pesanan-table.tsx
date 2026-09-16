@@ -1,23 +1,30 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { ItemPesanan } from "@/app/lib/definitions";
-import { formatRupiah } from "@/app/lib/utils";
+import { ItemPesanan, TabelPesanan } from "@/app/lib/definitions";
+import { formatDateTimeToLocal, formatEstimasiJam, formatRupiah } from "@/app/lib/utils";
 import { StatusItemBadge } from "./status-item";
-import { UpdateItemPesananButton, DeleteItemPesananButton } from "@/app/ui/pesanan/buttons";
+import { ItemPesananActionButtons } from "@/app/ui/pesanan/buttons";
 import { SparklesIcon } from "@heroicons/react/24/outline";
 
 export default function ItemPesananTable({
-  pesananId,
+  pesanan,
   initialItems,
 }: {
-  pesananId: string;
+  pesanan: TabelPesanan;
   initialItems: ItemPesanan[];
 }) {
   const [items, setItems] = useState<ItemPesanan[]>(initialItems);
 
   const handleDelete = useCallback((id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  // Mengganti baris dengan data terbaru setelah update status item sukses
+  const handleUpdate = useCallback((updated: ItemPesanan) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === updated.id ? updated : item)),
+    );
   }, []);
 
   // Sinkronkan state lokal saat server mengirim data item terbaru
@@ -50,6 +57,12 @@ export default function ItemPesananTable({
             </th>
             <th scope="col" className="px-3.5 py-3">
               Layanan
+            </th>
+            <th scope="col" className="px-3.5 py-3">
+              Tanggal Masuk
+            </th>
+            <th scope="col" className="px-3.5 py-3">
+              Estimasi Selesai
             </th>
             <th scope="col" className="px-3.5 py-3">
               Status
@@ -101,6 +114,42 @@ export default function ItemPesananTable({
                   )}
                 </div>
               </td>
+              <td className="whitespace-nowrap px-3.5 py-3 text-gray-700">
+                {formatDateTimeToLocal(item.tgl_item_pesanan ?? item.created_at)}
+              </td>
+              <td className="whitespace-nowrap px-3.5 py-3">
+                {(() => {
+                  // Saat item sudah selesai/diambil, tampilkan tanggal selesai
+                  // (bukan lagi estimasi)
+                  if (
+                    (item.status_item === "selesai" || item.status_item === "diambil") &&
+                    item.tgl_selesai
+                  ) {
+                    return (
+                      <span
+                        className="font-medium text-green-600"
+                        title="Tanggal Selesai"
+                      >
+                        Selesai : {formatDateTimeToLocal(item.tgl_selesai)}
+                      </span>
+                    );
+                  }
+                  const estimasi = formatEstimasiJam(item.tgl_estimasi_selesai);
+                  if (!estimasi) return "-";
+                  return (
+                    <span
+                      className={estimasi.terlambat ? "font-medium text-red-600" : "text-gray-500"}
+                      title={
+                        item.tgl_estimasi_selesai
+                          ? formatDateTimeToLocal(item.tgl_estimasi_selesai)
+                          : undefined
+                      }
+                    >
+                      {estimasi.text}
+                    </span>
+                  );
+                })()}
+              </td>
               <td className="whitespace-nowrap px-3.5 py-3">
                 <StatusItemBadge status={item.status_item} />
               </td>
@@ -127,12 +176,12 @@ export default function ItemPesananTable({
                 {item.catatan_item || "-"}
               </td>
               <td className="whitespace-nowrap px-3.5 py-3 text-right">
-                <div className="flex justify-end gap-1.5">
-                  <UpdateItemPesananButton pesananId={pesananId} itemId={item.id} />
-                  <DeleteItemPesananButton
-                    pesananId={pesananId}
-                    itemId={item.id}
+                <div className="flex justify-end">
+                  <ItemPesananActionButtons
+                    pesanan={pesanan}
+                    item={item}
                     onDeleteAction={handleDelete}
+                    onUpdateAction={handleUpdate}
                   />
                 </div>
               </td>

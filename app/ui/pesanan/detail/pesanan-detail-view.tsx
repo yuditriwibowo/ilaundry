@@ -212,7 +212,7 @@ export default function PesananDetailView({
           </div>
           {/* 1.6 Infinite-list Item Pesanan */}
           <ItemPesananInfiniteList
-            pesananId={pesanan.id}
+            pesanan={pesanan}
             initialItems={initialItems}
             totalPages={totalPages}
           />
@@ -398,7 +398,7 @@ export default function PesananDetailView({
               <CreateItemPesananButton pesananId={pesanan.id} />
             </div>
             {/* 2.6 Table untuk menampilkan item pesanan */}
-            <ItemPesananTable pesananId={pesanan.id} initialItems={initialItems} />
+            <ItemPesananTable pesanan={pesanan} initialItems={initialItems} />
           </fieldset>
         </div>
       </div>

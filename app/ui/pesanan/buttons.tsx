@@ -19,9 +19,10 @@ import {
   deletePesanan,
   updateStatusPesanan,
   updatePembayaranPesanan,
+  updateStatusItemPesanan,
   deleteItemPesanan,
 } from "@/app/lib/actions";
-import { TabelPesanan, StatusPesanan, StatusPembayaran, MetodePembayaran } from "@/app/lib/definitions";
+import { TabelPesanan, ItemPesanan, StatusPesanan, StatusPembayaran, StatusItem, MetodePembayaran } from "@/app/lib/definitions";
 import { formatDateTimeToLocal, formatRupiah } from "@/app/lib/utils";
 
 const actionButtonClass =
@@ -43,6 +44,13 @@ const statusPembayaranText: Record<StatusPembayaran, string> = {
   belum_bayar: "Belum Bayar",
   DP: "DP",
   lunas: "Lunas",
+};
+
+const statusItemText: Record<StatusItem, string> = {
+  diproses: "Diproses",
+  selesai: "Selesai",
+  diambil: "Diambil",
+  batal: "Batal",
 };
 
 const statusPesananText: Record<StatusPesanan, string> = {
@@ -331,6 +339,96 @@ export function printStruk(pesanan: TabelPesanan) {
           <tr><td class="label">Kurang Bayar</td><td>: ${formatRupiah(pesanan.kurang_bayar)}</td></tr>
         </table>
         ${pesanan.catatan ? `<hr /><p style="font-size: 11px;">Catatan: ${pesanan.catatan}</p>` : ""}
+        <hr />
+        <p class="sub">Terima kasih telah mempercayakan cucian Anda kepada kami.</p>
+      </body>
+    </html>
+  `);
+  win.document.close();
+  win.focus();
+  win.print();
+  win.onafterprint = () => win.close();
+}
+
+// Struk per item pesanan: satu layanan pada sebuah pesanan.
+// Data pesanan (toko/pelanggan) dipakai untuk kop struk, data item untuk isi.
+export function printStrukItem(pesanan: TabelPesanan, item: ItemPesanan) {
+  const win = window.open("", "_blank", "width=480,height=640");
+  if (!win) return;
+
+  const rows: [string, string][] = [
+    ["No. Pesanan", pesanan.nomor_pesanan ?? "-"],
+    ["No. Item", item.nomor_item_pesanan ?? "-"],
+    [
+      "Tanggal",
+      item.tgl_item_pesanan
+        ? formatDateTimeToLocal(item.tgl_item_pesanan)
+        : formatDateTimeToLocal(pesanan.tgl_pesanan),
+    ],
+    ["Pelanggan", pesanan.nama_pelanggan ?? "-"],
+    ["No. HP", pesanan.no_hp ?? "-"],
+    ["Kasir", pesanan.nama_user ?? "-"],
+    ["Status Pesanan", statusPesananText[pesanan.status_pesanan]],
+    ["Status Item", statusItemText[item.status_item]],
+  ];
+
+  const itemRows: [string, string][] = [
+    ["Layanan", item.nama_layanan_snapshot],
+    ["Tipe", item.tipe_layanan_snapshot ?? "-"],
+    ["Durasi", item.durasi_snapshot ?? "-"],
+    ["Parfum", item.nama_parfum_snapshot ?? "-"],
+    ["Qty", `${item.jumlah} ${item.satuan}`],
+    ["Harga Satuan", formatRupiah(item.harga_satuan)],
+    [
+      "Diskon",
+      item.nilai_diskon && item.nilai_diskon > 0
+        ? `- ${formatRupiah(item.nilai_diskon)}`
+        : "-",
+    ],
+  ];
+
+  win.document.write(`
+    <html>
+      <head>
+        <title>${item.nomor_item_pesanan ?? "Struk Item"} - ${pesanan.nomor_pesanan ?? "Pesanan"}</title>
+        <style>
+          body { font-family: monospace; padding: 16px; color: #111; }
+          h1 { text-align: center; font-size: 16px; margin: 0 0 4px; }
+          p.sub { text-align: center; font-size: 11px; margin: 0 0 12px; color: #555; }
+          table { width: 100%; font-size: 12px; border-collapse: collapse; }
+          td { padding: 3px 0; vertical-align: top; }
+          td.label { color: #555; width: 40%; }
+          hr { border: none; border-top: 1px dashed #999; margin: 10px 0; }
+          .total { font-weight: bold; font-size: 13px; }
+        </style>
+      </head>
+      <body>
+        <h1>${pesanan.nama_toko ?? "Laundry"}</h1>
+        <p class="sub">Struk Item Pesanan</p>
+        <hr />
+        <table>
+          ${rows
+            .map(
+              ([label, value]) =>
+                `<tr><td class="label">${label}</td><td>: ${value}</td></tr>`,
+            )
+            .join("")}
+        </table>
+        <hr />
+        <table>
+          ${itemRows
+            .map(
+              ([label, value]) =>
+                `<tr><td class="label">${label}</td><td>: ${value}</td></tr>`,
+            )
+            .join("")}
+        </table>
+        <hr />
+        <table>
+          <tr><td class="label">Subtotal</td><td>: ${formatRupiah(item.subtotal)}</td></tr>
+          <tr class="total"><td class="label">Total Item</td><td>: ${formatRupiah(item.subtotal_final ?? item.subtotal)}</td></tr>
+        </table>
+        ${item.catatan_item ? `<hr /><p style="font-size: 11px;">Catatan: ${item.catatan_item}</p>` : ""}
         <hr />
         <p class="sub">Terima kasih telah mempercayakan cucian Anda kepada kami.</p>
       </body>
@@ -1131,42 +1229,28 @@ export function CreateItemPesananButton({ pesananId }: { pesananId: string }) {
   );
 }
 
-export function UpdateItemPesananButton({
-  pesananId,
-  itemId,
-}: {
-  pesananId: string;
-  itemId: string;
-}) {
-  return (
-    <Link
-      href={`/laundry/pesanan/${pesananId}/item/${itemId}/edit`}
-      title="Edit Item"
-      className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-slate-800 dark:hover:text-gray-100"
-    >
-      <span className="sr-only">Edit Item</span>
-      <PencilIcon className="h-3.5 w-3.5" />
-    </Link>
-  );
-}
-
-export function DeleteItemPesananButton({
-  pesananId,
-  itemId,
+export function ItemPesananActionButtons({
+  pesanan,
+  item,
   onDeleteAction,
+  onUpdateAction,
 }: {
-  pesananId: string;
-  itemId: string;
+  pesanan: TabelPesanan;
+  item: ItemPesanan;
   onDeleteAction?: (id: string) => void;
+  // Dipanggil setelah update status item sukses dengan data item terbaru,
+  // agar list (infinite scroll/table) bisa mengganti data barisnya di state lokal.
+  onUpdateAction?: (updated: ItemPesanan) => void;
 }) {
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  async function handleConfirm() {
+  async function handleConfirmDelete() {
     setIsDeleting(true);
     try {
-      await deleteItemPesanan(itemId, pesananId);
-      onDeleteAction?.(itemId);
+      await deleteItemPesanan(item.id, item.pesanan_id);
+      onDeleteAction?.(item.id);
       setShowConfirm(false);
     } catch (error) {
       console.error("Failed to delete item:", error);
@@ -1177,19 +1261,57 @@ export function DeleteItemPesananButton({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={(e) => {
-          // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
-          e.stopPropagation();
-          setShowConfirm(true);
-        }}
-        title="Hapus Item"
-        className="flex h-7 w-7 touch-manipulation items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-red-950/50 dark:hover:text-red-400"
-      >
-        <span className="sr-only">Hapus Item</span>
-        <TrashIcon className="h-3.5 w-3.5" />
-      </button>
+      <div className="flex items-center justify-end gap-1.5">
+        {/* Print Struk item */}
+        <button
+          type="button"
+          onClick={(e) => {
+            // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
+            e.stopPropagation();
+            printStrukItem(pesanan, item);
+          }}
+          title="Print Struk"
+          className="flex h-7 w-7 touch-manipulation items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-slate-800 dark:hover:text-gray-100"
+        >
+          <span className="sr-only">Print Struk</span>
+          <PrinterIcon className="h-3.5 w-3.5" />
+        </button>
+        {/* Update Status item */}
+        <button
+          type="button"
+          onClick={(e) => {
+            // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
+            e.stopPropagation();
+            setShowStatusModal(true);
+          }}
+          title="Update Status"
+          className="flex h-7 w-7 touch-manipulation items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-400"
+        >
+          <span className="sr-only">Update Status</span>
+          <ArrowPathIcon className="h-3.5 w-3.5" />
+        </button>
+        <Link
+          href={`/laundry/pesanan/${item.pesanan_id}/item/${item.id}/edit`}
+          title="Edit Item"
+          className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-slate-800 dark:hover:text-gray-100"
+        >
+          <span className="sr-only">Edit Item</span>
+          <PencilIcon className="h-3.5 w-3.5" />
+        </Link>
+        <button
+          type="button"
+          onClick={(e) => {
+            // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
+            e.stopPropagation();
+            setShowConfirm(true);
+          }}
+          title="Hapus Item"
+          className="flex h-7 w-7 touch-manipulation items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+        >
+          <span className="sr-only">Hapus Item</span>
+          <TrashIcon className="h-3.5 w-3.5" />
+        </button>
+      </div>
 
       {showConfirm &&
         createPortal(
@@ -1228,7 +1350,7 @@ export function DeleteItemPesananButton({
                   disabled={isDeleting}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleConfirm();
+                    handleConfirmDelete();
                   }}
                   className="flex-1 touch-manipulation rounded-xl bg-red-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 dark:bg-red-600 dark:hover:bg-red-700"
                 >
@@ -1239,6 +1361,139 @@ export function DeleteItemPesananButton({
           </div>,
           document.body
         )}
+
+      {/* Modal Update Status Item Pesanan */}
+      <UpdateStatusItemModal
+        item={item}
+        show={showStatusModal}
+        onClose={() => setShowStatusModal(false)}
+        onSuccessAction={(updated) => onUpdateAction?.(updated)}
+      />
     </>
   );
 }
+
+// ---------- Modal Update Status Item Pesanan ----------
+// Nilai form dikelola lokal (bukan FormData) karena update dilakukan lewat
+// server action terpisah. Pola sama dengan UpdateStatusPesananModal.
+function UpdateStatusItemModal({
+  item,
+  show,
+  onClose,
+  onSuccessAction,
+}: {
+  item: ItemPesanan;
+  show: boolean;
+  onClose: () => void;
+  onSuccessAction?: (updated: ItemPesanan) => void;
+}) {
+  const router = useRouter();
+  const [selectedStatus, setSelectedStatus] = useState<StatusItem>(
+    item.status_item,
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Reset pilihan ke status terbaru setiap kali modal dibuka (pola resmi React)
+  const [prevItem, setPrevItem] = useState(item);
+  const [prevShow, setPrevShow] = useState(show);
+  if ((show && !prevShow) || item.status_item !== prevItem.status_item) {
+    setPrevShow(show);
+    setPrevItem(item);
+    setSelectedStatus(item.status_item);
+    setErrorMsg(null);
+  }
+
+  if (!show) return null;
+
+  async function handleSave() {
+    setIsSaving(true);
+    setErrorMsg(null);
+    try {
+      const result = await updateStatusItemPesanan(
+        item.id,
+        item.pesanan_id,
+        selectedStatus,
+      );
+      if (!result.success || !result.item) {
+        setErrorMsg(result.message ?? "Gagal memperbarui status item.");
+        return;
+      }
+      router.refresh();
+      onSuccessAction?.(result.item);
+      onClose();
+    } catch (error) {
+      console.error("Failed to update status item pesanan:", error);
+      setErrorMsg("Gagal memperbarui status item.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl border border-gray-100 dark:bg-slate-900 dark:border-slate-800">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+          <ArrowPathIcon className="h-8 w-8" />
+        </div>
+
+        <h3 className="mb-1 text-lg font-bold text-gray-900 dark:text-white">
+          Update Status Item
+        </h3>
+        <p className="mb-4 truncate text-sm text-gray-500 dark:text-slate-400">
+          {item.nomor_item_pesanan ?? "Item"} • {item.nama_layanan_snapshot}
+        </p>
+
+        <div className="mb-4 grid grid-cols-2 gap-2">
+          {(Object.keys(statusItemText) as StatusItem[]).map((status) => {
+            const isSelected = selectedStatus === status;
+            return (
+              <button
+                key={status}
+                type="button"
+                onClick={() => setSelectedStatus(status)}
+                className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isSelected
+                    ? "border-primary-600 bg-primary-50 text-primary-700 dark:border-primary-500 dark:bg-primary-950/40 dark:text-primary-300"
+                    : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-200 dark:hover:bg-slate-700"
+                }`}
+              >
+                {statusItemText[status]}
+              </button>
+            );
+          })}
+        </div>
+
+        {errorMsg && (
+          <p className="mb-4 text-sm font-medium text-red-600 dark:text-red-400">
+            {errorMsg}
+          </p>
+        )}
+
+        <div className="flex gap-3">
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={onClose}
+            className="flex-1 touch-manipulation rounded-xl border border-gray-200 bg-gray-50 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            disabled={isSaving || selectedStatus === item.status_item}
+            onClick={() => handleSave()}
+            className="flex-1 touch-manipulation rounded-xl bg-primary-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-500 disabled:opacity-50"
+          >
+            {isSaving ? "Menyimpan..." : "Simpan"}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+

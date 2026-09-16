@@ -1,20 +1,20 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { ItemPesanan } from "@/app/lib/definitions";
+import { ItemPesanan, TabelPesanan } from "@/app/lib/definitions";
 import { fetchMoreItemPesanan } from "@/app/lib/actions";
-import { formatRupiah } from "@/app/lib/utils";
+import { formatDateTimeToLocal, formatEstimasiJam, formatRupiah } from "@/app/lib/utils";
 import { useInView } from "react-intersection-observer";
 import { StatusItemBadge } from "./status-item";
-import { UpdateItemPesananButton, DeleteItemPesananButton } from "@/app/ui/pesanan/buttons";
+import { ItemPesananActionButtons } from "@/app/ui/pesanan/buttons";
 import { TagIcon, SparklesIcon } from "@heroicons/react/24/outline";
 
 export default function ItemPesananInfiniteList({
-  pesananId,
+  pesanan,
   initialItems,
   totalPages,
 }: {
-  pesananId: string;
+  pesanan: TabelPesanan;
   initialItems: ItemPesanan[];
   totalPages: number;
 }) {
@@ -26,13 +26,20 @@ export default function ItemPesananInfiniteList({
     setItems((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
+  // Mengganti baris dengan data terbaru setelah update status item sukses
+  const handleUpdate = useCallback((updated: ItemPesanan) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === updated.id ? updated : item)),
+    );
+  }, []);
+
   const { ref, inView } = useInView();
 
   const loadMore = useCallback(async () => {
     setIsLoading(true);
     const nextPage = pageRef.current + 1;
     try {
-      const moreItems = await fetchMoreItemPesanan(pesananId, nextPage);
+      const moreItems = await fetchMoreItemPesanan(pesanan.id, nextPage);
       setItems((prev) => {
         const combined = [...prev, ...moreItems];
         return Array.from(new Map(combined.map((item) => [item.id, item])).values());
@@ -43,7 +50,7 @@ export default function ItemPesananInfiniteList({
     } finally {
       setIsLoading(false);
     }
-  }, [pesananId]);
+  }, [pesanan.id]);
 
   useEffect(() => {
     if (inView && pageRef.current < totalPages && !isLoading) {
@@ -66,7 +73,7 @@ export default function ItemPesananInfiniteList({
       try {
         const pages = await Promise.all(
           Array.from({ length: pageRef.current }, (_, i) =>
-            fetchMoreItemPesanan(pesananId, i + 1),
+            fetchMoreItemPesanan(pesanan.id, i + 1),
           ),
         );
         if (cancelled) return;
@@ -86,7 +93,7 @@ export default function ItemPesananInfiniteList({
     return () => {
       cancelled = true;
     };
-  }, [initialItems, pesananId]);
+  }, [initialItems, pesanan.id]);
 
   if (items.length === 0) {
     return (
@@ -135,6 +142,40 @@ export default function ItemPesananInfiniteList({
                 </>
               )}
             </div>
+            {/* Tanggal Masuk & Estimasi Selesai (mengikuti pola list Pesanan) */}
+            <p className="mt-1 truncate text-xs text-gray-500">
+              Masuk : {formatDateTimeToLocal(item.tgl_item_pesanan ?? item.created_at)}
+              {(() => {
+                // Saat item sudah selesai/diambil, tampilkan tanggal selesai
+                // (bukan lagi estimasi)
+                if (
+                  (item.status_item === "selesai" || item.status_item === "diambil") &&
+                  item.tgl_selesai
+                ) {
+                  return (
+                    <span
+                      className="font-medium text-green-600"
+                      title="Tanggal Selesai"
+                    >
+                      {" • "}Selesai : {formatDateTimeToLocal(item.tgl_selesai)}
+                    </span>
+                  );
+                }
+                const estimasi = formatEstimasiJam(item.tgl_estimasi_selesai);
+                return (
+                  <span
+                    className={estimasi?.terlambat ? "font-medium text-red-600" : ""}
+                    title={
+                      item.tgl_estimasi_selesai
+                        ? formatDateTimeToLocal(item.tgl_estimasi_selesai)
+                        : undefined
+                    }
+                  >
+                    {" • "}Est : {estimasi ? estimasi.text : "-"}
+                  </span>
+                );
+              })()}
+            </p>
           </div>
 
           {/* Pricing Row */}
@@ -162,12 +203,12 @@ export default function ItemPesananInfiniteList({
           ) : null}
 
           {/* Actions Row */}
-          <div className="mt-3 flex items-center justify-end gap-2 border-t border-gray-100 pt-2">
-            <UpdateItemPesananButton pesananId={pesananId} itemId={item.id} />
-            <DeleteItemPesananButton
-              pesananId={pesananId}
-              itemId={item.id}
+          <div className="mt-3 flex items-center justify-end border-t border-gray-100 pt-2">
+            <ItemPesananActionButtons
+              pesanan={pesanan}
+              item={item}
               onDeleteAction={handleDelete}
+              onUpdateAction={handleUpdate}
             />
           </div>
         </div>
