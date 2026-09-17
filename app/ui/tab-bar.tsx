@@ -69,7 +69,10 @@ export default function TabBar({
   };
 
   const tabClass = (active: boolean) =>
-    `shrink-0 cursor-pointer whitespace-nowrap rounded border px-2 py-0.5 text-xs leading-5 transition-colors ${
+    // grow + min-w-max: saat total lebar tab lebih kecil dari container,
+    // semua tab melar (dibagi rata) mengisi lebar penuh; saat lebih besar,
+    // min-w-max menjaga label utuh dan container tetap bisa di-scroll.
+    `grow min-w-max cursor-pointer whitespace-nowrap rounded border px-2 py-0.5 text-center text-xs leading-5 transition-colors md:grow-0 ${
       active
         ? "border-primary-600 bg-primary-600 text-white"
         : "border-gray-200 bg-white text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
