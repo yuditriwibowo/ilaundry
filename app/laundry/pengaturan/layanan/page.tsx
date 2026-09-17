@@ -40,8 +40,10 @@ export default async function Page(props: {
               <CreateLayanan />
             </div>
           </div>
-          {/* Filters tetap sticky (berada di dalam wrapper sticky), bg solid agar konten tidak tembus di belakangnya */}
-          <div className="mt-2 w-full bg-white px-4 pb-3 -mx-4 md:mt-2 md:bg-transparent md:px-0 md:pb-0 md:mx-0 short-screen:mt-1 short-screen:pb-2">
+          {/* Filters tetap sticky (berada di dalam wrapper sticky), bg solid agar konten tidak tembus di belakangnya.
+              Tanpa w-full: width:auto + -mx-4 membuat band melebar hingga menutup viewport penuh (full-bleed),
+              sedangkan w-full membatasi lebar ke content-box parent sehingga muncul gap background page di kanan. */}
+          <div className="mt-2 bg-white px-4 pb-3 -mx-4 md:mt-2 md:bg-transparent md:px-0 md:pb-0 md:mx-0 short-screen:mt-1 short-screen:pb-2">
             <LayananFilters optionsTipe={optionsTipe} optionsDurasi={optionsDurasi} />
           </div>
         </div>
