@@ -31,6 +31,7 @@ export type State = {
     peran?: string[];
     name?: string[];
     password?: string[];
+    passwordConfirm?: string[];
 
     pelanggan_id?: string[];
     items?: string[];
@@ -52,4 +53,7 @@ export type State = {
   };
   tokoName?: string;
   peran?: string;
+  // Hasil registrasi akun baru (registerAccount) untuk auto-login di client.
+  success?: boolean;
+  tokoId?: string;
 };

@@ -128,8 +128,9 @@ export default function Form() {
               icon={ShieldCheckIcon}
               options={[
                 { id: "Administrator", label: "Administrator" },
+                { id: "Account_Owner", label: "Account Owner" },
                 { id: "Manager", label: "Manager" },
-                { id: "Kasir", label: "Kasir" },
+                { id: "Pegawai", label: "Pegawai" },
               ]}
             />
           </div>

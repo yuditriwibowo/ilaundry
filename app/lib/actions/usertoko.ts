@@ -4,8 +4,13 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import bcrypt from "bcrypt";
 import { sql } from "../db";
-import { getCurrentUser } from "../auth";
+import {
+  getCurrentUser,
+  getSessionContext,
+  canManageUserToko,
+} from "../auth";
 import { fetchFilteredUserToko } from "../data/usertoko";
 import type { State } from "./types";
 
@@ -19,14 +24,14 @@ const CreateUserTokoSchema = z.object({
   name: z.string().min(1, { message: "Nama wajib diisi." }),
   email: z.string().email({ message: "Email tidak valid." }).min(1, { message: "Email wajib diisi." }),
   password: z.string().min(6, { message: "Password minimal 6 karakter." }),
-  peran: z.enum(['Administrator', 'Manager', 'Kasir'], {
+  peran: z.enum(['Administrator', 'Account_Owner', 'Manager', 'Pegawai'], {
     message: "Peran wajib dipilih.",
   }),
 });
 
 const ConfirmExistingUserTokoSchema = z.object({
   existing_user_id: z.string().uuid({ message: "User tidak valid." }),
-  peran: z.enum(['Administrator', 'Manager', 'Kasir'], {
+  peran: z.enum(['Administrator', 'Account_Owner', 'Manager', 'Pegawai'], {
     message: "Peran wajib dipilih.",
   }),
 });
@@ -118,10 +123,15 @@ async function insertUserTokoForExistingUser(
 }
 
 export async function createUserToko(prevState: State, formData: FormData): Promise<State> {
-  await getCurrentUser();
-  const cookieStore = await cookies();
-  const userId_operator = cookieStore.get("user_id")?.value || null;
-  const tokoId = cookieStore.get("selected_toko")?.value || null;
+  const ctx = await getSessionContext();
+  // Otorisasi: kelola user toko hanya Administrator & Account_Owner.
+  if (!canManageUserToko(ctx)) {
+    return {
+      message: "Anda tidak memiliki hak akses untuk mengelola user toko.",
+    };
+  }
+  const userId_operator = ctx.user.id;
+  const tokoId = ctx.selectedTokoId;
   const now = new Date().toISOString();
   const intent = formData.get("intent");
 
@@ -209,6 +219,8 @@ export async function createUserToko(prevState: State, formData: FormData): Prom
   }
 
   const { name, email, password, peran } = validatedFields.data;
+  // Password disimpan terenkripsi (bcrypt).
+  const passwordHash = await bcrypt.hash(password, 10);
   const newUserId = crypto.randomUUID();
   const newUserTokoId = crypto.randomUUID();
 
@@ -216,7 +228,7 @@ export async function createUserToko(prevState: State, formData: FormData): Prom
     await sql.begin(async (sql) => {
       await sql`
         INSERT INTO users (id, name, email, password)
-        VALUES (${newUserId}, ${name}, ${email}, ${password})
+        VALUES (${newUserId}, ${name}, ${email}, ${passwordHash})
       `;
       await sql`
         INSERT INTO user_toko (id, user_id, toko_id, peran, created_at, last_update, update_by)
@@ -245,14 +257,19 @@ export async function createUserToko(prevState: State, formData: FormData): Prom
 }
 
 export async function updateUserToko(id: string, prevState: State, formData: FormData) {
-  await getCurrentUser();
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value || null;
+  const ctx = await getSessionContext();
+  // Otorisasi: kelola user toko hanya Administrator & Account_Owner.
+  if (!canManageUserToko(ctx)) {
+    return {
+      message: "Anda tidak memiliki hak akses untuk mengelola user toko.",
+    };
+  }
+  const userId = ctx.user.id;
   const now = new Date().toISOString();
 
   const validatedFields = z.object({
     id: z.string(),
-    peran: z.enum(['Administrator', 'Manager', 'Kasir']),
+    peran: z.enum(['Administrator', 'Account_Owner', 'Manager', 'Pegawai']),
   }).safeParse({
     id: id,
     peran: formData.get("peran"),
@@ -285,7 +302,11 @@ export async function updateUserToko(id: string, prevState: State, formData: For
 }
 
 export async function deleteUserToko(id: string) {
-  await getCurrentUser();
+  const ctx = await getSessionContext();
+  // Otorisasi: kelola user toko hanya Administrator & Account_Owner.
+  if (!canManageUserToko(ctx)) {
+    throw new Error("Anda tidak memiliki hak akses untuk mengelola user toko.");
+  }
   try {
     await sql`DELETE FROM user_toko WHERE id = ${id}`;
   } catch (error) {

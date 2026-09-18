@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { sql } from "../db";
-import { getCurrentUser } from "../auth";
+import { getCurrentUser, canManageMasterData } from "../auth";
 import { fetchFilteredParfum } from "../data/parfum";
 import type { State } from "./types";
 
@@ -39,7 +39,13 @@ const UpdateParfum = ParfumSchema.omit({
 });
 
 export async function createParfum(prevState: State, formData: FormData) {
-  await getCurrentUser();
+  const user = await getCurrentUser();
+  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
+  if (!canManageMasterData(user.peran)) {
+    return {
+      message: "Anda tidak memiliki hak akses untuk mengubah data pengaturan.",
+    };
+  }
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -56,7 +62,7 @@ export async function createParfum(prevState: State, formData: FormData) {
   }
 
   const { nama_parfum, toko_id } = validatedFields.data;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = user.id;
   const now = new Date().toISOString();
 
   try {
@@ -74,7 +80,13 @@ export async function createParfum(prevState: State, formData: FormData) {
 }
 
 export async function updateParfum(id: string, prevState: State, formData: FormData) {
-  await getCurrentUser();
+  const user = await getCurrentUser();
+  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
+  if (!canManageMasterData(user.peran)) {
+    return {
+      message: "Anda tidak memiliki hak akses untuk mengubah data pengaturan.",
+    };
+  }
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -91,7 +103,7 @@ export async function updateParfum(id: string, prevState: State, formData: FormD
   }
 
   const { nama_parfum, toko_id } = validatedFields.data;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = user.id;
   const now = new Date().toISOString();
 
   try {
@@ -111,7 +123,13 @@ export async function updateParfum(id: string, prevState: State, formData: FormD
 }
 
 export async function deleteParfum(id: string) {
-  await getCurrentUser();
+  const user = await getCurrentUser();
+  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
+  if (!canManageMasterData(user.peran)) {
+    throw new Error(
+      "Anda tidak memiliki hak akses untuk menghapus data pengaturan.",
+    );
+  }
   try {
     await sql`DELETE FROM parfum WHERE id = ${id}`;
   } catch (error) {

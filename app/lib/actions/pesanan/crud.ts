@@ -21,7 +21,7 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
   await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = (await getCurrentUser()).id;
 
   let rawItems: unknown = [];
   try {
@@ -271,7 +271,7 @@ export async function updatePesanan(
   await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = (await getCurrentUser()).id;
 
   // Pastikan pesanan ada dan milik toko yang sedang dipilih
   const existingPesanan = await fetchPesananById(id);

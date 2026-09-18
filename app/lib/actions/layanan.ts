@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { sql } from "../db";
-import { getCurrentUser } from "../auth";
+import { getCurrentUser, canManageMasterData } from "../auth";
 import { fetchFilteredLayanan } from "../data/layanan";
 import type { State } from "./types";
 
@@ -43,7 +43,13 @@ const UpdateLayanan = LayananSchema.omit({
 });
 
 export async function createLayanan(prevState: State, formData: FormData) {
-  await getCurrentUser();
+  const user = await getCurrentUser();
+  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
+  if (!canManageMasterData(user.peran)) {
+    return {
+      message: "Anda tidak memiliki hak akses untuk mengubah data pengaturan.",
+    };
+  }
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -63,7 +69,7 @@ export async function createLayanan(prevState: State, formData: FormData) {
   }
 
   const { nama_layanan, harga, tipe_id, durasi_id, toko_id } = validatedFields.data;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = user.id;
   const now = new Date().toISOString();
 
   try {
@@ -81,7 +87,13 @@ export async function createLayanan(prevState: State, formData: FormData) {
 }
 
 export async function updateLayanan(id: string, prevState: State, formData: FormData) {
-  await getCurrentUser();
+  const user = await getCurrentUser();
+  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
+  if (!canManageMasterData(user.peran)) {
+    return {
+      message: "Anda tidak memiliki hak akses untuk mengubah data pengaturan.",
+    };
+  }
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -101,7 +113,7 @@ export async function updateLayanan(id: string, prevState: State, formData: Form
   }
 
   const { nama_layanan, harga, tipe_id, durasi_id, toko_id } = validatedFields.data;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = user.id;
   const now = new Date().toISOString();
 
   try {
@@ -121,7 +133,13 @@ export async function updateLayanan(id: string, prevState: State, formData: Form
 }
 
 export async function deleteLayanan(id: string) {
-  await getCurrentUser();
+  const user = await getCurrentUser();
+  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
+  if (!canManageMasterData(user.peran)) {
+    throw new Error(
+      "Anda tidak memiliki hak akses untuk menghapus data pengaturan.",
+    );
+  }
   try {
     await sql`DELETE FROM layanan WHERE id = ${id}`;
   } catch (error) {

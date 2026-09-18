@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { sql } from "../db";
-import { getCurrentUser } from "../auth";
+import { getCurrentUser, canManageMasterData } from "../auth";
 import { fetchFilteredAntarJemput } from "../data/antar-jemput";
 import type { State } from "./types";
 
@@ -40,7 +40,13 @@ const UpdateAntarJemput = AntarJemputSchema.omit({
 });
 
 export async function createAntarJemput(prevState: State, formData: FormData) {
-  await getCurrentUser();
+  const user = await getCurrentUser();
+  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
+  if (!canManageMasterData(user.peran)) {
+    return {
+      message: "Anda tidak memiliki hak akses untuk mengubah data pengaturan.",
+    };
+  }
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -58,7 +64,7 @@ export async function createAntarJemput(prevState: State, formData: FormData) {
   }
 
   const { nama_antar_jemput, harga_antar_jemput, toko_id } = validatedFields.data;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = user.id;
   const now = new Date().toISOString();
 
   try {
@@ -76,7 +82,13 @@ export async function createAntarJemput(prevState: State, formData: FormData) {
 }
 
 export async function updateAntarJemput(id: string, prevState: State, formData: FormData) {
-  await getCurrentUser();
+  const user = await getCurrentUser();
+  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
+  if (!canManageMasterData(user.peran)) {
+    return {
+      message: "Anda tidak memiliki hak akses untuk mengubah data pengaturan.",
+    };
+  }
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
 
@@ -94,7 +106,7 @@ export async function updateAntarJemput(id: string, prevState: State, formData: 
   }
 
   const { nama_antar_jemput, harga_antar_jemput, toko_id } = validatedFields.data;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = user.id;
   const now = new Date().toISOString();
 
   try {
@@ -114,7 +126,13 @@ export async function updateAntarJemput(id: string, prevState: State, formData: 
 }
 
 export async function deleteAntarJemput(id: string) {
-  await getCurrentUser();
+  const user = await getCurrentUser();
+  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
+  if (!canManageMasterData(user.peran)) {
+    throw new Error(
+      "Anda tidak memiliki hak akses untuk menghapus data pengaturan.",
+    );
+  }
   try {
     await sql`DELETE FROM antar_jemput WHERE id = ${id}`;
   } catch (error) {

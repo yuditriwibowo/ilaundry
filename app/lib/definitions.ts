@@ -3,6 +3,21 @@
 // For simplicity of teaching, we're manually defining these types.
 // However, these types are generated automatically if you're using an ORM such as Prisma.
 
+// Peran user pada sebuah toko (kolom user_toko.peran).
+// Dipakai untuk otorisasi (lihat app/lib/auth.ts):
+// - Administrator : akses penuh, semua toko
+// - Account_Owner : semua menu, hanya tokonya, bisa buat toko baru
+// - Manager       : seperti Account_Owner, tidak bisa buat toko baru
+// - Pegawai       : hanya melihat (fungsi pengaturan ditolak di server)
+export type Peran = 'Administrator' | 'Account_Owner' | 'Manager' | 'Pegawai';
+
+// Satu baris assignment user -> toko (untuk session & pilihan toko saat login).
+export type TokoAssignment = {
+  tokoId: string;
+  namaToko: string;
+  peran: Peran | null;
+};
+
 export type Pelanggan = {
   id: string;
   nama: string;
@@ -103,7 +118,7 @@ export type UserToko = {
   id: string;
   user_id: string;
   toko_id: string;
-  peran: 'Administrator' | 'Manager' | 'Kasir' | null;
+  peran: Peran | null;
   created_at: string;
   last_update: string | null;
   update_by: string | null;
@@ -113,14 +128,14 @@ export type TabelUserToko = {
   id?: string;
   name: string;
   nama_toko: string;
-  peran: 'Administrator' | 'Manager' | 'Kasir' | null;
+  peran: Peran | null;
 };
 
 export type UserTokoDetail = {
   id: string;
   user_id: string;
   toko_id: string;
-  peran: 'Administrator' | 'Manager' | 'Kasir' | null;
+  peran: Peran | null;
   name: string;
   email: string;
   nama_toko: string | null;

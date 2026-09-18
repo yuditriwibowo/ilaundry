@@ -21,7 +21,7 @@ export async function updateStatusPesanan(
   await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = (await getCurrentUser()).id;
 
   // Pastikan pesanan ada dan milik toko yang sedang dipilih
   const existingPesanan = await fetchPesananById(id);
@@ -113,7 +113,7 @@ export async function updatePembayaranPesanan(
   await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = (await getCurrentUser()).id;
 
   // Pastikan pesanan ada dan milik toko yang sedang dipilih
   const existingPesanan = await fetchPesananById(id);

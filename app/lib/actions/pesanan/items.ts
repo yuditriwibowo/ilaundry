@@ -31,7 +31,7 @@ export async function createItemPesanan(
   await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = (await getCurrentUser()).id;
   const detailHref = `/laundry/pesanan/${pesananId}/detail`;
 
   // Pastikan pesanan ada dan milik toko yang sedang dipilih
@@ -164,7 +164,7 @@ export async function updateItemPesanan(
   await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = (await getCurrentUser()).id;
   const detailHref = `/laundry/pesanan/${pesananId}/detail`;
 
   // Pastikan pesanan ada dan milik toko yang sedang dipilih
@@ -277,7 +277,7 @@ export async function updateItemPesanan(
 export async function deleteItemPesanan(id: string, pesananId: string) {
   await getCurrentUser();
   const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = (await getCurrentUser()).id;
   const nowIso = new Date().toISOString();
   try {
     await sql.begin(async (tx) => {
@@ -313,7 +313,7 @@ export async function updateStatusItemPesanan(
   await getCurrentUser();
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value || null;
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = (await getCurrentUser()).id;
 
   // Pastikan pesanan ada dan milik toko yang sedang dipilih, dan item ada
   // dan memang milik pesanan tersebut (kedua query independen → paralel).

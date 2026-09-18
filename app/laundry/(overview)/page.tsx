@@ -2,18 +2,20 @@ import LaundryCard from "@/app/ui/laundry/laundrycards";
 import QuickActions from "@/app/ui/laundry/quick-actions";
 import InfoCarousel from "@/app/ui/laundry/info-carousel";
 import SelectToko from "@/app/ui/laundry/select-toko";
-import { fetchToko, fetchRingkasanHariIni } from "@/app/lib/data";
+import { fetchAccessibleToko, fetchRingkasanHariIni } from "@/app/lib/data";
+import { getSessionContext } from "@/app/lib/auth";
 import { CreateToko } from "@/app/ui/button";
-import { cookies } from "next/headers";
 import YlaundryLogo from "@/app/ui/ylaundry-logo";
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const stores = await fetchToko();
-  const ringkasan = await fetchRingkasanHariIni();
-  const cookieStore = await cookies();
-  const selectedToko = cookieStore.get("selected_toko")?.value || "";
+  const [ctx, ringkasan] = await Promise.all([
+    getSessionContext(),
+    fetchRingkasanHariIni(),
+  ]);
+  const stores = await fetchAccessibleToko();
+  const selectedToko = ctx.selectedTokoId;
 
   return (
     <div className="flex h-full w-full flex-col -mt-2">

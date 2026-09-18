@@ -3,9 +3,13 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { sql } from "../db";
-import { getCurrentUser } from "../auth";
+import {
+  getCurrentUser,
+  getSessionContext,
+  canCreateToko,
+  canManageMasterData,
+} from "../auth";
 import { fetchFilteredToko } from "../data/toko";
 import type { State } from "./types";
 
@@ -35,7 +39,15 @@ const UpdateToko = TokoSchema.omit({
 });
 
 export async function createToko(prevState: State, formData: FormData) {
-  await getCurrentUser();
+  const ctx = await getSessionContext();
+  // Otorisasi: hanya Administrator & Account_Owner yang boleh membuat toko.
+  if (!canCreateToko(ctx)) {
+    return {
+      message:
+        "Anda tidak memiliki hak akses untuk membuat toko baru. Hubungi Administrator atau pemilik akun.",
+    };
+  }
+
   const validatedFields = CreateToko.safeParse({
     nama_toko: formData.get("nama_toko"),
     alamat_toko: formData.get("alamat_toko"),
@@ -50,8 +62,7 @@ export async function createToko(prevState: State, formData: FormData) {
   }
 
   const { nama_toko, alamat_toko, telephone } = validatedFields.data;
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = ctx.user.id;
   const now = new Date().toISOString();
 
   try {
@@ -69,7 +80,15 @@ export async function createToko(prevState: State, formData: FormData) {
 }
 
 export async function updateToko(id: string, prevState: State, formData: FormData) {
-  await getCurrentUser();
+  const user = await getCurrentUser();
+  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
+  if (!canManageMasterData(user.peran)) {
+    return {
+      message:
+        "Anda tidak memiliki hak akses untuk mengubah data pengaturan.",
+    };
+  }
+
   const validatedFields = UpdateToko.safeParse({
     nama_toko: formData.get("nama_toko"),
     alamat_toko: formData.get("alamat_toko"),
@@ -84,8 +103,7 @@ export async function updateToko(id: string, prevState: State, formData: FormDat
   }
 
   const { nama_toko, alamat_toko, telephone } = validatedFields.data;
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value || null;
+  const userId = user.id;
   const now = new Date().toISOString();
 
   try {
@@ -105,7 +123,13 @@ export async function updateToko(id: string, prevState: State, formData: FormDat
 }
 
 export async function deleteToko(id: string) {
-  await getCurrentUser();
+  const user = await getCurrentUser();
+  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
+  if (!canManageMasterData(user.peran)) {
+    throw new Error(
+      "Anda tidak memiliki hak akses untuk menghapus data pengaturan.",
+    );
+  }
   try {
     await sql`DELETE FROM toko WHERE id = ${id}`;
   } catch (error) {
@@ -118,3 +142,4 @@ export async function fetchMoreToko(query: string, page: number) {
   await getCurrentUser();
   return await fetchFilteredToko(query, page);
 }
+
