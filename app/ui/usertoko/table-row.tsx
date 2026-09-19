@@ -26,7 +26,7 @@ export default function UserTokoTableRow({ userToko }: { userToko: TabelUserToko
         {userToko.nama_toko}
       </td>
       <td className="whitespace-nowrap px-3 py-3">
-        {userToko.peran}
+        {userToko.peran === "Account_Owner" ? "Account Owner" : userToko.peran}
       </td>
       <td
         className="whitespace-nowrap py-3 pl-6 pr-3"

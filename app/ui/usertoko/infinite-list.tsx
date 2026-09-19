@@ -86,7 +86,7 @@ export default function InfiniteList({
                         {item.name}
                       </p>
                       <p className="truncate text-gray-500">Toko: {item.nama_toko}</p>
-                      <p className="truncate text-gray-500">Peran: {item.peran}</p>
+                      <p className="truncate text-gray-500">Peran: {item.peran === "Account_Owner" ? "Account Owner" : item.peran}</p>
                     </div>
                   </div>
                   <div
