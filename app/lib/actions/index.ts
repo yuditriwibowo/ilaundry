@@ -7,7 +7,7 @@
 export type { State } from "./types";
 export type { DeletePesananResult, UpdatePesananResult } from "./pesanan";
 
-export { setSelectedTokoAction } from "./session";
+export { setSelectedTokoAction, setSelectedTokoCookie } from "./session";
 export { verifyCredentials, registerAccount, signOutAction } from "./auth";
 export { createToko, updateToko, deleteToko, fetchMoreToko } from "./toko";
 export { createDurasi, updateDurasi, deleteDurasi, fetchMoreDurasi } from "./durasi";

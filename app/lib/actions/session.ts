@@ -3,6 +3,14 @@
 import { cookies } from "next/headers";
 import { getSessionContext } from "../auth";
 
+const TOKO_COOKIE_OPTIONS = {
+  path: "/",
+  httpOnly: true,
+  sameSite: "lax" as const,
+  secure: process.env.NODE_ENV === "production",
+  maxAge: 60 * 60 * 24 * 30, // 30 hari
+};
+
 /**
  * Simpan/ubah toko aktif di cookie selected_toko.
  * Divalidasi: user hanya boleh memilih toko yang di-assign ke dirinya
@@ -15,15 +23,20 @@ export async function setSelectedTokoAction(tokoId: string) {
 
   if (tokoId && allowed) {
     const cookieStore = await cookies();
-    cookieStore.set("selected_toko", tokoId, {
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 30, // 30 hari
-    });
+    cookieStore.set("selected_toko", tokoId, TOKO_COOKIE_OPTIONS);
   } else if (!tokoId) {
     const cookieStore = await cookies();
     cookieStore.delete("selected_toko");
   }
+}
+
+/**
+ * Versi ringan: langsung set cookie tanpa validasi sesi.
+ * Hanya digunakan segera setelah signIn berhasil (authorize sudah memvalidasi
+ * bahwa tokoId di-assign ke user), sehingga tidak perlu query ulang.
+ */
+export async function setSelectedTokoCookie(tokoId: string) {
+  if (!tokoId) return;
+  const cookieStore = await cookies();
+  cookieStore.set("selected_toko", tokoId, TOKO_COOKIE_OPTIONS);
 }

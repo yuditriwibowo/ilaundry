@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import { verifyCredentials, setSelectedTokoAction } from "@/app/lib/actions";
+import { verifyCredentials, setSelectedTokoCookie } from "@/app/lib/actions";
 import type { TokoAssignment } from "@/app/lib/definitions";
 
 /**
@@ -49,13 +49,16 @@ export default function LoginForm() {
         // Auto-select single toko and proceed directly
         const toko = tokoList[0];
         setSelectedToko(toko.tokoId);
-        const signInRes = await signIn("credentials", {
-          redirect: false,
-          email,
-          password,
-          authTicket: res.authTicket,
-          tokoId: toko.tokoId,
-        });
+        const [signInRes] = await Promise.all([
+          signIn("credentials", {
+            redirect: false,
+            email,
+            password,
+            authTicket: res.authTicket,
+            tokoId: toko.tokoId,
+          }),
+          setSelectedTokoCookie(toko.tokoId),
+        ]);
         if (signInRes?.error) {
           setTokos(null);
           setSelectedToko("");
@@ -63,9 +66,7 @@ export default function LoginForm() {
           setMessage("email/password salah");
           return;
         }
-        await setSelectedTokoAction(toko.tokoId);
         router.push("/laundry");
-        router.refresh();
       }
       // If > 1 toko, show select dropdown (existing behavior)
     });
@@ -76,13 +77,19 @@ export default function LoginForm() {
     if (!tokoId) return;
     setMessage("");
     startTransition(async () => {
-      const res = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
-        authTicket: ticket,
-        tokoId,
-      });
+      // Jalankan signIn dan set cookie secara paralel untuk mempercepat.
+      // authorize() di server sudah memvalidasi tokoId, jadi cookie bisa
+      // di-set bersamaan tanpa menunggu signIn selesai.
+      const [res] = await Promise.all([
+        signIn("credentials", {
+          redirect: false,
+          email,
+          password,
+          authTicket: ticket,
+          tokoId,
+        }),
+        setSelectedTokoCookie(tokoId),
+      ]);
       if (res?.error) {
         setTokos(null);
         setSelectedToko("");
@@ -90,9 +97,7 @@ export default function LoginForm() {
         setMessage("email/password salah");
         return;
       }
-      await setSelectedTokoAction(tokoId);
       router.push("/laundry");
-      router.refresh();
     });
   };
 
