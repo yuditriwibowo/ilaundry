@@ -37,7 +37,32 @@ export default function LoginForm() {
         setMessage(res.message || "email/password salah");
         return;
       }
-      setTokos(res.tokos ?? []);
+      const tokoList = res.tokos ?? [];
+      setTokos(tokoList);
+
+      if (tokoList.length === 0) {
+        setMessage("User belum mempunyai toko & peran.");
+      } else if (tokoList.length === 1) {
+        // Auto-select single toko and proceed directly
+        const toko = tokoList[0];
+        setSelectedToko(toko.tokoId);
+        const signInRes = await signIn("credentials", {
+          redirect: false,
+          email,
+          password,
+          tokoId: toko.tokoId,
+        });
+        if (signInRes?.error) {
+          setTokos(null);
+          setSelectedToko("");
+          setMessage("email/password salah");
+          return;
+        }
+        await setSelectedTokoAction(toko.tokoId);
+        router.push("/laundry");
+        router.refresh();
+      }
+      // If > 1 toko, show select dropdown (existing behavior)
     });
   };
 
@@ -118,35 +143,28 @@ export default function LoginForm() {
         </p>
       )}
 
-      <div>
-        <label htmlFor="toko" className="mb-1 block text-sm font-medium text-gray-700">
-          Toko
-        </label>
-        <select
-          id="toko"
-          name="toko"
-          disabled={!authenticated || isPending}
-          value={selectedToko}
-          onChange={(e) => handleSelectToko(e.target.value)}
-          className={`${inputCls} disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400`}
-        >
-          <option value="">
-            {authenticated
-              ? "Pilih toko"
-              : "Pilihan toko aktif setelah login berhasil"}
-          </option>
-          {tokos?.map((toko) => (
-            <option key={toko.tokoId} value={toko.tokoId}>
-              {`${toko.namaToko} - ${toko.peran ?? "belum ada peran"}`}
-            </option>
-          ))}
-        </select>
-        {authenticated && tokos?.length === 0 && (
-          <p className="mt-1 text-xs text-gray-500">
-            Belum terhubung ke toko manapun. Hubungi administrator.
-          </p>
-        )}
-      </div>
+      {authenticated && tokos && tokos.length > 1 && (
+        <div>
+          <label htmlFor="toko" className="mb-1 block text-sm font-medium text-gray-700">
+            Toko
+          </label>
+          <select
+            id="toko"
+            name="toko"
+            disabled={isPending}
+            value={selectedToko}
+            onChange={(e) => handleSelectToko(e.target.value)}
+            className={`${inputCls} disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400`}
+          >
+            <option value="">Pilih toko</option>
+            {tokos.map((toko) => (
+              <option key={toko.tokoId} value={toko.tokoId}>
+                {`${toko.namaToko} - ${toko.peran ?? "belum ada peran"}`}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 }

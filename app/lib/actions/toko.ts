@@ -64,13 +64,23 @@ export async function createToko(prevState: State, formData: FormData) {
   const { nama_toko, alamat_toko, telephone } = validatedFields.data;
   const userId = ctx.user.id;
   const now = new Date().toISOString();
+  const tokoId = crypto.randomUUID();
 
   try {
-    await sql`
-      INSERT INTO toko (nama_toko, alamat_toko, telephone, created_at, last_update, update_by)
-      VALUES (${nama_toko}, ${alamat_toko}, ${telephone}, ${now}, ${now}, ${userId})
-    `;
+    // Satu transaksi: toko baru + assignment user_toko (peran Account_Owner)
+    // untuk user yang membuat toko tersebut.
+    await sql.begin(async (tx) => {
+      await tx`
+        INSERT INTO toko (id, nama_toko, alamat_toko, telephone, created_at, last_update, update_by)
+        VALUES (${tokoId}, ${nama_toko}, ${alamat_toko}, ${telephone}, ${now}, ${now}, ${userId})
+      `;
+      await tx`
+        INSERT INTO user_toko (id, user_id, toko_id, peran, created_at, last_update, update_by)
+        VALUES (${crypto.randomUUID()}, ${userId}, ${tokoId}, 'Account_Owner', ${now}, ${now}, ${userId})
+      `;
+    });
   } catch (error) {
+    console.error("Database Error (createToko):", error);
     return {
       message: "Database Error: Gagal menambah toko.",
     };
@@ -131,7 +141,10 @@ export async function deleteToko(id: string) {
     );
   }
   try {
-    await sql`DELETE FROM toko WHERE id = ${id}`;
+    await sql.begin(async (tx) => {
+      await tx`DELETE FROM user_toko WHERE toko_id = ${id}`;
+      await tx`DELETE FROM toko WHERE id = ${id}`;
+    });
   } catch (error) {
     throw new Error("Database Error: Failed to Delete Toko.");
   }
