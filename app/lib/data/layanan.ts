@@ -44,8 +44,8 @@ export async function fetchFilteredLayanan(
       WHERE
         ${selectedToko ? sql`l.toko_id = ${selectedToko}` : sql`1=0`} AND
         ${tipeId ? sql`l.tipe_id = ${tipeId}` : sql`1=1`} AND
-        ${durasiNama ? sql`d.nama_durasi = ${durasiNama}` : sql`1=1`} AND
-        (l.nama_layanan ILIKE ${`%${query}%`} OR tl.nama_tipe ILIKE ${`%${query}%`})
+        ${durasiNama ? sql`d.nama_durasi = ${durasiNama}` : sql`1=1`}
+        ${query?.trim() ? sql`AND (l.nama_layanan ILIKE ${`%${query}%`} OR tl.nama_tipe ILIKE ${`%${query}%`})` : sql``}
       ORDER BY l.nama_layanan ASC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
@@ -69,8 +69,8 @@ export async function fetchLayananPages(query: string, tipeId?: string, durasiNa
       WHERE
         ${selectedToko ? sql`l.toko_id = ${selectedToko}` : sql`1=0`} AND
         ${tipeId ? sql`l.tipe_id = ${tipeId}` : sql`1=1`} AND
-        ${durasiNama ? sql`d.nama_durasi = ${durasiNama}` : sql`1=1`} AND
-        (l.nama_layanan ILIKE ${`%${query}%`} OR tl.nama_tipe ILIKE ${`%${query}%`})
+        ${durasiNama ? sql`d.nama_durasi = ${durasiNama}` : sql`1=1`}
+        ${query?.trim() ? sql`AND (l.nama_layanan ILIKE ${`%${query}%`} OR tl.nama_tipe ILIKE ${`%${query}%`})` : sql``}
     `;
 
     const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);

@@ -1,6 +1,8 @@
 import SideNav from "@/app/ui/laundry/sidenav";
 import SidenavHeightFix from "@/app/ui/sidenav-height-fix";
 
+export const dynamic = "force-dynamic";
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     /* h-full memastikan layout dashboard mengisi seluruh sisa ruang dari RootLayout */

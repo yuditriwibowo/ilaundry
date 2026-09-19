@@ -15,26 +15,37 @@ export default async function Page(props: {
   const searchParams = await props.searchParams;
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
-  const totalPages = await fetchPelangganPages(query);
-    return (
-      <div className="flex h-full w-full flex-col -mt-2">
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 shadow-md pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
-          <div className="flex w-full items-center justify-between">
-             <h1 className={`text-2xl text-white md:text-gray-900`}>Pelanggan</h1>
-          </div>
-          <div className="mt-4 flex items-center justify-between gap-2 md:mt-6 short-screen:mt-2">
-            <Search placeholder="Cari Pelanggan..." />
-            <CreatePelanggan />
-          </div>
+  const totalPagesPromise = fetchPelangganPages(query);
+  return (
+    <div className="flex h-full w-full flex-col -mt-2">
+      <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 shadow-md pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
+        <div className="flex w-full items-center justify-between">
+           <h1 className={`text-2xl text-white md:text-gray-900`}>Pelanggan</h1>
         </div>
-        <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar portrait:pb-4">
-          <Suspense key={query + currentPage} fallback={<PelangganTableSkeleton />}>
-            <Table query={query} currentPage={currentPage} totalPages={totalPages} />
-          </Suspense>
-          <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">
-            <Pagination totalPages={totalPages} />
-          </div>
+        <div className="mt-4 flex items-center justify-between gap-2 md:mt-6 short-screen:mt-2">
+          <Search placeholder="Cari Pelanggan..." />
+          <CreatePelanggan />
         </div>
       </div>
-    );
+      <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar portrait:pb-4">
+        <Suspense key={query + currentPage} fallback={<PelangganTableSkeleton />}>
+          <Table query={query} currentPage={currentPage} totalPages={totalPagesPromise} />
+        </Suspense>
+        <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">
+          <Suspense fallback={null}>
+            <DesktopPagination totalPagesPromise={totalPagesPromise} />
+          </Suspense>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+async function DesktopPagination({
+  totalPagesPromise,
+}: {
+  totalPagesPromise: Promise<number>;
+}) {
+  const totalPages = await totalPagesPromise;
+  return <Pagination totalPages={totalPages} />;
 }

@@ -57,11 +57,11 @@ export async function fetchFilteredPesanan(
       WHERE
         ${selectedToko ? sql`p.toko_id = ${selectedToko}` : sql`1=0`} AND
         ${statusPesanan ? sql`p.status_pesanan = ${statusPesanan}` : sql`1=1`} AND
-        ${statusPembayaran ? sql`p.status_pembayaran = ${statusPembayaran}` : sql`1=1`} AND
-        (p.nomor_pesanan ILIKE ${`%${query}%`} OR
+        ${statusPembayaran ? sql`p.status_pembayaran = ${statusPembayaran}` : sql`1=1`}
+        ${query?.trim() ? sql`AND (p.nomor_pesanan ILIKE ${`%${query}%`} OR
          pl.nama ILIKE ${`%${query}%`} OR
          pl.no_hp ILIKE ${`%${query}%`} OR
-         u.name ILIKE ${`%${query}%`})
+         u.name ILIKE ${`%${query}%`})` : sql``}
       ORDER BY
         p.tgl_estimasi_selesai ASC NULLS LAST,
         p.tgl_pesanan ASC
@@ -82,22 +82,25 @@ export async function fetchPesananPages(
 ) {
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value;
+  const hasQuery = Boolean(query?.trim());
   try {
     const data = await sql`
       SELECT COUNT(*)
       FROM public.pesanan AS p
+      ${hasQuery ? sql`
       LEFT JOIN public.pelanggan AS pl
         ON pl.id = p.pelanggan_id
       LEFT JOIN public.users AS u
         ON u.id = p.kasir_id
+      ` : sql``}
       WHERE
         ${selectedToko ? sql`p.toko_id = ${selectedToko}` : sql`1=0`} AND
         ${statusPesanan ? sql`p.status_pesanan = ${statusPesanan}` : sql`1=1`} AND
-        ${statusPembayaran ? sql`p.status_pembayaran = ${statusPembayaran}` : sql`1=1`} AND
-        (p.nomor_pesanan ILIKE ${`%${query}%`} OR
+        ${statusPembayaran ? sql`p.status_pembayaran = ${statusPembayaran}` : sql`1=1`}
+        ${hasQuery ? sql`AND (p.nomor_pesanan ILIKE ${`%${query}%`} OR
          pl.nama ILIKE ${`%${query}%`} OR
          pl.no_hp ILIKE ${`%${query}%`} OR
-         u.name ILIKE ${`%${query}%`})
+         u.name ILIKE ${`%${query}%`})` : sql``}
     `;
 
     const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
@@ -299,8 +302,8 @@ export async function fetchRingkasanHariIni(): Promise<RingkasanHariIni> {
         WHERE
           p.toko_id = ${selectedToko} AND
           p.status_pesanan <> 'batal' AND
-          (p.tgl_pesanan AT TIME ZONE 'Asia/Jakarta')::date
-            = (now() AT TIME ZONE 'Asia/Jakarta')::date
+          p.tgl_pesanan >= (date_trunc('day', now() AT TIME ZONE 'Asia/Jakarta') AT TIME ZONE 'Asia/Jakarta') AND
+          p.tgl_pesanan < (date_trunc('day', now() AT TIME ZONE 'Asia/Jakarta') + interval '1 day') AT TIME ZONE 'Asia/Jakarta'
       `,
       sql`
         SELECT
@@ -314,8 +317,8 @@ export async function fetchRingkasanHariIni(): Promise<RingkasanHariIni> {
           p.toko_id = ${selectedToko} AND
           p.status_pesanan <> 'batal' AND
           ip.status_item <> 'batal' AND
-          (p.tgl_pesanan AT TIME ZONE 'Asia/Jakarta')::date
-            = (now() AT TIME ZONE 'Asia/Jakarta')::date
+          p.tgl_pesanan >= (date_trunc('day', now() AT TIME ZONE 'Asia/Jakarta') AT TIME ZONE 'Asia/Jakarta') AND
+          p.tgl_pesanan < (date_trunc('day', now() AT TIME ZONE 'Asia/Jakarta') + interval '1 day') AT TIME ZONE 'Asia/Jakarta'
       `,
     ]);
 

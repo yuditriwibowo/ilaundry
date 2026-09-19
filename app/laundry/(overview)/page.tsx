@@ -10,11 +10,11 @@ import YlaundryLogo from "@/app/ui/ylaundry-logo";
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const [ctx, ringkasan] = await Promise.all([
+  const [ctx, ringkasan, stores] = await Promise.all([
     getSessionContext(),
     fetchRingkasanHariIni(),
+    fetchAccessibleToko(),
   ]);
-  const stores = await fetchAccessibleToko();
   const selectedToko = ctx.selectedTokoId;
 
   return (

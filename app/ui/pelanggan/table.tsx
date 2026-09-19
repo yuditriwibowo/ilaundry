@@ -9,9 +9,12 @@ export default async function PelangganTable({
 }: {
   query: string;
   currentPage: number;
-  totalPages: number;
+  totalPages: number | Promise<number>;
 }) {
-  const pelangganList = await fetchFilteredPelanggan(query, currentPage);
+  const [pelangganList, resolvedTotalPages] = await Promise.all([
+    fetchFilteredPelanggan(query, currentPage),
+    Promise.resolve(totalPages),
+  ]);
 
   return (
     <div className="mt-6 flow-root">
@@ -22,7 +25,7 @@ export default async function PelangganTable({
               key={query}
               initialPelanggan={pelangganList} 
               query={query} 
-              totalPages={totalPages} 
+              totalPages={resolvedTotalPages} 
             />
           </div>
           <div className="overflow-x-auto w-full">

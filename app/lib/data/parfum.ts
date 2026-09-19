@@ -32,9 +32,8 @@ export async function fetchFilteredParfum(
         created_at
       FROM parfum
       WHERE
-        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
-        (nama_parfum ILIKE ${`%${query}%`} OR
-        toko_id::text ILIKE ${`%${query}%`})
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
+        ${query?.trim() ? sql`AND (nama_parfum ILIKE ${`%${query}%`} OR toko_id::text ILIKE ${`%${query}%`})` : sql``}
       ORDER BY nama_parfum ASC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
@@ -53,9 +52,8 @@ export async function fetchParfumPages(query: string) {
     const data = await sql`SELECT COUNT(*)
     FROM parfum
     WHERE
-      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
-      (nama_parfum ILIKE ${`%${query}%`} OR
-      toko_id::text ILIKE ${`%${query}%`})
+      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
+      ${query?.trim() ? sql`AND (nama_parfum ILIKE ${`%${query}%`} OR toko_id::text ILIKE ${`%${query}%`})` : sql``}
   `;
 
     const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);

@@ -7,6 +7,7 @@ export async function fetchFilteredPelanggan(
   currentPage: number,
 ) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const hasQuery = Boolean(query?.trim());
 
   try {
     const pelanggan = await sql<Pelanggan[]>`
@@ -19,11 +20,11 @@ export async function fetchFilteredPelanggan(
         image_url,
         tgl_daftar
       FROM pelanggan
-      WHERE
+      ${hasQuery ? sql`WHERE
         nama ILIKE ${`%${query}%`} OR
         no_hp ILIKE ${`%${query}%`} OR
         alamat ILIKE ${`%${query}%`} OR
-        email ILIKE ${`%${query}%`}
+        email ILIKE ${`%${query}%`}` : sql``}
       ORDER BY tgl_daftar DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
@@ -54,16 +55,19 @@ export async function fetchPelangganById(id: string) {
 }
 
 export async function fetchPelangganPages(query: string) {
+  const hasQuery = Boolean(query?.trim());
   try {
-    const data = await sql`SELECT COUNT(*)
-    FROM pelanggan
-    WHERE
-      nama ILIKE ${`%${query}%`} OR
-      no_hp ILIKE ${`%${query}%`} OR
-      COALESCE(alamat, '') ILIKE ${`%${query}%`} OR
-      COALESCE(email, '') ILIKE ${`%${query}%`} OR
-      tgl_daftar::text ILIKE ${`%${query}%`}
-  `;
+    const data = hasQuery
+      ? await sql`SELECT COUNT(*)
+        FROM pelanggan
+        WHERE
+          nama ILIKE ${`%${query}%`} OR
+          no_hp ILIKE ${`%${query}%`} OR
+          COALESCE(alamat, '') ILIKE ${`%${query}%`} OR
+          COALESCE(email, '') ILIKE ${`%${query}%`} OR
+          tgl_daftar::text ILIKE ${`%${query}%`}
+      `
+      : await sql`SELECT COUNT(*) FROM pelanggan`;
 
     const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
     return totalPages;

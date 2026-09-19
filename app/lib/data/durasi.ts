@@ -32,9 +32,8 @@ export async function fetchFilteredDurasi(
         last_update
       FROM durasi
       WHERE
-        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
-        (nama_durasi ILIKE ${`%${query}%`} OR
-        toko_id::text ILIKE ${`%${query}%`})
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
+        ${query?.trim() ? sql`AND (nama_durasi ILIKE ${`%${query}%`} OR toko_id::text ILIKE ${`%${query}%`})` : sql``}
       ORDER BY nama_durasi ASC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
@@ -54,9 +53,8 @@ export async function fetchDurasiPages(query: string) {
     const data = await sql`SELECT COUNT(*)
     FROM durasi
     WHERE
-      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
-      (nama_durasi ILIKE ${`%${query}%`} OR
-      toko_id::text ILIKE ${`%${query}%`})
+      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
+      ${query?.trim() ? sql`AND (nama_durasi ILIKE ${`%${query}%`} OR toko_id::text ILIKE ${`%${query}%`})` : sql``}
   `;
 
     const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);

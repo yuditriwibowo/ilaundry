@@ -15,9 +15,12 @@ export default async function PesananTable({
   currentPage: number;
   status?: string;
   bayar?: string;
-  totalPages: number;
+  totalPages: number | Promise<number>;
 }) {
-  const pesananList = await fetchFilteredPesanan(query, currentPage, status, bayar);
+  const [pesananList, resolvedTotalPages] = await Promise.all([
+    fetchFilteredPesanan(query, currentPage, status, bayar),
+    Promise.resolve(totalPages),
+  ]);
 
   return (
     <div className="mt-6 flow-root">
@@ -33,7 +36,7 @@ export default async function PesananTable({
                 query={query}
                 status={status ?? ""}
                 bayar={bayar ?? ""}
-                totalPages={totalPages}
+                totalPages={resolvedTotalPages}
               />
             </div>
             <div className="overflow-x-auto w-full">

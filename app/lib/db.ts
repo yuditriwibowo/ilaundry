@@ -18,7 +18,18 @@ if (!process.env.POSTGRES_URL) {
 // dan (now() AT TIME ZONE 'Asia/Jakarta')::date. Lihat fetchRingkasanHariIni.
 // Opsi koneksi "timezone" tidak dipakai karena postgres.js tidak meneruskannya
 // sebagai startup parameter dan PgBouncer bisa mengabaikannya.
-export const sql = postgres(process.env.POSTGRES_URL, {
-  ssl: "require",
-  prepare: false,
-});
+declare global {
+  var _sql: ReturnType<typeof postgres> | undefined;
+}
+
+export const sql =
+  globalThis._sql ||
+  postgres(process.env.POSTGRES_URL, {
+    ssl: "require",
+    prepare: false,
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalThis._sql = sql;
+}
+

@@ -6,6 +6,8 @@ import { sql } from "./db";
 import { authConfig } from "./auth-config";
 import type { Peran, TokoAssignment } from "./definitions";
 
+import { verifyAuthTicket } from "./auth-ticket";
+
 /**
  * NextAuth (Auth.js v5) — instance aplikasi.
  *
@@ -26,12 +28,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
         tokoId: { label: "Toko" },
+        authTicket: { label: "AuthTicket" },
       },
       async authorize(credentials) {
         const parsed = z
           .object({
             email: z.string().email(),
-            password: z.string().min(1),
+            password: z.string().optional(),
+            authTicket: z.string().optional(),
             tokoId: z.string().uuid().optional().or(z.literal("")),
           })
           .safeParse(credentials);
@@ -39,9 +43,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!parsed.success) {
           return null;
         }
-        const { email, password, tokoId } = parsed.data;
+        const { email, password, authTicket, tokoId } = parsed.data;
 
-        // 1. Cari user + verifikasi password (bcrypt).
+        // 1. Cari user + verifikasi password (authTicket atau bcrypt).
         const users = await sql<
           { id: string; name: string; email: string; password: string }[]
         >`
@@ -53,9 +57,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!dbUser) {
           return null;
         }
-        const passwordMatch = await bcrypt.compare(password, dbUser.password);
-        if (!passwordMatch) {
-          return null;
+
+        const isTicketValid = authTicket
+          ? verifyAuthTicket(authTicket, dbUser.email)
+          : false;
+
+        if (!isTicketValid) {
+          if (!password) {
+            return null;
+          }
+          const passwordMatch = await bcrypt.compare(password, dbUser.password);
+          if (!passwordMatch) {
+            return null;
+          }
         }
 
         // 2. Ambil daftar toko user + peran masing-masing.

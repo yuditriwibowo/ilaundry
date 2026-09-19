@@ -28,10 +28,8 @@ export async function fetchFilteredUserToko(
         ON t.id = ut.toko_id
       WHERE
         ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=0`} AND
-        ut.peran IS NOT NULL AND
-        (u.name ILIKE ${`%${query}%`} OR
-         t.nama_toko ILIKE ${`%${query}%`} OR
-         ut.peran ILIKE ${`%${query}%`})
+        ut.peran IS NOT NULL
+        ${query?.trim() ? sql`AND (u.name ILIKE ${`%${query}%`} OR t.nama_toko ILIKE ${`%${query}%`} OR ut.peran ILIKE ${`%${query}%`})` : sql``}
       ORDER BY u.name ASC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
@@ -56,10 +54,8 @@ export async function fetchUserTokoPages(query: string) {
         ON t.id = ut.toko_id
       WHERE
         ${selectedToko ? sql`ut.toko_id = ${selectedToko}` : sql`1=0`} AND
-        ut.peran IS NOT NULL AND
-        (u.name ILIKE ${`%${query}%`} OR
-         t.nama_toko ILIKE ${`%${query}%`} OR
-         ut.peran ILIKE ${`%${query}%`})
+        ut.peran IS NOT NULL
+        ${query?.trim() ? sql`AND (u.name ILIKE ${`%${query}%`} OR t.nama_toko ILIKE ${`%${query}%`} OR ut.peran ILIKE ${`%${query}%`})` : sql``}
     `;
 
     const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);

@@ -23,8 +23,8 @@ export async function fetchFilteredAntarJemput(
         created_at
       FROM antar_jemput
       WHERE
-        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
-        nama_antar_jemput ILIKE ${`%${query}%`}
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
+        ${query?.trim() ? sql`AND nama_antar_jemput ILIKE ${`%${query}%`}` : sql``}
       ORDER BY harga_antar_jemput ASC, nama_antar_jemput ASC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
@@ -43,8 +43,8 @@ export async function fetchAntarJemputPages(query: string) {
     const data = await sql`SELECT COUNT(*)
     FROM antar_jemput
     WHERE
-      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`} AND
-      nama_antar_jemput ILIKE ${`%${query}%`}
+      ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
+      ${query?.trim() ? sql`AND nama_antar_jemput ILIKE ${`%${query}%`}` : sql``}
   `;
 
     const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);

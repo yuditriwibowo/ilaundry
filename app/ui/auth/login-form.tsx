@@ -23,6 +23,7 @@ export default function LoginForm() {
   const [message, setMessage] = useState("");
   const [tokos, setTokos] = useState<TokoAssignment[] | null>(null);
   const [selectedToko, setSelectedToko] = useState("");
+  const [ticket, setTicket] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const authenticated = tokos !== null;
@@ -34,11 +35,13 @@ export default function LoginForm() {
       const res = await verifyCredentials(email, password);
       if (!res.success) {
         setTokos(null);
+        setTicket("");
         setMessage(res.message || "email/password salah");
         return;
       }
       const tokoList = res.tokos ?? [];
       setTokos(tokoList);
+      setTicket(res.authTicket ?? "");
 
       if (tokoList.length === 0) {
         setMessage("User belum mempunyai toko & peran.");
@@ -50,11 +53,13 @@ export default function LoginForm() {
           redirect: false,
           email,
           password,
+          authTicket: res.authTicket,
           tokoId: toko.tokoId,
         });
         if (signInRes?.error) {
           setTokos(null);
           setSelectedToko("");
+          setTicket("");
           setMessage("email/password salah");
           return;
         }
@@ -75,11 +80,13 @@ export default function LoginForm() {
         redirect: false,
         email,
         password,
+        authTicket: ticket,
         tokoId,
       });
       if (res?.error) {
         setTokos(null);
         setSelectedToko("");
+        setTicket("");
         setMessage("email/password salah");
         return;
       }

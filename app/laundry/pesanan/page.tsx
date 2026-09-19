@@ -21,7 +21,7 @@ export default async function Page(props: {
   const status = searchParams?.status || "";
   const bayar = searchParams?.bayar || "";
 
-  const totalPages = await fetchPesananPages(query, status, bayar);
+  const totalPagesPromise = fetchPesananPages(query, status, bayar);
 
   return (
     <div className="flex h-full w-full flex-col -mt-2">
@@ -50,14 +50,25 @@ export default async function Page(props: {
             currentPage={currentPage}
             status={status}
             bayar={bayar}
-            totalPages={totalPages}
+            totalPages={totalPagesPromise}
           />
         </Suspense>
         <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">
-          <Pagination totalPages={totalPages} />
+          <Suspense fallback={null}>
+            <DesktopPagination totalPagesPromise={totalPagesPromise} />
+          </Suspense>
         </div>
       </div>
     </div>
   );
+}
+
+async function DesktopPagination({
+  totalPagesPromise,
+}: {
+  totalPagesPromise: Promise<number>;
+}) {
+  const totalPages = await totalPagesPromise;
+  return <Pagination totalPages={totalPages} />;
 }
 

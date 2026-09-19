@@ -3,8 +3,10 @@ import Breadcrumbs from "@/app/ui/breadcrumbs";
 import { fetchTipeLayanan, fetchDurasiForFilter } from "@/app/lib/data";
 
 export default async function Page() {
-  const optionsTipe = await fetchTipeLayanan();
-  const optionsDurasi = await fetchDurasiForFilter();
+  const [optionsTipe, optionsDurasi] = await Promise.all([
+    fetchTipeLayanan(),
+    fetchDurasiForFilter(),
+  ]);
 
   return (
     <div className="flex min-h-full w-full flex-col -mt-2">

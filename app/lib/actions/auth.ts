@@ -12,6 +12,8 @@ import { signOut } from "../auth-nextauth";
 import type { TokoAssignment } from "../definitions";
 import type { State } from "./types";
 
+import { createAuthTicket } from "../auth-ticket";
+
 // ---------- Login: langkah 1 — verifikasi kredensial ----------
 // Mengembalikan daftar toko (nama + peran) yang di-assign ke user dari tabel
 // user_toko. Pesan gagal SELALU sama (jangan bocorkan email terdaftar).
@@ -22,6 +24,7 @@ export async function verifyCredentials(
   success: boolean;
   message?: string;
   tokos?: TokoAssignment[];
+  authTicket?: string;
 }> {
   if (!email || !password) {
     return { success: false, message: "Email dan password wajib diisi." };
@@ -55,6 +58,7 @@ export async function verifyCredentials(
 
     return {
       success: true,
+      authTicket: createAuthTicket(user.id, email),
       tokos: rows.map((row) => ({
         tokoId: row.toko_id,
         namaToko: row.nama_toko,

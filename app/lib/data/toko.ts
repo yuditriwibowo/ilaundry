@@ -69,10 +69,8 @@ export async function fetchFilteredToko(
         last_update
       FROM toko
       WHERE
-        ${!user || isAdmin ? sql`1=1` : sql`id IN ${sql(tokoIds)}`} AND
-        (nama_toko ILIKE ${`%${query}%`} OR
-        alamat_toko ILIKE ${`%${query}%`} OR
-        telephone ILIKE ${`%${query}%`})
+        ${!user || isAdmin ? sql`1=1` : sql`id IN ${sql(tokoIds)}`}
+        ${query?.trim() ? sql`AND (nama_toko ILIKE ${`%${query}%`} OR alamat_toko ILIKE ${`%${query}%`} OR telephone ILIKE ${`%${query}%`})` : sql``}
       ORDER BY nama_toko ASC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
@@ -96,10 +94,8 @@ export async function fetchTokoPages(query: string) {
       SELECT COUNT(*)
       FROM toko
       WHERE
-        ${!user || isAdmin ? sql`1=1` : sql`id IN ${sql(tokoIds)}`} AND
-        (nama_toko ILIKE ${`%${query}%`} OR
-        alamat_toko ILIKE ${`%${query}%`} OR
-        telephone ILIKE ${`%${query}%`})
+        ${!user || isAdmin ? sql`1=1` : sql`id IN ${sql(tokoIds)}`}
+        ${query?.trim() ? sql`AND (nama_toko ILIKE ${`%${query}%`} OR alamat_toko ILIKE ${`%${query}%`} OR telephone ILIKE ${`%${query}%`})` : sql``}
     `;
 
     const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
