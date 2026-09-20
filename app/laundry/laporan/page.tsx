@@ -13,7 +13,6 @@ import {
 import { formatRupiah } from "@/app/lib/utils";
 import { fetchLaporanPesananHariIni, fetchLaporanKasHariIni } from "@/app/lib/data/pesanan";
 
-const saldoKas = await fetchLaporanKasHariIni();
 
 // TODO: Buat route halaman laporan terkait, lalu perbarui href di bawah
 const menuItems = [
@@ -118,6 +117,7 @@ function MenuLink({
 export default async function Page() {
     const pesananHariIni = await fetchLaporanPesananHariIni();
 
+    const saldoKas = await fetchLaporanKasHariIni();
     const belumBayarClassName =
         pesananHariIni.totalBelumBayar > 0
             ? "font-medium text-red-600"

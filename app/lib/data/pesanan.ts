@@ -440,7 +440,6 @@ export async function fetchLaporanKasHariIni() {
       FROM transaksi_keuangan
       WHERE toko_id::text = ${selectedToko}
     `;
-    console.log("fetchLaporanKasHariIni data:", data, "selectedToko:", selectedToko);
 
     return {
       tunai: Number(data[0]?.tunai ?? 0),

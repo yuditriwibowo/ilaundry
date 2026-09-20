@@ -189,7 +189,6 @@ export async function resolveItemSnapshot(input: {
  * Dipakai oleh action pesanan untuk mencatat pembayaran, pembatalan, dll.
  */
 export async function insertTransaksiKeuangan(params: {
-  tx: PesananTx;
   waktu_transaksi?: string | null;
   nama_transaksi: string;
   tipe_transaksi: TipeTransaksi | null;
@@ -201,7 +200,6 @@ export async function insertTransaksiKeuangan(params: {
   update_by: string | null;
 }) {
   const {
-    tx,
     waktu_transaksi,
     nama_transaksi,
     tipe_transaksi,
@@ -220,7 +218,7 @@ export async function insertTransaksiKeuangan(params: {
   const debit = nilai_debet ?? 0;
   const kredit = nilai_kredit ?? 0;
 
-  await tx`
+  await sql`
     INSERT INTO transaksi_keuangan (
       waktu_transaksi,
       nama_transaksi,

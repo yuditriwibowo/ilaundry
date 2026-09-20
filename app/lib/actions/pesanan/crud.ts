@@ -257,7 +257,6 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
       // Catat transaksi keuangan jika ada pembayaran (Rule 1)
       if (Number(jumlah_bayar) > 0) {
         await insertTransaksiKeuangan({
-          tx,
           nama_transaksi: "Pembayaran",
           tipe_transaksi: (metode_pembayaran as TipeTransaksi) ?? null,
           nilai_debet: Number(jumlah_bayar),
@@ -550,7 +549,6 @@ export async function updatePesanan(
         if (selisih > 0) {
           // Tambahan pembayaran
           await insertTransaksiKeuangan({
-            tx,
             nama_transaksi: "Pembayaran",
             tipe_transaksi: (metode_pembayaran as TipeTransaksi) ?? null,
             nilai_debet: selisih,
@@ -562,7 +560,6 @@ export async function updatePesanan(
         } else {
           // Pengurangan pembayaran
           await insertTransaksiKeuangan({
-            tx,
             nama_transaksi: "Pengurangan Pembayaran",
             tipe_transaksi: (metode_pembayaran as TipeTransaksi) ?? null,
             nilai_kredit: Math.abs(selisih),
@@ -637,7 +634,6 @@ export async function deletePesanan(id: string): Promise<DeletePesananResult> {
         Number(existingPesanan.jumlah_bayar) > 0
       ) {
         await insertTransaksiKeuangan({
-          tx,
           nama_transaksi: "Penghapusan Pesanan",
           tipe_transaksi: (existingPesanan.metode_pembayaran as TipeTransaksi) ?? null,
           nilai_kredit: Number(existingPesanan.jumlah_bayar),

@@ -92,7 +92,6 @@ export async function updateStatusPesanan(
       // Catat transaksi keuangan jika status berubah menjadi 'batal' (Rule 3)
       if (status === "batal" && Number(existingPesanan.jumlah_bayar) > 0) {
         await insertTransaksiKeuangan({
-          tx,
           nama_transaksi: "Pembatalan Pesanan",
           tipe_transaksi: (existingPesanan.metode_pembayaran as TipeTransaksi) ?? null,
           nilai_kredit: Number(existingPesanan.jumlah_bayar),
@@ -179,7 +178,6 @@ export async function updatePembayaranPesanan(
       if (selisih > 0) {
         // Tambahan pembayaran
         await insertTransaksiKeuangan({
-          tx: sql,
           nama_transaksi: "Pembayaran",
           tipe_transaksi: (metode ?? null) as TipeTransaksi | null,
           nilai_debet: selisih,
@@ -191,7 +189,6 @@ export async function updatePembayaranPesanan(
       } else {
         // Pengurangan pembayaran
         await insertTransaksiKeuangan({
-          tx: sql,
           nama_transaksi: "Pengurangan Pembayaran",
           tipe_transaksi: (metode ?? null) as TipeTransaksi | null,
           nilai_kredit: Math.abs(selisih),
