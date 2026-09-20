@@ -47,122 +47,252 @@ const menuItems = [
     },
 ];
 
-function SectionTitle({ title }: { title: string }) {
-    return (
-        <div className="flex items-center gap-3">
-            <h2 className="text-lg font-bold text-gray-900 whitespace-nowrap">
-                {title}
-            </h2>
-            <div className="h-px flex-1 bg-gray-300" />
-        </div>
-    );
-}
-
+/* Baris ringkasan untuk tampilan mobile portrait (divide-y, text-xs) */
 function SummaryRow({
     icon: Icon,
     label,
     value,
+    valueClassName = "font-medium text-gray-900",
 }: {
     icon: LucideIcon;
     label: string;
     value: string;
+    valueClassName?: string;
 }) {
     return (
-        <div className="flex items-center gap-3">
-            <Icon size={20} className="text-gray-500 shrink-0" />
-            <span className="text-gray-600">{label}</span>
-            <span className="ml-auto text-right font-bold text-gray-900">
-                {value}
+        <div className="flex items-center justify-between py-2">
+            <span className="flex items-center gap-1.5 text-gray-500">
+                <Icon className="h-4 w-4 text-gray-400 shrink-0" /> {label}
             </span>
+            <span className={valueClassName}>{value}</span>
         </div>
+    );
+}
+
+/* Item ringkasan untuk tampilan landscape / desktop (grid label + value) */
+function SummaryItem({
+    label,
+    value,
+    valueClassName = "font-medium text-gray-900",
+}: {
+    label: string;
+    value: string;
+    valueClassName?: string;
+}) {
+    return (
+        <div>
+            <span className="text-xs text-gray-500 block">{label}</span>
+            <span className={valueClassName}>{value}</span>
+        </div>
+    );
+}
+
+/* Item menu "Lihat Laporan" */
+function MenuLink({
+    icon: Icon,
+    title,
+    description,
+    href,
+}: {
+    icon: LucideIcon;
+    title: string;
+    description: string;
+    href: string;
+}) {
+    return (
+        <Link
+            href={href}
+            className="group flex items-center gap-3 rounded-lg px-1 -mx-1 py-2.5 transition-colors duration-200 hover:bg-gray-50"
+        >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-700 transition-colors duration-200 group-hover:bg-primary-500 group-hover:text-white">
+                <Icon className="h-5 w-5" />
+            </div>
+            <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-medium text-gray-900 group-hover:text-primary-600 transition-colors duration-200">
+                    {title}
+                </span>
+                <span className="truncate text-xs text-gray-500 leading-tight">
+                    {description}
+                </span>
+            </div>
+        </Link>
     );
 }
 
 export default async function Page() {
     const pesananHariIni = await fetchLaporanPesananHariIni();
 
+    const belumBayarClassName =
+        pesananHariIni.totalBelumBayar > 0
+            ? "font-medium text-red-600"
+            : "font-medium text-gray-900";
+
     return (
-        <div className="flex h-full w-full flex-col -mt-2">
-            <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 shadow-md pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
-                <div className="flex w-full items-center justify-between gap-4">
-                    <h1 className="text-2xl text-white md:text-gray-900">
+        <div className="w-full pb-4 md:pb-10">
+            {/* Header halaman: sticky gradient di mobile portrait, statis di landscape/desktop */}
+            <div className="sticky top-0 z-10 md:static">
+                <div className="header-gradient shadow-md pb-3 px-4 pt-6 -mx-4 rounded-b-xl md:bg-none md:shadow-none md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none short-screen:pb-2 short-screen:pt-3">
+                    <h1 className="text-2xl text-white md:text-gray-900 short-screen:text-xl">
                         Laporan
                     </h1>
                 </div>
             </div>
-            <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar portrait:pb-4">
-                <div className="flex flex-col gap-6 p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Saldo Kas */}
-                        <section className="flex flex-col gap-4">
-                            <SectionTitle title="Saldo Kas" />
-                            <div className="flex flex-col gap-4">
-                                <SummaryRow
-                                    icon={Banknote}
+
+            {/* ========================================================================= */}
+            {/* 1. MOBILE PORTRAIT VIEW (Tampilan mobile portrait)                        */}
+            {/* ========================================================================= */}
+            <div className="block md:hidden landscape:hidden">
+                {/* 1.1 Fieldset Saldo Kas */}
+                <fieldset className="mt-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    <legend className="px-2 text-sm font-semibold text-gray-700">
+                        Saldo Kas
+                    </legend>
+                    <div className="divide-y divide-gray-100 text-xs text-gray-700">
+                        <SummaryRow
+                            icon={Banknote}
+                            label="Saldo Tunai"
+                            value={formatRupiah(saldoKas.tunai)}
+                            valueClassName="font-semibold text-gray-900"
+                        />
+                        <SummaryRow
+                            icon={CircleDollarSign}
+                            label="Saldo Non-Tunai"
+                            value={formatRupiah(saldoKas.nonTunai)}
+                            valueClassName="font-semibold text-gray-900"
+                        />
+                    </div>
+                </fieldset>
+
+                {/* 1.2 Fieldset Pesanan Hari Ini */}
+                <fieldset className="mt-5 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    <legend className="px-2 text-sm font-semibold text-gray-700">
+                        Pesanan Hari Ini
+                    </legend>
+                    <div className="divide-y divide-gray-100 text-xs text-gray-700">
+                        <SummaryRow
+                            icon={Wallet}
+                            label="Nilai Pesanan"
+                            value={formatRupiah(pesananHariIni.nilaiPesanan)}
+                            valueClassName="font-semibold text-gray-900"
+                        />
+                        <SummaryRow
+                            icon={ReceiptText}
+                            label="Jumlah Pesanan"
+                            value={`${pesananHariIni.jumlahPesanan} Pesanan`}
+                        />
+                        <SummaryRow
+                            icon={SquareX}
+                            label="Pesanan Batal"
+                            value={`${pesananHariIni.pesananBatal} Pesanan`}
+                            valueClassName={
+                                pesananHariIni.pesananBatal > 0
+                                    ? "font-medium text-red-600"
+                                    : "font-medium text-gray-900"
+                            }
+                        />
+                        <SummaryRow
+                            icon={BanknoteArrowDown}
+                            label="Total Belum Bayar"
+                            value={formatRupiah(pesananHariIni.totalBelumBayar)}
+                            valueClassName={belumBayarClassName}
+                        />
+                    </div>
+                </fieldset>
+
+                {/* 1.3 Fieldset Lihat Laporan */}
+                <fieldset className="mt-5 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    <legend className="px-2 text-sm font-semibold text-gray-700">
+                        Lihat Laporan
+                    </legend>
+                    <div className="divide-y divide-gray-100">
+                        {menuItems.map((item, index) => (
+                            <MenuLink
+                                key={index}
+                                icon={item.icon}
+                                title={item.title}
+                                description={item.description}
+                                href={item.href}
+                            />
+                        ))}
+                    </div>
+                </fieldset>
+            </div>
+
+            {/* ========================================================================= */}
+            {/* 2. LANDSCAPE / DESKTOP VIEW (Tampilan landscape & desktop)                */}
+            {/* ========================================================================= */}
+            <div className="hidden md:grid landscape:grid grid-cols-1 landscape:grid-cols-12 md:grid-cols-12 gap-4 md:gap-6 short-screen:gap-3">
+                <div className="landscape:col-span-12 md:col-span-12 space-y-4 md:space-y-6 short-screen:space-y-3">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 short-screen:gap-3">
+                        {/* 2.1 Fieldset Saldo Kas */}
+                        <fieldset className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
+                            <legend className="px-2 text-sm font-semibold text-gray-700">
+                                Saldo Kas
+                            </legend>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+                                <SummaryItem
                                     label="Saldo Tunai"
                                     value={formatRupiah(saldoKas.tunai)}
+                                    valueClassName="font-semibold text-gray-900"
                                 />
-                                <SummaryRow
-                                    icon={CircleDollarSign}
+                                <SummaryItem
                                     label="Saldo Non-Tunai"
                                     value={formatRupiah(saldoKas.nonTunai)}
+                                    valueClassName="font-semibold text-gray-900"
                                 />
                             </div>
-                        </section>
+                        </fieldset>
 
-                        {/* Pesanan Hari Ini */}
-                        <section className="flex flex-col gap-4">
-                            <SectionTitle title="Pesanan Hari Ini" />
-                            <div className="flex flex-col gap-4">
-                                <SummaryRow
-                                    icon={Wallet}
+                        {/* 2.2 Fieldset Pesanan Hari Ini */}
+                        <fieldset className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
+                            <legend className="px-2 text-sm font-semibold text-gray-700">
+                                Pesanan Hari Ini
+                            </legend>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-700">
+                                <SummaryItem
                                     label="Nilai Pesanan"
                                     value={formatRupiah(pesananHariIni.nilaiPesanan)}
+                                    valueClassName="font-semibold text-gray-900"
                                 />
-                                <SummaryRow
-                                    icon={ReceiptText}
+                                <SummaryItem
                                     label="Jumlah Pesanan"
                                     value={`${pesananHariIni.jumlahPesanan} Pesanan`}
                                 />
-                                <SummaryRow
-                                    icon={SquareX}
+                                <SummaryItem
                                     label="Pesanan Batal"
                                     value={`${pesananHariIni.pesananBatal} Pesanan`}
+                                    valueClassName={
+                                        pesananHariIni.pesananBatal > 0
+                                            ? "font-medium text-red-600"
+                                            : "font-medium text-gray-900"
+                                    }
                                 />
-                                <SummaryRow
-                                    icon={BanknoteArrowDown}
+                                <SummaryItem
                                     label="Total Belum Bayar"
                                     value={formatRupiah(pesananHariIni.totalBelumBayar)}
+                                    valueClassName={belumBayarClassName}
                                 />
                             </div>
-                        </section>
+                        </fieldset>
                     </div>
 
-                    {/* Lihat Laporan */}
-                    <section className="flex flex-col gap-4">
-                        <SectionTitle title="Lihat Laporan" />
-                        <div className="flex flex-col">
+                    {/* 2.3 Fieldset Lihat Laporan */}
+                    <fieldset className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
+                        <legend className="px-2 text-sm font-semibold text-gray-700">
+                            Lihat Laporan
+                        </legend>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6">
                             {menuItems.map((item, index) => (
-                                <Link
+                                <MenuLink
                                     key={index}
+                                    icon={item.icon}
+                                    title={item.title}
+                                    description={item.description}
                                     href={item.href}
-                                    className="group flex items-center gap-4 rounded-2xl p-2 hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-all duration-200 ease-in-out"
-                                >
-                                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary-500 text-white shrink-0 shadow-md group-hover:scale-110 transition-transform duration-200">
-                                        <item.icon size={22} />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="font-bold text-gray-900 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">
-                                            {item.title}
-                                        </span>
-                                        <span className="text-sm italic text-gray-500 leading-tight">
-                                            {item.description}
-                                        </span>
-                                    </div>
-                                </Link>
+                                />
                             ))}
                         </div>
-                    </section>
+                    </fieldset>
                 </div>
             </div>
         </div>
