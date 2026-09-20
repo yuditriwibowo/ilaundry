@@ -10,6 +10,8 @@ import { getCurrentUser } from "../../auth";
 import { fetchPesananById } from "../../data/pesanan";
 import { StatusPesananSchema, MetodePembayaranSchema } from "./schemas";
 import type { UpdatePesananResult } from "./schemas";
+import { insertTransaksiKeuangan } from "./helpers";
+import type { TipeTransaksi } from "../../definitions";
 
 // Update status pesanan (workflow: diproses -> selesai -> diambil, atau batal).
 // tgl_selesai/tgl_diambil ikut disesuaikan; kembali ke diproses/batal
@@ -86,6 +88,20 @@ export async function updateStatusPesanan(
           WHERE pesanan_id = ${id}
         `;
       }
+
+      // Catat transaksi keuangan jika status berubah menjadi 'batal' (Rule 3)
+      if (status === "batal" && Number(existingPesanan.jumlah_bayar) > 0) {
+        await insertTransaksiKeuangan({
+          tx,
+          nama_transaksi: "Pembatalan Pesanan",
+          tipe_transaksi: (existingPesanan.metode_pembayaran as TipeTransaksi) ?? null,
+          nilai_kredit: Number(existingPesanan.jumlah_bayar),
+          pesanan_id: id,
+          toko_id: existingPesanan.toko_id,
+          keterangan: existingPesanan.nomor_pesanan,
+          update_by: userId,
+        });
+      }
     });
   } catch (error) {
     console.error("Database Error: Gagal memperbarui status pesanan.", error);
@@ -155,6 +171,38 @@ export async function updatePembayaranPesanan(
   const kurangBayar = Math.max(0, totalBayar - jumlah);
 
   try {
+    // Catat transaksi keuangan jika jumlah_bayar berubah (Rule 5)
+    const jumlahBayarSebelumnya = Number(existingPesanan.jumlah_bayar) || 0;
+    const selisih = jumlah - jumlahBayarSebelumnya;
+
+    if (selisih !== 0) {
+      if (selisih > 0) {
+        // Tambahan pembayaran
+        await insertTransaksiKeuangan({
+          tx: sql,
+          nama_transaksi: "Pembayaran",
+          tipe_transaksi: (metode ?? null) as TipeTransaksi | null,
+          nilai_debet: selisih,
+          pesanan_id: id,
+          toko_id: existingPesanan.toko_id,
+          keterangan: existingPesanan.nomor_pesanan,
+          update_by: userId,
+        });
+      } else {
+        // Pengurangan pembayaran
+        await insertTransaksiKeuangan({
+          tx: sql,
+          nama_transaksi: "Pengurangan Pembayaran",
+          tipe_transaksi: (metode ?? null) as TipeTransaksi | null,
+          nilai_kredit: Math.abs(selisih),
+          pesanan_id: id,
+          toko_id: existingPesanan.toko_id,
+          keterangan: existingPesanan.nomor_pesanan,
+          update_by: userId,
+        });
+      }
+    }
+
     await sql`
       UPDATE pesanan SET
         status_pembayaran = ${statusPembayaran},

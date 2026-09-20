@@ -419,3 +419,36 @@ export async function fetchLaporanPesananHariIni() {
   }
 }
 
+export async function fetchLaporanKasHariIni() {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  if (!selectedToko) {
+    return {
+      tunai: 0,
+      nonTunai: 0,
+    };
+  }
+
+  try {
+    const data = await sql`
+      SELECT 
+        COALESCE(SUM(nilai_debet) FILTER (WHERE tipe_transaksi = 'tunai'), 0) - 
+        COALESCE(SUM(nilai_kredit) FILTER (WHERE tipe_transaksi = 'tunai'), 0) AS tunai,
+        COALESCE(SUM(nilai_debet) FILTER (WHERE tipe_transaksi = 'non_tunai'), 0) - 
+        COALESCE(SUM(nilai_kredit) FILTER (WHERE tipe_transaksi = 'non_tunai'), 0) AS nonTunai
+      FROM transaksi_keuangan
+      WHERE toko_id::text = ${selectedToko}
+    `;
+    console.log("fetchLaporanKasHariIni data:", data, "selectedToko:", selectedToko);
+
+    return {
+      tunai: Number(data[0]?.tunai ?? 0),
+      nonTunai: Number(data[0]?.nontunai ?? data[0]?.nonTunai ?? 0),
+    };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil laporan kas hari ini.");
+  }
+}
+

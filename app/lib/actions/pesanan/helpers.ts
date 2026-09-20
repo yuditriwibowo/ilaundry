@@ -3,7 +3,7 @@
 // helper non-async dan type boleh diekspor dari sini.
 
 import { sql } from "../../db";
-import type { TabelLayanan, Diskon } from "../../definitions";
+import type { TabelLayanan, Diskon, TipeTransaksi } from "../../definitions";
 
 // Tipe transaksi postgres.js diambil dari instance `sql` aplikasi, sehingga
 // helper di bawah selalu cocok dengan transaksi yang diberikan `sql.begin`.
@@ -182,5 +182,70 @@ export async function resolveItemSnapshot(input: {
       estimasi,
     },
   };
+}
+
+/**
+ * Insert transaksi keuangan ke tabel transaksi_keuangan.
+ * Dipakai oleh action pesanan untuk mencatat pembayaran, pembatalan, dll.
+ */
+export async function insertTransaksiKeuangan(params: {
+  tx: PesananTx;
+  waktu_transaksi?: string | null;
+  nama_transaksi: string;
+  tipe_transaksi: TipeTransaksi | null;
+  nilai_debet?: number | null;
+  nilai_kredit?: number | null;
+  pesanan_id: string;
+  toko_id: string | null;
+  keterangan: string | null;
+  update_by: string | null;
+}) {
+  const {
+    tx,
+    waktu_transaksi,
+    nama_transaksi,
+    tipe_transaksi,
+    nilai_debet,
+    nilai_kredit,
+    pesanan_id,
+    toko_id,
+    keterangan,
+    update_by,
+  } = params;
+
+  const nowIso = new Date().toISOString();
+
+  // Jika nilai_debet diisi >0, nilai kredit diisi 0.
+  // Sebaliknya juga berlaku, jika nilai_kredit diisi >0, nilai debet diisi 0.
+  const debit = nilai_debet ?? 0;
+  const kredit = nilai_kredit ?? 0;
+
+  await tx`
+    INSERT INTO transaksi_keuangan (
+      waktu_transaksi,
+      nama_transaksi,
+      tipe_transaksi,
+      nilai_debet,
+      nilai_kredit,
+      pesanan_id,
+      toko_id,
+      keterangan,
+      created_at,
+      last_update,
+      update_by
+    ) VALUES (
+      ${waktu_transaksi ?? nowIso},
+      ${nama_transaksi},
+      ${tipe_transaksi},
+      ${debit},
+      ${kredit},
+      ${pesanan_id},
+      ${toko_id},
+      ${keterangan},
+      ${nowIso},
+      ${nowIso},
+      ${update_by}
+    )
+  `;
 }
 

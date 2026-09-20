@@ -13,10 +13,11 @@ import {
   fetchItemPesananByPesananId,
   fetchPesananById,
 } from "../../data/pesanan";
-import type { TabelLayanan, Diskon, AntarJemput } from "../../definitions";
+import type { TabelLayanan, Diskon, AntarJemput, TipeTransaksi } from "../../definitions";
 import type { State } from "../types";
 import { PesananForm } from "./schemas";
 import type { DeletePesananResult } from "./schemas";
+import { insertTransaksiKeuangan } from "./helpers";
 
 export async function createPesanan(prevState: State, formData: FormData): Promise<State> {
   await getCurrentUser();
@@ -251,6 +252,20 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
             ${nowIso}, ${nowIso}, ${userId}
           )
         `;
+      }
+
+      // Catat transaksi keuangan jika ada pembayaran (Rule 1)
+      if (Number(jumlah_bayar) > 0) {
+        await insertTransaksiKeuangan({
+          tx,
+          nama_transaksi: "Pembayaran",
+          tipe_transaksi: (metode_pembayaran as TipeTransaksi) ?? null,
+          nilai_debet: Number(jumlah_bayar),
+          pesanan_id: pesananId,
+          toko_id: selectedToko,
+          keterangan: nomorPesanan,
+          update_by: userId,
+        });
       }
     });
   } catch (error) {
@@ -525,6 +540,40 @@ export async function updatePesanan(
           )
         `;
       }
+
+      // Catat transaksi keuangan jika jumlah_bayar berubah (Rule 4)
+      const jumlahBayarSebelumnya = Number(existingPesanan.jumlah_bayar) || 0;
+      const jumlahBayarSekarang = Number(jumlah_bayar) || 0;
+      const selisih = jumlahBayarSekarang - jumlahBayarSebelumnya;
+
+      if (existingPesanan.status_pesanan !== "batal" && selisih !== 0) {
+        if (selisih > 0) {
+          // Tambahan pembayaran
+          await insertTransaksiKeuangan({
+            tx,
+            nama_transaksi: "Pembayaran",
+            tipe_transaksi: (metode_pembayaran as TipeTransaksi) ?? null,
+            nilai_debet: selisih,
+            pesanan_id: id,
+            toko_id: existingPesanan.toko_id,
+            keterangan: existingPesanan.nomor_pesanan,
+            update_by: userId,
+          });
+        } else {
+          // Pengurangan pembayaran
+          await insertTransaksiKeuangan({
+            tx,
+            nama_transaksi: "Pengurangan Pembayaran",
+            tipe_transaksi: (metode_pembayaran as TipeTransaksi) ?? null,
+            nilai_kredit: Math.abs(selisih),
+            pesanan_id: id,
+            toko_id: existingPesanan.toko_id,
+            keterangan: existingPesanan.nomor_pesanan,
+            update_by: userId,
+          });
+        }
+      }
+
     });
   } catch (error) {
     console.error("Database Error: Gagal memperbarui pesanan.", error);
@@ -580,6 +629,24 @@ export async function deletePesanan(id: string): Promise<DeletePesananResult> {
 
   try {
     await sql.begin(async (tx) => {
+      // Catat transaksi keuangan jika ada pembayaran (Rule 2)
+      // Validasi mencegah hapus pesanan yang sudah ada pembayaran,
+      // tapi kode ini tetap ditambahkan sesuai requirement.
+      if (
+        existingPesanan.status_pesanan !== "batal" &&
+        Number(existingPesanan.jumlah_bayar) > 0
+      ) {
+        await insertTransaksiKeuangan({
+          tx,
+          nama_transaksi: "Penghapusan Pesanan",
+          tipe_transaksi: (existingPesanan.metode_pembayaran as TipeTransaksi) ?? null,
+          nilai_kredit: Number(existingPesanan.jumlah_bayar),
+          pesanan_id: id,
+          toko_id: existingPesanan.toko_id,
+          keterangan: existingPesanan.nomor_pesanan,
+          update_by: null,
+        });
+      }
       await tx`DELETE FROM item_pesanan WHERE pesanan_id = ${id}`;
       await tx`DELETE FROM pesanan WHERE id = ${id}`;
     });

@@ -11,13 +11,9 @@ import {
     type LucideIcon,
 } from "lucide-react";
 import { formatRupiah } from "@/app/lib/utils";
-import { fetchLaporanPesananHariIni } from "@/app/lib/data/pesanan";
+import { fetchLaporanPesananHariIni, fetchLaporanKasHariIni } from "@/app/lib/data/pesanan";
 
-// TODO: Ambil data riil dari database (ringkasan kas & pesanan hari ini)
-const saldoKas = {
-    tunai: 0,
-    nonTunai: 0,
-};
+const saldoKas = await fetchLaporanKasHariIni();
 
 // TODO: Buat route halaman laporan terkait, lalu perbarui href di bawah
 const menuItems = [

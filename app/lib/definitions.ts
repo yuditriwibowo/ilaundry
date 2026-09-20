@@ -222,3 +222,20 @@ export type ItemPesanan = {
   tgl_selesai: string | null;
   subtotal_final: number | null;
 };
+
+export type TipeTransaksi = 'tunai' | 'non_tunai';
+
+export type TransaksiKeuangan = {
+  id: string;
+  waktu_transaksi: string | null;
+  nama_transaksi: string | null;
+  tipe_transaksi: TipeTransaksi | null;
+  nilai_debet: number | null;
+  nilai_kredit: number | null;
+  pesanan_id: string | null;
+  created_at: string;
+  update_by: string | null;
+  last_update: string | null;
+  toko_id: string | null;
+  keterangan: string | null;
+};
