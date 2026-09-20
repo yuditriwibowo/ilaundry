@@ -15,7 +15,8 @@ import {
     UserCog, 
     Users, 
     FileText,
-    SunMoon 
+    SunMoon,
+    type LucideIcon,
 } from "lucide-react";
 
 const menuItems = [
@@ -81,54 +82,129 @@ const menuItems = [
     },
 ];
 
+/* Item menu "Menu Pengaturan" (style sama dengan halaman Laporan) */
+function MenuLink({
+    icon: Icon,
+    title,
+    description,
+    href,
+}: {
+    icon: LucideIcon;
+    title: string;
+    description: string;
+    href: string;
+}) {
+    return (
+        <Link
+            href={href}
+            className="group flex items-center gap-3 rounded-lg px-1 -mx-1 py-2.5 transition-colors duration-200 hover:bg-gray-50"
+        >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-700 transition-colors duration-200 group-hover:bg-primary-500 group-hover:text-white">
+                <Icon className="h-5 w-5" />
+            </div>
+            <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-medium text-gray-900 group-hover:text-primary-600 transition-colors duration-200">
+                    {title}
+                </span>
+                <span className="truncate text-xs text-gray-500 leading-tight">
+                    {description}
+                </span>
+            </div>
+        </Link>
+    );
+}
+
 export default async function Page() {
     const ctx = await getSessionContext();
     const stores = await fetchAccessibleToko();
     const selectedToko = ctx.selectedTokoId;
 
     return (
-        <div className="flex h-full w-full flex-col -mt-2">
-            <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 shadow-md pb-6 px-4 pt-6 -mx-4 rounded-b-xl md:static md:bg-none md:bg-gray-50 md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none">
-                <div className="flex w-full items-center justify-between gap-4">
-                         <h1 className={`text-2xl text-white md:text-gray-900`}>Pengaturan</h1>
-                         <div className="flex items-center gap-2 md:gap-3">
+        <div className="w-full pb-4 md:pb-10">
+            {/* Header halaman: sticky gradient di mobile portrait, statis di landscape/desktop */}
+            <div className="sticky top-0 z-10 md:static">
+                <div className="header-gradient shadow-md pb-3 px-4 pt-6 -mx-4 rounded-b-xl md:bg-none md:shadow-none md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none short-screen:pb-2 short-screen:pt-3">
+                    <div className="flex w-full items-center justify-between gap-4">
+                        <h1 className="text-2xl text-white md:text-gray-900 short-screen:text-xl">
+                            Pengaturan
+                        </h1>
+                        <div className="flex items-center gap-2 md:gap-3">
                             <SelectToko stores={stores} selectedToko={selectedToko} />
                             <SignOutButton />
-                         </div>
-                </div>
-            </div>
-            <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar portrait:pb-4">
-                <div className="flex flex-col gap-3 p-4">
-                    {/* Pengaturan Mode Display: terang / gelap / sesuai system */}
-                    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-200">
-                        <div className="mb-1 flex items-center gap-3">
-                            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary-500 text-white shrink-0 shadow-md">
-                                <SunMoon size={22} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="font-medium text-gray-700">Mode Display</span>
-                                <span className="text-xs text-gray-500 leading-tight">Pilih tampilan aplikasi: terang, gelap, atau sesuai system</span>
-                            </div>
-                        </div>
-                        <div className="mt-3">
-                            <DisplayModeSetting />
                         </div>
                     </div>
-                    {menuItems.map((item, index) => (
-                        <Link 
-                            key={index} 
-                            href={item.href} 
-                            className="group flex items-center gap-4 p-3 rounded-2xl hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-all duration-200 ease-in-out"
-                        >
-                            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary-500 text-white shrink-0 shadow-md group-hover:scale-110 transition-transform duration-200">
-                                <item.icon size={22} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="font-medium text-gray-700 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">{item.title}</span>
-                                <span className="text-xs text-gray-500 leading-tight">{item.description}</span>
-                            </div>
-                        </Link>
-                    ))}
+                </div>
+            </div>
+
+            {/* ========================================================================= */}
+            {/* 1. MOBILE PORTRAIT VIEW (Tampilan mobile portrait)                        */}
+            {/* ========================================================================= */}
+            <div className="block md:hidden landscape:hidden">
+                {/* 1.1 Fieldset Mode Display */}
+                <fieldset className="mt-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    <legend className="px-2 text-sm font-semibold text-gray-700">
+                        Mode Display
+                    </legend>
+                    <div className="mb-3 flex items-center gap-1.5 text-xs text-gray-500">
+                        <SunMoon className="h-4 w-4 text-gray-400 shrink-0" />
+                        <span>Pilih tampilan aplikasi: terang, gelap, atau sesuai system</span>
+                    </div>
+                    <DisplayModeSetting />
+                </fieldset>
+
+                {/* 1.2 Fieldset Menu Pengaturan */}
+                <fieldset className="mt-5 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    <legend className="px-2 text-sm font-semibold text-gray-700">
+                        Menu Pengaturan
+                    </legend>
+                    <div className="divide-y divide-gray-100">
+                        {menuItems.map((item, index) => (
+                            <MenuLink
+                                key={index}
+                                icon={item.icon}
+                                title={item.title}
+                                description={item.description}
+                                href={item.href}
+                            />
+                        ))}
+                    </div>
+                </fieldset>
+            </div>
+
+            {/* ========================================================================= */}
+            {/* 2. LANDSCAPE / DESKTOP VIEW (Tampilan landscape & desktop)                */}
+            {/* ========================================================================= */}
+            <div className="hidden md:grid landscape:grid grid-cols-1 landscape:grid-cols-12 md:grid-cols-12 gap-4 md:gap-6 short-screen:gap-3">
+                <div className="landscape:col-span-12 md:col-span-12 space-y-4 md:space-y-6 short-screen:space-y-3">
+                    {/* 2.1 Fieldset Mode Display */}
+                    <fieldset className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
+                        <legend className="px-2 text-sm font-semibold text-gray-700">
+                            Mode Display
+                        </legend>
+                        <div className="mb-3 flex items-center gap-1.5 text-xs text-gray-500">
+                            <SunMoon className="h-4 w-4 text-gray-400 shrink-0" />
+                            <span>Pilih tampilan aplikasi: terang, gelap, atau sesuai system</span>
+                        </div>
+                        <DisplayModeSetting />
+                    </fieldset>
+
+                    {/* 2.2 Fieldset Menu Pengaturan */}
+                    <fieldset className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
+                        <legend className="px-2 text-sm font-semibold text-gray-700">
+                            Menu Pengaturan
+                        </legend>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6">
+                            {menuItems.map((item, index) => (
+                                <MenuLink
+                                    key={index}
+                                    icon={item.icon}
+                                    title={item.title}
+                                    description={item.description}
+                                    href={item.href}
+                                />
+                            ))}
+                        </div>
+                    </fieldset>
                 </div>
             </div>
         </div>
