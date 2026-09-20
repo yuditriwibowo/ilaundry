@@ -188,87 +188,78 @@ export async function printStruk(pesanan: TabelPesanan) {
   win.onafterprint = () => win.close();
 }
 
+// Estimasi selesai item: saat item sudah selesai/diambil tampilkan tanggal
+// selesai aktual, selain itu tanggal estimasi (pola sama dengan tabel item).
+function estimasiSelesaiItemText(item: ItemPesanan): string {
+  if (
+    (item.status_item === "selesai" || item.status_item === "diambil") &&
+    item.tgl_selesai
+  ) {
+    return formatDateTimeToLocal(item.tgl_selesai);
+  }
+  return item.tgl_estimasi_selesai
+    ? formatDateTimeToLocal(item.tgl_estimasi_selesai)
+    : "-";
+}
+
+/**
+ * Susun teks struk item pesanan — satu layanan pada sebuah pesanan.
+ * Data pesanan (toko/pelanggan) dipakai untuk kop struk, data item untuk isi.
+ *
+ * Format:
+ *   [Nama Toko]
+ *
+ *   [Nomor Item Pesanan]
+ *   Pelanggan : [Nama Pelanggan]
+ *
+ *   [Nama Layanan] - [Nama Durasi]
+ *   Tanggal Masuk : [Tanggal Masuk Item Pesanan]
+ *   Estimasi Selesai : [Estimasi Selesai Item Pesanan]
+ *   Status Proses : [Status Proses Item Pesanan]
+ */
+export function buildStrukItemText(
+  pesanan: TabelPesanan,
+  item: ItemPesanan,
+): string {
+  const namaDurasi = item.durasi_snapshot ? ` - ${item.durasi_snapshot}` : "";
+  return [
+    pesanan.nama_toko ?? "Laundry",
+    "",
+    item.nomor_item_pesanan ?? "-",
+    `Pelanggan : ${pesanan.nama_pelanggan ?? "-"}`,
+    "",
+    `${item.nama_layanan_snapshot}${namaDurasi}`,
+    `Tanggal Masuk : ${formatDateTimeToLocal(item.tgl_item_pesanan ?? item.created_at)}`,
+    `Estimasi Selesai : ${estimasiSelesaiItemText(item)}`,
+    `Status Proses : ${statusItemText[item.status_item]}`,
+  ].join("\n");
+}
+
 // Struk per item pesanan: satu layanan pada sebuah pesanan.
-// Data pesanan (toko/pelanggan) dipakai untuk kop struk, data item untuk isi.
 export function printStrukItem(pesanan: TabelPesanan, item: ItemPesanan) {
+  const text = buildStrukItemText(pesanan, item);
+
   const win = window.open("", "_blank", "width=480,height=640");
   if (!win) return;
 
-  const rows: [string, string][] = [
-    ["No. Pesanan", pesanan.nomor_pesanan ?? "-"],
-    ["No. Item", item.nomor_item_pesanan ?? "-"],
-    [
-      "Tanggal",
-      item.tgl_item_pesanan
-        ? formatDateTimeToLocal(item.tgl_item_pesanan)
-        : formatDateTimeToLocal(pesanan.tgl_pesanan),
-    ],
-    ["Pelanggan", pesanan.nama_pelanggan ?? "-"],
-    ["No. HP", pesanan.no_hp ?? "-"],
-    ["Kasir", pesanan.nama_user ?? "-"],
-    ["Status Pesanan", statusPesananText[pesanan.status_pesanan]],
-    ["Status Item", statusItemText[item.status_item]],
-  ];
-
-  const itemRows: [string, string][] = [
-    ["Layanan", item.nama_layanan_snapshot],
-    ["Tipe", item.tipe_layanan_snapshot ?? "-"],
-    ["Durasi", item.durasi_snapshot ?? "-"],
-    ["Parfum", item.nama_parfum_snapshot ?? "-"],
-    ["Qty", `${item.jumlah} ${item.satuan}`],
-    ["Harga Satuan", formatRupiah(item.harga_satuan)],
-    [
-      "Diskon",
-      item.nilai_diskon && item.nilai_diskon > 0
-        ? `- ${formatRupiah(item.nilai_diskon)}`
-        : "-",
-    ],
-  ];
+  // Escape HTML agar isi teks aman dirender di jendela print.
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
 
   win.document.write(`
     <html>
       <head>
-        <title>${item.nomor_item_pesanan ?? "Struk Item"} - ${pesanan.nomor_pesanan ?? "Pesanan"}</title>
+        <title>${escapeHtml(item.nomor_item_pesanan ?? "Struk Item")} - ${escapeHtml(pesanan.nomor_pesanan ?? "Pesanan")}</title>
         <style>
           body { font-family: monospace; padding: 16px; color: #111; }
-          h1 { text-align: center; font-size: 16px; margin: 0 0 4px; }
-          p.sub { text-align: center; font-size: 11px; margin: 0 0 12px; color: #555; }
-          table { width: 100%; font-size: 12px; border-collapse: collapse; }
-          td { padding: 3px 0; vertical-align: top; }
-          td.label { color: #555; width: 40%; }
-          hr { border: none; border-top: 1px dashed #999; margin: 10px 0; }
-          .total { font-weight: bold; font-size: 13px; }
+          pre { font-family: monospace; font-size: 12px; line-height: 1.5; white-space: pre-wrap; margin: 0; }
         </style>
       </head>
       <body>
-        <h1>${pesanan.nama_toko ?? "Laundry"}</h1>
-        <p class="sub">Struk Item Pesanan</p>
-        <hr />
-        <table>
-          ${rows
-            .map(
-              ([label, value]) =>
-                `<tr><td class="label">${label}</td><td>: ${value}</td></tr>`,
-            )
-            .join("")}
-        </table>
-        <hr />
-        <table>
-          ${itemRows
-            .map(
-              ([label, value]) =>
-                `<tr><td class="label">${label}</td><td>: ${value}</td></tr>`,
-            )
-            .join("")}
-        </table>
-        <hr />
-        <table>
-          <tr><td class="label">Subtotal</td><td>: ${formatRupiah(item.subtotal)}</td></tr>
-          <tr class="total"><td class="label">Total Item</td><td>: ${formatRupiah(item.subtotal_final ?? item.subtotal)}</td></tr>
-        </table>
-        ${item.catatan_item ? `<hr /><p style="font-size: 11px;">Catatan: ${item.catatan_item}</p>` : ""}
-        <hr />
-        <p class="sub">Terima kasih telah mempercayakan cucian Anda kepada kami.</p>
+        <pre>${escapeHtml(text)}</pre>
       </body>
     </html>
   `);
