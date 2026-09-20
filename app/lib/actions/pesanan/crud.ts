@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 import { sql } from "../../db";
 import { getCurrentUser } from "../../auth";
 import {
+  fetchAllItemPesananByPesananId,
   fetchFilteredPesanan,
   fetchItemPesananByPesananId,
   fetchPesananById,
@@ -608,6 +609,15 @@ export async function fetchMorePesanan(
 export async function fetchMoreItemPesanan(pesananId: string, page: number) {
   await getCurrentUser();
   return await fetchItemPesananByPesananId(pesananId, page);
+}
+
+// Seluruh item pesanan untuk isi struk/WA. Dipanggil dari helper browser
+// (app/lib/struk-wa.ts) saat tombol WhatsApp / Cetak Struk diklik, karena data
+// item tidak ikut dimuat di list pesanan. Tanpa filter status_item agar jumlah
+// item cocok dengan total_bayar yang dihitung recalcPesananTotals (semua item).
+export async function fetchItemPesananForStruk(pesananId: string) {
+  await getCurrentUser();
+  return await fetchAllItemPesananByPesananId(pesananId);
 }
 
 

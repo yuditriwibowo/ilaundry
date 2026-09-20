@@ -58,16 +58,7 @@ export function PesananDetailActionButtons({
         {/* WhatsApp */}
         <button
           type="button"
-          onClick={() =>
-            kirimWa({
-              noHp: pesanan.no_hp,
-              nama: pesanan.nama_pelanggan,
-              nomorPesanan: pesanan.nomor_pesanan,
-              totalBayar: pesanan.total_bayar,
-              statusPesanan: pesanan.status_pesanan,
-              statusPembayaran: pesanan.status_pembayaran,
-            })
-          }
+          onClick={() => kirimWa(pesanan)}
           title="Kirim WhatsApp"
           className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600 transition-all hover:bg-emerald-100 dark:border-emerald-800/60 dark:bg-emerald-950/50 dark:text-emerald-400 shadow-sm"
         >

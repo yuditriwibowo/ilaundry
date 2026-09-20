@@ -2,8 +2,6 @@
 // Bukan komponen React — dipakai oleh tombol-tombol di app/ui/pesanan/buttons.
 
 import type {
-  StatusPesanan,
-  StatusPembayaran,
   TabelPesanan,
   ItemPesanan,
 } from "./definitions";
@@ -14,6 +12,7 @@ import {
   statusPesananText,
   metodePembayaranText,
 } from "./pesanan-labels";
+import { fetchItemPesananForStruk } from "./actions";
 
 function normalizePhoneNumber(noHp: string) {
   const digits = noHp.replace(/\D/g, "");
@@ -26,91 +25,160 @@ function normalizePhoneNumber(noHp: string) {
   return `62${digits}`;
 }
 
-export function kirimWa({
-  noHp,
-  nama,
-  nomorPesanan,
-  totalBayar,
-  statusPesanan,
-  statusPembayaran,
-}: {
-  noHp: string | null;
-  nama: string | null;
-  nomorPesanan: string | null;
-  totalBayar: number;
-  statusPesanan: StatusPesanan;
-  statusPembayaran: StatusPembayaran;
-}) {
-  if (!noHp) {
+// Garis pemisah antar item pada struk/WA (40 karakter sesuai spesifikasi).
+const GARIS_ITEM = "----------------------------------------";
+
+// Teks "Estimasi Selesai": pesanan yang sudah selesai/diambil menampilkan
+// tanggal selesai aktual, selain itu tanggal estimasi (pola sama dengan list).
+function estimasiSelesaiText(pesanan: TabelPesanan): string {
+  if (
+    (pesanan.status_pesanan === "selesai" ||
+      pesanan.status_pesanan === "diambil") &&
+    pesanan.tgl_selesai
+  ) {
+    return formatDateTimeToLocal(pesanan.tgl_selesai);
+  }
+  return pesanan.tgl_estimasi_selesai
+    ? formatDateTimeToLocal(pesanan.tgl_estimasi_selesai)
+    : "-";
+}
+
+// Teks "Antar-Jemput": nama layanan antar jemput bila dipilih, selain itu Tidak.
+function antarJemputText(pesanan: TabelPesanan): string {
+  if (pesanan.antar_jemput_yt === "ya") {
+    return pesanan.nama_antar_jemput_snapshot ?? "Ya";
+  }
+  return "Tidak";
+}
+
+/**
+ * Susun teks struk pesanan — dipakai bersama oleh pesan WhatsApp (kirimWa)
+ * dan struk cetak (printStruk) agar isi keduanya selalu identik.
+ *
+ * Format:
+ *   Bapak/Ibu/Kakak,
+ *   [Nama Pelanggan]
+ *
+ *   [Nomor Pesanan]
+ *
+ *   Status Proses / Tanggal Masuk / Estimasi Selesai / Antar-Jemput
+ *
+ *   RINCIAN PEMBAYARAN :
+ *   Total Layanan / Biaya Antar-Jemput / Diskon / Total Tagihan /
+ *   Metode Bayar / Jumlah Bayar / Kurang Bayar / Status Pembayaran
+ *
+ *   ITEM PESANAN :
+ *   [Nama Layanan] - [Nama Durasi]
+ *   [QTY][Satuan] x [Harga] - [Diskon] = [Subtotal]
+ *   ----------------------------------------
+ *
+ *   [Nama Toko]
+ *   [Alamat Toko]
+ *   [Telephone Toko]
+ */
+export function buildStrukText(
+  pesanan: TabelPesanan,
+  items: ItemPesanan[],
+): string {
+  const metodeBayar = pesanan.metode_pembayaran
+    ? metodePembayaranText[pesanan.metode_pembayaran]
+    : "-";
+
+  const barisItem =
+    items
+      .map((item) => {
+        const jumlah = Number(item.jumlah) || 0;
+        const diskon = item.nilai_diskon ?? 0;
+        // Subtotal akhir item (setelah diskon); fallback ke subtotal bila null.
+        const subtotal = item.subtotal_final ?? item.subtotal;
+        const namaDurasi = item.durasi_snapshot
+          ? ` - ${item.durasi_snapshot}`
+          : "";
+        return [
+          `${item.nama_layanan_snapshot}${namaDurasi}`,
+          `${jumlah}${item.satuan} x ${formatRupiah(item.harga_satuan)} - ${formatRupiah(diskon)} = ${formatRupiah(subtotal)}`,
+          GARIS_ITEM,
+        ].join("\n");
+      })
+      .join("\n") || "-";
+
+  return [
+    "Bapak/Ibu/Kakak,",
+    pesanan.nama_pelanggan ?? "-",
+    "",
+    pesanan.nomor_pesanan ?? "-",
+    "",
+    `Status Proses : ${statusPesananText[pesanan.status_pesanan]}`,
+    `Tanggal Masuk : ${formatDateTimeToLocal(pesanan.tgl_pesanan)}`,
+    `Estimasi Selesai : ${estimasiSelesaiText(pesanan)}`,
+    `Antar-Jemput : ${antarJemputText(pesanan)}`,
+    "",
+    "RINCIAN PEMBAYARAN :",
+    `Total Layanan : ${formatRupiah(pesanan.total_layanan)}`,
+    `Biaya Antar-Jemput : ${formatRupiah(pesanan.biaya_antar_jemput)}`,
+    `Diskon : ${formatRupiah(pesanan.nilai_diskon)}`,
+    `Total Tagihan : ${formatRupiah(pesanan.total_bayar)}`,
+    `Metode Bayar : ${metodeBayar}`,
+    `Jumlah Bayar : ${formatRupiah(pesanan.jumlah_bayar)}`,
+    `Kurang Bayar : ${formatRupiah(pesanan.kurang_bayar)}`,
+    `Status Pembayaran : ${statusPembayaranText[pesanan.status_pembayaran]}`,
+    "",
+    "ITEM PESANAN :",
+    barisItem,
+    "",
+    pesanan.nama_toko ?? "Laundry",
+    pesanan.alamat_toko ?? "-",
+    pesanan.telephone_toko ?? "-",
+  ].join("\n");
+}
+
+// Ambil item pesanan untuk struk/WA. Gagal fetch tidak boleh menggagalkan
+// tombol — struk tetap tercetak tanpa bagian item.
+async function ambilItemStruk(pesananId: string): Promise<ItemPesanan[]> {
+  try {
+    return await fetchItemPesananForStruk(pesananId);
+  } catch (error) {
+    console.error("Failed to fetch item pesanan for struk:", error);
+    return [];
+  }
+}
+
+export async function kirimWa(pesanan: TabelPesanan) {
+  if (!pesanan.no_hp) {
     alert("Nomor HP pelanggan tidak tersedia.");
     return;
   }
-  const message = [
-    `Halo ${nama ?? "Kak"},`,
-    "",
-    `Pesanan ${nomorPesanan ?? "-"} dengan status *${statusPesananText[statusPesanan]}* dan pembayaran *${statusPembayaranText[statusPembayaran]}*.`,
-    `Total bayar: ${formatRupiah(totalBayar)}.`,
-    "",
-    "Terima kasih telah mempercayakan cucian Anda kepada kami.",
-  ].join("\n");
-  const url = `https://wa.me/${normalizePhoneNumber(noHp)}?text=${encodeURIComponent(message)}`;
+  const items = await ambilItemStruk(pesanan.id);
+  const message = buildStrukText(pesanan, items);
+  const url = `https://wa.me/${normalizePhoneNumber(pesanan.no_hp)}?text=${encodeURIComponent(message)}`;
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
-export function printStruk(pesanan: TabelPesanan) {
+export async function printStruk(pesanan: TabelPesanan) {
+  const items = await ambilItemStruk(pesanan.id);
+  const text = buildStrukText(pesanan, items);
+
   const win = window.open("", "_blank", "width=480,height=640");
   if (!win) return;
 
-  const rows: [string, string][] = [
-    ["No. Pesanan", pesanan.nomor_pesanan ?? "-"],
-    ["Tanggal", formatDateTimeToLocal(pesanan.tgl_pesanan)],
-    ["Pelanggan", pesanan.nama_pelanggan ?? "-"],
-    ["No. HP", pesanan.no_hp ?? "-"],
-    ["Kasir", pesanan.nama_user ?? "-"],
-    ["Status Pesanan", statusPesananText[pesanan.status_pesanan]],
-    ["Status Bayar", statusPembayaranText[pesanan.status_pembayaran]],
-    ["Metode Bayar", pesanan.metode_pembayaran ? metodePembayaranText[pesanan.metode_pembayaran] : "-"],
-  ];
+  // Escape HTML agar isi teks aman dirender di jendela print.
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
 
   win.document.write(`
     <html>
       <head>
-        <title>${pesanan.nomor_pesanan ?? "Struk Pesanan"}</title>
+        <title>${escapeHtml(pesanan.nomor_pesanan ?? "Struk Pesanan")}</title>
         <style>
           body { font-family: monospace; padding: 16px; color: #111; }
-          h1 { text-align: center; font-size: 16px; margin: 0 0 4px; }
-          p.sub { text-align: center; font-size: 11px; margin: 0 0 12px; color: #555; }
-          table { width: 100%; font-size: 12px; border-collapse: collapse; }
-          td { padding: 3px 0; vertical-align: top; }
-          td.label { color: #555; width: 40%; }
-          hr { border: none; border-top: 1px dashed #999; margin: 10px 0; }
-          .total { font-weight: bold; font-size: 13px; }
+          pre { font-family: monospace; font-size: 12px; line-height: 1.5; white-space: pre-wrap; margin: 0; }
         </style>
       </head>
       <body>
-        <h1>${pesanan.nama_toko ?? "Laundry"}</h1>
-        <p class="sub">Struk Pesanan</p>
-        <hr />
-        <table>
-          ${rows
-            .map(
-              ([label, value]) =>
-                `<tr><td class="label">${label}</td><td>: ${value}</td></tr>`,
-            )
-            .join("")}
-        </table>
-        <hr />
-        <table>
-          <tr><td class="label">Total Layanan</td><td>: ${formatRupiah(pesanan.total_layanan)}</td></tr>
-          <tr><td class="label">Biaya Antar Jemput</td><td>: ${formatRupiah(pesanan.biaya_antar_jemput)}</td></tr>
-          <tr><td class="label">Diskon</td><td>: -${formatRupiah(pesanan.nilai_diskon)}</td></tr>
-          <tr class="total"><td class="label">Total Bayar</td><td>: ${formatRupiah(pesanan.total_bayar)}</td></tr>
-          <tr><td class="label">Jumlah Bayar</td><td>: ${formatRupiah(pesanan.jumlah_bayar)}</td></tr>
-          <tr><td class="label">Kurang Bayar</td><td>: ${formatRupiah(pesanan.kurang_bayar)}</td></tr>
-        </table>
-        ${pesanan.catatan ? `<hr /><p style="font-size: 11px;">Catatan: ${pesanan.catatan}</p>` : ""}
-        <hr />
-        <p class="sub">Terima kasih telah mempercayakan cucian Anda kepada kami.</p>
+        <pre>${escapeHtml(text)}</pre>
       </body>
     </html>
   `);

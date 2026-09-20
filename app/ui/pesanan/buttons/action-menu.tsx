@@ -118,14 +118,7 @@ export function PesananActionMenu({
               className={menuItemClass}
               onClick={() => {
                 setOpen(false);
-                kirimWa({
-                  noHp: pesanan.no_hp,
-                  nama: pesanan.nama_pelanggan,
-                  nomorPesanan: pesanan.nomor_pesanan,
-                  totalBayar: pesanan.total_bayar,
-                  statusPesanan: pesanan.status_pesanan,
-                  statusPembayaran: pesanan.status_pembayaran,
-                });
+                kirimWa(pesanan);
               }}
             >
               <MessageCircleIcon className="h-4 w-4 text-green-600" />

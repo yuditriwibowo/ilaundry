@@ -5,26 +5,12 @@
 import { MessageCircleIcon } from "lucide-react";
 import { PrinterIcon } from "@heroicons/react/24/outline";
 import { kirimWa, printStruk } from "@/app/lib/struk-wa";
-import type { StatusPesanan, StatusPembayaran, TabelPesanan } from "@/app/lib/definitions";
+import type { TabelPesanan } from "@/app/lib/definitions";
 import { actionButtonClass } from "./shared";
 
-export function KirimWaPesanan({
-  noHp,
-  nama,
-  nomorPesanan,
-  totalBayar,
-  statusPesanan,
-  statusPembayaran,
-}: {
-  noHp: string | null;
-  nama: string | null;
-  nomorPesanan: string | null;
-  totalBayar: number;
-  statusPesanan: StatusPesanan;
-  statusPembayaran: StatusPembayaran;
-}) {
+export function KirimWaPesanan({ pesanan }: { pesanan: TabelPesanan }) {
   function handleClick() {
-    kirimWa({ noHp, nama, nomorPesanan, totalBayar, statusPesanan, statusPembayaran });
+    kirimWa(pesanan);
   }
 
   return (

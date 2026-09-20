@@ -13,6 +13,7 @@ export {
   deletePesanan,
   fetchMorePesanan,
   fetchMoreItemPesanan,
+  fetchItemPesananForStruk,
 } from "./crud";
 export { updateStatusPesanan, updatePembayaranPesanan } from "./status";
 export {

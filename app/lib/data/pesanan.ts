@@ -44,6 +44,8 @@ export async function fetchFilteredPesanan(
         p.update_by,
         p.antar_jemput_yt,
         t.nama_toko,
+        t.alamat_toko,
+        t.telephone AS telephone_toko,
         pl.nama AS nama_pelanggan,
         pl.no_hp,
         u.name AS nama_user
@@ -140,6 +142,8 @@ export async function fetchPesananById(id: string) {
         p.update_by,
         p.antar_jemput_yt,
         t.nama_toko,
+        t.alamat_toko,
+        t.telephone AS telephone_toko,
         pl.nama AS nama_pelanggan,
         pl.no_hp,
         u.name AS nama_user

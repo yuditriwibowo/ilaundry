@@ -184,6 +184,8 @@ export type Pesanan = {
 // Kolom join bisa null karena LEFT JOIN.
 export type TabelPesanan = Pesanan & {
   nama_toko: string | null;
+  alamat_toko: string | null;
+  telephone_toko: string | null;
   nama_pelanggan: string | null;
   no_hp: string | null;
   nama_user: string | null;
