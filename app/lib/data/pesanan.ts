@@ -380,3 +380,42 @@ export async function fetchAllItemPesananByPesananId(pesananId: string) {
     throw new Error("Failed to fetch all item pesanan.");
   }
 }
+
+export async function fetchLaporanPesananHariIni() {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  if (!selectedToko) {
+    return {
+      nilaiPesanan: 0,
+      jumlahPesanan: 0,
+      pesananBatal: 0,
+      totalBelumBayar: 0,
+    };
+  }
+
+  try {
+    const data = await sql`
+      SELECT 
+        COUNT(*) FILTER (WHERE p.status_pesanan <> 'batal') AS jumlah_pesanan,
+        COALESCE(SUM(p.total_bayar) FILTER (WHERE p.status_pesanan <> 'batal'), 0) AS nilai_pesanan,
+        COUNT(*) FILTER (WHERE p.status_pesanan = 'batal') AS pesanan_batal,
+        COALESCE(SUM(p.kurang_bayar) FILTER (WHERE p.status_pesanan <> 'batal'), 0) AS total_belum_bayar
+      FROM public.pesanan AS p
+      WHERE p.toko_id = ${selectedToko}
+        AND p.tgl_pesanan >= (date_trunc('day', now() AT TIME ZONE 'Asia/Jakarta') AT TIME ZONE 'Asia/Jakarta')
+        AND p.tgl_pesanan < (date_trunc('day', now() AT TIME ZONE 'Asia/Jakarta') + interval '1 day') AT TIME ZONE 'Asia/Jakarta'
+    `;
+
+    return {
+      jumlahPesanan: Number(data[0]?.jumlah_pesanan ?? 0),
+      nilaiPesanan: Number(data[0]?.nilai_pesanan ?? 0),
+      pesananBatal: Number(data[0]?.pesanan_batal ?? 0),
+      totalBelumBayar: Number(data[0]?.total_belum_bayar ?? 0),
+    };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil laporan pesanan hari ini.");
+  }
+}
+
