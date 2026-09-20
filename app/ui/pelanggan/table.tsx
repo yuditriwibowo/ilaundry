@@ -1,6 +1,7 @@
 import { fetchFilteredPelanggan } from "@/app/lib/data";
 import InfiniteList from "@/app/ui/pelanggan/infinite-list";
 import PelangganTableRow from "@/app/ui/pelanggan/table-row";
+import NotFound from "@/app/laundry/pelanggan/not-found";
 
 export default async function PelangganTable({
   query,
@@ -18,6 +19,9 @@ export default async function PelangganTable({
 
   return (
     <div className="mt-6 flow-root">
+      {pelangganList?.length === 0 ? (
+        <NotFound />
+      ) : (
       <div className="w-full">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
@@ -59,6 +63,7 @@ export default async function PelangganTable({
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

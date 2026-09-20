@@ -26,6 +26,7 @@ export type Pelanggan = {
   email: string | null;
   image_url: string | null;
   tgl_daftar: string;
+  toko_id?: string | null;
 };
 
 export type Toko = {

@@ -1,6 +1,14 @@
+import { cookies } from "next/headers";
 import { sql } from "../db";
 import { Pelanggan } from "../definitions";
 import { ITEMS_PER_PAGE } from "./constants";
+
+// Helper: ambil toko aktif dari cookie selected_toko.
+// Pola sama dengan data/layanan.ts & data/usertoko.ts.
+async function getSelectedToko() {
+  const cookieStore = await cookies();
+  return cookieStore.get("selected_toko")?.value;
+}
 
 export async function fetchFilteredPelanggan(
   query: string,
@@ -8,6 +16,7 @@ export async function fetchFilteredPelanggan(
 ) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
   const hasQuery = Boolean(query?.trim());
+  const selectedToko = await getSelectedToko();
 
   try {
     const pelanggan = await sql<Pelanggan[]>`
@@ -20,11 +29,13 @@ export async function fetchFilteredPelanggan(
         image_url,
         tgl_daftar
       FROM pelanggan
-      ${hasQuery ? sql`WHERE
-        nama ILIKE ${`%${query}%`} OR
-        no_hp ILIKE ${`%${query}%`} OR
-        alamat ILIKE ${`%${query}%`} OR
-        email ILIKE ${`%${query}%`}` : sql``}
+      WHERE
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
+        ${hasQuery ? sql`AND (
+          nama ILIKE ${`%${query}%`} OR
+          no_hp ILIKE ${`%${query}%`} OR
+          alamat ILIKE ${`%${query}%`} OR
+          email ILIKE ${`%${query}%`})` : sql``}
       ORDER BY tgl_daftar DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
@@ -56,18 +67,20 @@ export async function fetchPelangganById(id: string) {
 
 export async function fetchPelangganPages(query: string) {
   const hasQuery = Boolean(query?.trim());
+  const selectedToko = await getSelectedToko();
   try {
-    const data = hasQuery
-      ? await sql`SELECT COUNT(*)
-        FROM pelanggan
-        WHERE
+    const data = await sql`
+      SELECT COUNT(*)
+      FROM pelanggan
+      WHERE
+        ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
+        ${hasQuery ? sql`AND (
           nama ILIKE ${`%${query}%`} OR
           no_hp ILIKE ${`%${query}%`} OR
           COALESCE(alamat, '') ILIKE ${`%${query}%`} OR
           COALESCE(email, '') ILIKE ${`%${query}%`} OR
-          tgl_daftar::text ILIKE ${`%${query}%`}
-      `
-      : await sql`SELECT COUNT(*) FROM pelanggan`;
+          tgl_daftar::text ILIKE ${`%${query}%`})` : sql``}
+    `;
 
     const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
     return totalPages;
@@ -80,10 +93,12 @@ export async function fetchPelangganPages(query: string) {
 // ==== Opsi untuk form tambah pesanan ====
 
 export async function fetchPelangganForForm() {
+  const selectedToko = await getSelectedToko();
   try {
     const data = await sql<Pick<Pelanggan, "id" | "nama" | "no_hp">[]>`
       SELECT id, nama, no_hp
       FROM pelanggan
+      WHERE ${selectedToko ? sql`toko_id = ${selectedToko}` : sql`1=0`}
       ORDER BY nama ASC
     `;
     return data;

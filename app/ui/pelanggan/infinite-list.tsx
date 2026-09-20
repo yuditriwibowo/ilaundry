@@ -8,6 +8,7 @@ import { formatDateToLocal } from "@/app/lib/utils";
 import { fetchMorePelanggan } from "@/app/lib/actions";
 import { Pelanggan } from "@/app/lib/definitions";
 import { useInView } from "react-intersection-observer";
+import NotFound from "@/app/laundry/pelanggan/not-found";
 
 export default function InfiniteList({
   initialPelanggan,
@@ -56,7 +57,11 @@ export default function InfiniteList({
 
   return (
     <>
-      {pelangganList.map((pelanggan) => (
+      {pelangganList.length === 0 ? (
+        <NotFound />
+      ) : (
+        <>
+          {pelangganList.map((pelanggan) => (
         <div
           key={pelanggan.id}
           role="button"
@@ -108,6 +113,8 @@ export default function InfiniteList({
       <div ref={ref} className="h-10 flex items-center justify-center">
         {isLoading && <p className="text-sm text-gray-500">Loading more...</p>}
       </div>
+        </>
+      )}
     </>
   );
 }

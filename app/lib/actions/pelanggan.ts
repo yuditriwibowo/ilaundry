@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { sql } from "../db";
 import { getCurrentUser } from "../auth";
 import { fetchFilteredPelanggan } from "../data/pelanggan";
@@ -38,6 +39,10 @@ const UpdatePelanggan = PelangganSchema.omit({
 
 export async function createPelanggan(prevState: State, formData: FormData) {
   await getCurrentUser();
+  // toko_id diambil dari toko aktif (cookie selected_toko), bukan dari form.
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value || null;
+
   const validatedFields = CreatePelanggan.safeParse({
     nama: formData.get("nama"),
     no_hp: formData.get("no_hp"),
@@ -58,8 +63,8 @@ export async function createPelanggan(prevState: State, formData: FormData) {
 
   try {
     await sql`
-    INSERT INTO pelanggan (nama, no_hp, email, alamat, tgl_daftar, image_url)
-    VALUES (${nama}, ${no_hp}, ${email}, ${alamat}, ${tgl_daftar}, ${image_url})
+    INSERT INTO pelanggan (nama, no_hp, email, alamat, tgl_daftar, image_url, toko_id)
+    VALUES (${nama}, ${no_hp}, ${email}, ${alamat}, ${tgl_daftar}, ${image_url}, ${selectedToko})
     `;
   } catch (error) {
     return {
@@ -72,6 +77,10 @@ export async function createPelanggan(prevState: State, formData: FormData) {
 
 export async function updatePelanggan(id: string, prevState: State, formData: FormData) {
   await getCurrentUser();
+  // toko_id diperbarui mengikuti toko aktif (cookie selected_toko).
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value || null;
+
   const validatedFields = UpdatePelanggan.safeParse({
     nama: formData.get("nama"),
     no_hp: formData.get("no_hp"),
@@ -91,7 +100,7 @@ export async function updatePelanggan(id: string, prevState: State, formData: Fo
   try {
     await sql`
       UPDATE pelanggan
-      SET nama = ${nama}, no_hp = ${no_hp}, email = ${email}, alamat = ${alamat}
+      SET nama = ${nama}, no_hp = ${no_hp}, email = ${email}, alamat = ${alamat}, toko_id = ${selectedToko}
       WHERE id = ${id}
     `;
   } catch (error) {
