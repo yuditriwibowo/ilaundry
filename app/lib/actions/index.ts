@@ -18,4 +18,4 @@ export { createLayanan, updateLayanan, deleteLayanan, fetchMoreLayanan } from ".
 export { createPelanggan, updatePelanggan, deletePelanggan, fetchMorePelanggan } from "./pelanggan";
 export { createPesanan, updatePesanan, deletePesanan, updateStatusPesanan, updatePembayaranPesanan, createItemPesanan, updateItemPesanan, updateStatusItemPesanan, deleteItemPesanan, fetchMorePesanan, fetchMoreItemPesanan, fetchItemPesananForStruk } from "./pesanan";
 export { createUserToko, updateUserToko, deleteUserToko, fetchMoreUserToko } from "./usertoko";
-export { tambahKas, kurangiKas } from "./kas";
+export { tambahKas, kurangiKas, fetchMoreLaporanKas } from "./kas";

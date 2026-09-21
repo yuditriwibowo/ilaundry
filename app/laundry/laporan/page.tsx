@@ -13,34 +13,43 @@ import {
     type LucideIcon,
 } from "lucide-react";
 import { formatRupiah } from "@/app/lib/utils";
-import { fetchLaporanPesananHariIni, fetchLaporanKas } from "@/app/lib/data/pesanan";
+import {
+    fetchLaporanPesananHariIni,
+    fetchLaporanKas,
+} from "@/app/lib/data/pesanan";
+import LaporanKasMenuLink from "@/app/ui/kas/laporan-kas-menu-link";
 
 
 // TODO: Buat route halaman laporan terkait, lalu perbarui href di bawah
+// (Laporan Kas sudah punya halaman: menu item-nya membuka popup Pilih Periode).
 const menuItems = [
     {
         title: "Laporan Kas",
         description: "Laporan mutasi kas",
         icon: CircleDollarSign,
         href: "#",
+        usesPeriodPopup: true,
     },
     {
         title: "Laporan Pesanan",
         description: "Laporan data pesanan",
         icon: ReceiptText,
         href: "#",
+        usesPeriodPopup: false,
     },
     {
         title: "Analisa Pelanggan",
         description: "Analisa data pelanggan",
         icon: Users,
         href: "#",
+        usesPeriodPopup: false,
     },
     {
         title: "Analisa Layanan",
         description: "Analisa data layanan",
         icon: Shirt,
         href: "#",
+        usesPeriodPopup: false,
     },
 ];
 
@@ -218,15 +227,23 @@ export default async function Page() {
                         Lihat Laporan
                     </legend>
                     <div className="divide-y divide-gray-100">
-                        {menuItems.map((item, index) => (
-                            <MenuLink
-                                key={index}
-                                icon={item.icon}
-                                title={item.title}
-                                description={item.description}
-                                href={item.href}
-                            />
-                        ))}
+                        {menuItems.map((item, index) =>
+                            item.usesPeriodPopup ? (
+                                <LaporanKasMenuLink
+                                    key={index}
+                                    title={item.title}
+                                    description={item.description}
+                                />
+                            ) : (
+                                <MenuLink
+                                    key={index}
+                                    icon={item.icon}
+                                    title={item.title}
+                                    description={item.description}
+                                    href={item.href}
+                                />
+                            ),
+                        )}
                     </div>
                 </fieldset>
             </div>
@@ -310,15 +327,23 @@ export default async function Page() {
                             Lihat Laporan
                         </legend>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6">
-                            {menuItems.map((item, index) => (
-                                <MenuLink
-                                    key={index}
-                                    icon={item.icon}
-                                    title={item.title}
-                                    description={item.description}
-                                    href={item.href}
-                                />
-                            ))}
+                            {menuItems.map((item, index) =>
+                                item.usesPeriodPopup ? (
+                                    <LaporanKasMenuLink
+                                        key={index}
+                                        title={item.title}
+                                        description={item.description}
+                                    />
+                                ) : (
+                                    <MenuLink
+                                        key={index}
+                                        icon={item.icon}
+                                        title={item.title}
+                                        description={item.description}
+                                        href={item.href}
+                                    />
+                                ),
+                            )}
                         </div>
                     </fieldset>
                 </div>

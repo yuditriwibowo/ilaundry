@@ -108,3 +108,14 @@ export async function tambahKas(prevState: State, formData: FormData) {
 export async function kurangiKas(prevState: State, formData: FormData) {
   return simpanKas("kurang", prevState, formData);
 }
+
+// Server action untuk infinite scroll daftar transaksi kas di halaman
+// Laporan Kas (pola sama dengan fetchMorePesanan / fetchMorePelanggan).
+export async function fetchMoreLaporanKas(
+  mulai: string,
+  sampai: string,
+  page: number,
+) {
+  const { fetchFilteredTransaksiKas } = await import("../data/kas");
+  return fetchFilteredTransaksiKas(mulai, sampai, page);
+}
