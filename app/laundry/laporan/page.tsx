@@ -8,10 +8,12 @@ import {
     BanknoteArrowDown,
     Users,
     Shirt,
+    Plus,
+    Minus,
     type LucideIcon,
 } from "lucide-react";
 import { formatRupiah } from "@/app/lib/utils";
-import { fetchLaporanPesananHariIni, fetchLaporanKasHariIni } from "@/app/lib/data/pesanan";
+import { fetchLaporanPesananHariIni, fetchLaporanKas } from "@/app/lib/data/pesanan";
 
 
 // TODO: Buat route halaman laporan terkait, lalu perbarui href di bawah
@@ -117,7 +119,7 @@ function MenuLink({
 export default async function Page() {
     const pesananHariIni = await fetchLaporanPesananHariIni();
 
-    const saldoKas = await fetchLaporanKasHariIni();
+    const saldoKas = await fetchLaporanKas();
     const belumBayarClassName =
         pesananHariIni.totalBelumBayar > 0
             ? "font-medium text-red-600"
@@ -156,6 +158,21 @@ export default async function Page() {
                             value={formatRupiah(saldoKas.nonTunai)}
                             valueClassName="font-semibold text-gray-900"
                         />
+                    </div>
+                    {/* Tombol aksi kas */}
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                        <Link
+                            href="/laundry/laporan/kas/tambah"
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                        >
+                            <Plus className="h-4 w-4 shrink-0" /> Penambahan Kas
+                        </Link>
+                        <Link
+                            href="/laundry/laporan/kas/kurang"
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                        >
+                            <Minus className="h-4 w-4 shrink-0" /> Pengurangan Kas
+                        </Link>
                     </div>
                 </fieldset>
 
@@ -236,6 +253,21 @@ export default async function Page() {
                                     value={formatRupiah(saldoKas.nonTunai)}
                                     valueClassName="font-semibold text-gray-900"
                                 />
+                            </div>
+                            {/* Tombol aksi kas */}
+                            <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+                                <Link
+                                    href="/laundry/laporan/kas/tambah"
+                                    className="flex items-center justify-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 font-medium text-white shadow-sm transition-colors hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                                >
+                                    <Plus className="h-4 w-4 shrink-0" /> Penambahan Kas
+                                </Link>
+                                <Link
+                                    href="/laundry/laporan/kas/kurang"
+                                    className="flex items-center justify-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 font-medium text-white shadow-sm transition-colors hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                                >
+                                    <Minus className="h-4 w-4 shrink-0" /> Pengurangan Kas
+                                </Link>
                             </div>
                         </fieldset>
 

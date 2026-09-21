@@ -39,6 +39,10 @@ export type State = {
     metode_pembayaran?: string[];
     jumlah_bayar?: string[];
 
+    // Field form penambahan/pengurangan kas (tambahKas/kurangiKas)
+    tipe_transaksi?: string[];
+    keterangan?: string[];
+
     // Field form tambah item pesanan (createItemPesanan)
     layanan_id?: string[];
     jumlah?: string[];

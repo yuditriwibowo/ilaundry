@@ -419,7 +419,7 @@ export async function fetchLaporanPesananHariIni() {
   }
 }
 
-export async function fetchLaporanKasHariIni() {
+export async function fetchLaporanKas() {
   const cookieStore = await cookies();
   const selectedToko = cookieStore.get("selected_toko")?.value;
 

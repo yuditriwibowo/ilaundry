@@ -92,12 +92,13 @@ export async function updateStatusPesanan(
       // Catat transaksi keuangan jika status berubah menjadi 'batal' (Rule 3)
       if (status === "batal" && Number(existingPesanan.jumlah_bayar) > 0) {
         await insertTransaksiKeuangan({
-          nama_transaksi: "Pembatalan Pesanan",
+          // Transaksi kredit (kas keluar) -> Pengeluaran
+          nama_transaksi: "Pengeluaran",
           tipe_transaksi: (existingPesanan.metode_pembayaran as TipeTransaksi) ?? null,
           nilai_kredit: Number(existingPesanan.jumlah_bayar),
           pesanan_id: id,
           toko_id: existingPesanan.toko_id,
-          keterangan: existingPesanan.nomor_pesanan,
+          keterangan: `${existingPesanan.nomor_pesanan ?? "-"} : ${existingPesanan.nama_pelanggan ?? "-"}`,
           update_by: userId,
         });
       }
@@ -175,26 +176,30 @@ export async function updatePembayaranPesanan(
     const selisih = jumlah - jumlahBayarSebelumnya;
 
     if (selisih !== 0) {
+      // Keterangan transaksi keuangan: "nomor_pesanan : nama_pelanggan"
+      const keteranganKeuangan = `${existingPesanan.nomor_pesanan ?? "-"} : ${existingPesanan.nama_pelanggan ?? "-"}`;
       if (selisih > 0) {
         // Tambahan pembayaran
         await insertTransaksiKeuangan({
-          nama_transaksi: "Pembayaran",
+          // Transaksi debet (kas masuk) -> Pendapatan
+          nama_transaksi: "Pendapatan",
           tipe_transaksi: (metode ?? null) as TipeTransaksi | null,
           nilai_debet: selisih,
           pesanan_id: id,
           toko_id: existingPesanan.toko_id,
-          keterangan: existingPesanan.nomor_pesanan,
+          keterangan: keteranganKeuangan,
           update_by: userId,
         });
       } else {
         // Pengurangan pembayaran
         await insertTransaksiKeuangan({
-          nama_transaksi: "Pengurangan Pembayaran",
+          // Transaksi kredit (kas keluar) -> Pengeluaran
+          nama_transaksi: "Pengeluaran",
           tipe_transaksi: (metode ?? null) as TipeTransaksi | null,
           nilai_kredit: Math.abs(selisih),
           pesanan_id: id,
           toko_id: existingPesanan.toko_id,
-          keterangan: existingPesanan.nomor_pesanan,
+          keterangan: keteranganKeuangan,
           update_by: userId,
         });
       }

@@ -84,6 +84,15 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
   `;
   const prefixNomor = tokoRows[0]?.nama_toko?.charAt(0).toUpperCase() || "PSN";
   const nomorPesanan = `${prefixNomor}-${stamp}`;
+  // Ambil nama pelanggan untuk keterangan transaksi keuangan (format
+  // "nomor_pesanan : nama_pelanggan")
+  const pelangganRows = await sql<{ nama: string | null }[]>`
+    SELECT nama
+    FROM pelanggan
+    WHERE id = ${pelanggan_id}
+  `;
+  const namaPelanggan = pelangganRows[0]?.nama ?? "-";
+  const keteranganKeuangan = `${nomorPesanan} : ${namaPelanggan}`;
   // Ambil data referensi untuk snapshot item pesanan
   const layananIds = items.map((item) => item.layanan_id);
   const layananRows = await sql<TabelLayanan[]>`
@@ -257,12 +266,13 @@ export async function createPesanan(prevState: State, formData: FormData): Promi
       // Catat transaksi keuangan jika ada pembayaran (Rule 1)
       if (Number(jumlah_bayar) > 0) {
         await insertTransaksiKeuangan({
-          nama_transaksi: "Pembayaran",
+          // Transaksi debet (kas masuk) -> Pendapatan
+          nama_transaksi: "Pendapatan",
           tipe_transaksi: (metode_pembayaran as TipeTransaksi) ?? null,
           nilai_debet: Number(jumlah_bayar),
           pesanan_id: pesananId,
           toko_id: selectedToko,
-          keterangan: nomorPesanan,
+          keterangan: keteranganKeuangan,
           update_by: userId,
         });
       }
@@ -546,26 +556,30 @@ export async function updatePesanan(
       const selisih = jumlahBayarSekarang - jumlahBayarSebelumnya;
 
       if (existingPesanan.status_pesanan !== "batal" && selisih !== 0) {
+        // Keterangan transaksi keuangan: "nomor_pesanan : nama_pelanggan"
+        const keteranganKeuangan = `${existingPesanan.nomor_pesanan ?? "-"} : ${existingPesanan.nama_pelanggan ?? "-"}`;
         if (selisih > 0) {
           // Tambahan pembayaran
           await insertTransaksiKeuangan({
-            nama_transaksi: "Pembayaran",
+            // Transaksi debet (kas masuk) -> Pendapatan
+            nama_transaksi: "Pendapatan",
             tipe_transaksi: (metode_pembayaran as TipeTransaksi) ?? null,
             nilai_debet: selisih,
             pesanan_id: id,
             toko_id: existingPesanan.toko_id,
-            keterangan: existingPesanan.nomor_pesanan,
+            keterangan: keteranganKeuangan,
             update_by: userId,
           });
         } else {
           // Pengurangan pembayaran
           await insertTransaksiKeuangan({
-            nama_transaksi: "Pengurangan Pembayaran",
+            // Transaksi kredit (kas keluar) -> Pengeluaran
+            nama_transaksi: "Pengeluaran",
             tipe_transaksi: (metode_pembayaran as TipeTransaksi) ?? null,
             nilai_kredit: Math.abs(selisih),
             pesanan_id: id,
             toko_id: existingPesanan.toko_id,
-            keterangan: existingPesanan.nomor_pesanan,
+            keterangan: keteranganKeuangan,
             update_by: userId,
           });
         }
@@ -634,12 +648,13 @@ export async function deletePesanan(id: string): Promise<DeletePesananResult> {
         Number(existingPesanan.jumlah_bayar) > 0
       ) {
         await insertTransaksiKeuangan({
-          nama_transaksi: "Penghapusan Pesanan",
+          // Transaksi kredit (kas keluar) -> Pengeluaran
+          nama_transaksi: "Pengeluaran",
           tipe_transaksi: (existingPesanan.metode_pembayaran as TipeTransaksi) ?? null,
           nilai_kredit: Number(existingPesanan.jumlah_bayar),
           pesanan_id: id,
           toko_id: existingPesanan.toko_id,
-          keterangan: existingPesanan.nomor_pesanan,
+          keterangan: `${existingPesanan.nomor_pesanan ?? "-"} : ${existingPesanan.nama_pelanggan ?? "-"}`,
           update_by: null,
         });
       }
