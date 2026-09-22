@@ -243,6 +243,12 @@ export default async function Page() {
                                         title={item.title}
                                         description={item.description}
                                     />
+                                ) : item.popup === "pelanggan" ? (
+                                    <AnalisaPelangganMenuLink
+                                        key={index}
+                                        title={item.title}
+                                        description={item.description}
+                                    />
                                 ) : (
                                     <LaporanPesananMenuLink
                                         key={index}
