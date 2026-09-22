@@ -19,13 +19,13 @@ import {
 } from "@/app/lib/data/pesanan";
 import LaporanKasMenuLink from "@/app/ui/kas/laporan-kas-menu-link";
 import LaporanPesananMenuLink from "@/app/ui/laporan-pesanan/menu-link";
+import AnalisaPelangganMenuLink from "@/app/ui/analisa-pelanggan/menu-link";
 
 
-// TODO: Perbarui href "Analisa Pelanggan" & "Analisa Layanan" setelah route
-// halamannya dibuat.
+// TODO: Perbarui href "Analisa Layanan" setelah route halamannya dibuat.
 // Laporan Kas & Laporan Pesanan sudah punya halaman: menu item-nya membuka
 // popup Pilih Periode (`popup` menentukan komponen menu-link mana yang
-// dirender).
+// dirender). Analisa Pelanggan juga sudah punya halaman dengan popup periode.
 const menuItems = [
     {
         title: "Laporan Kas",
@@ -48,8 +48,8 @@ const menuItems = [
         description: "Analisa data pelanggan",
         icon: Users,
         href: "#",
-        usesPeriodPopup: false,
-        popup: undefined,
+        usesPeriodPopup: true,
+        popup: "pelanggan" as const,
     },
     {
         title: "Analisa Layanan",
@@ -347,6 +347,12 @@ export default async function Page() {
                                 item.usesPeriodPopup ? (
                                     item.popup === "kas" ? (
                                         <LaporanKasMenuLink
+                                            key={index}
+                                            title={item.title}
+                                            description={item.description}
+                                        />
+                                    ) : item.popup === "pelanggan" ? (
+                                        <AnalisaPelangganMenuLink
                                             key={index}
                                             title={item.title}
                                             description={item.description}
