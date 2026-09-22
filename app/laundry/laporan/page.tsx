@@ -18,10 +18,14 @@ import {
     fetchLaporanKas,
 } from "@/app/lib/data/pesanan";
 import LaporanKasMenuLink from "@/app/ui/kas/laporan-kas-menu-link";
+import LaporanPesananMenuLink from "@/app/ui/laporan-pesanan/menu-link";
 
 
-// TODO: Buat route halaman laporan terkait, lalu perbarui href di bawah
-// (Laporan Kas sudah punya halaman: menu item-nya membuka popup Pilih Periode).
+// TODO: Perbarui href "Analisa Pelanggan" & "Analisa Layanan" setelah route
+// halamannya dibuat.
+// Laporan Kas & Laporan Pesanan sudah punya halaman: menu item-nya membuka
+// popup Pilih Periode (`popup` menentukan komponen menu-link mana yang
+// dirender).
 const menuItems = [
     {
         title: "Laporan Kas",
@@ -29,13 +33,15 @@ const menuItems = [
         icon: CircleDollarSign,
         href: "#",
         usesPeriodPopup: true,
+        popup: "kas" as const,
     },
     {
         title: "Laporan Pesanan",
         description: "Laporan data pesanan",
         icon: ReceiptText,
         href: "#",
-        usesPeriodPopup: false,
+        usesPeriodPopup: true,
+        popup: "pesanan" as const,
     },
     {
         title: "Analisa Pelanggan",
@@ -43,6 +49,7 @@ const menuItems = [
         icon: Users,
         href: "#",
         usesPeriodPopup: false,
+        popup: undefined,
     },
     {
         title: "Analisa Layanan",
@@ -50,6 +57,7 @@ const menuItems = [
         icon: Shirt,
         href: "#",
         usesPeriodPopup: false,
+        popup: undefined,
     },
 ];
 
@@ -229,11 +237,19 @@ export default async function Page() {
                     <div className="divide-y divide-gray-100">
                         {menuItems.map((item, index) =>
                             item.usesPeriodPopup ? (
-                                <LaporanKasMenuLink
-                                    key={index}
-                                    title={item.title}
-                                    description={item.description}
-                                />
+                                item.popup === "kas" ? (
+                                    <LaporanKasMenuLink
+                                        key={index}
+                                        title={item.title}
+                                        description={item.description}
+                                    />
+                                ) : (
+                                    <LaporanPesananMenuLink
+                                        key={index}
+                                        title={item.title}
+                                        description={item.description}
+                                    />
+                                )
                             ) : (
                                 <MenuLink
                                     key={index}
@@ -329,11 +345,19 @@ export default async function Page() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6">
                             {menuItems.map((item, index) =>
                                 item.usesPeriodPopup ? (
-                                    <LaporanKasMenuLink
-                                        key={index}
-                                        title={item.title}
-                                        description={item.description}
-                                    />
+                                    item.popup === "kas" ? (
+                                        <LaporanKasMenuLink
+                                            key={index}
+                                            title={item.title}
+                                            description={item.description}
+                                        />
+                                    ) : (
+                                        <LaporanPesananMenuLink
+                                            key={index}
+                                            title={item.title}
+                                            description={item.description}
+                                        />
+                                    )
                                 ) : (
                                     <MenuLink
                                         key={index}

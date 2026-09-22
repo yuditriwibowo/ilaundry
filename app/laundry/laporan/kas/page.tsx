@@ -1,4 +1,5 @@
 import Breadcrumbs from "@/app/ui/breadcrumbs";
+import Pagination from "@/app/ui/pagination";
 import {
   fetchLaporanKasPeriode,
   fetchFilteredTransaksiKas,
@@ -6,21 +7,22 @@ import {
   type SaldoPerTipe,
 } from "@/app/lib/data/kas";
 import LaporanKasInfiniteList from "@/app/ui/kas/laporan-kas-infinite-list";
-import {
-  formatRupiah,
-  formatDateTimeToLocal,
-} from "@/app/lib/utils";
+import LaporanKasTable from "@/app/ui/kas/laporan-kas-table";
+import { formatRupiah } from "@/app/lib/utils";
 
 /**
  * Halaman Laporan Kas (mutasi kas per periode).
  *
  * - searchParams `mulai` & `sampai` (YYYY-MM-DD) divalidasi di server:
  *   maksimal 3 bulan yang lalu, sampai >= mulai, tidak melebihi hari ini.
+ * - searchParams `page` (opsional) untuk pagination tabel desktop; di-clamp
+ *   ke rentang 1..totalPages.
  * - Bagian atas: ringkasan saldo awal / pendapatan / penambahan kas /
  *   pengurangan kas / saldo akhir (+ rincian tunai & non-tunai), dengan
  *   style fieldset project (rounded-xl border bg-white shadow-sm + legend).
  * - Bagian bawah: daftar transaksi_keuangan sesuai rentang tanggal & toko
- *   terpilih — tabel di landscape/desktop, infinite list di mobile portrait.
+ *   terpilih — tabel + pagination di landscape/desktop, infinite list di
+ *   mobile portrait (mengikuti pola tabel project, mis. pelanggan).
  */
 
 // Rentang default & maksimum: 3 bulan terakhir.
@@ -112,6 +114,7 @@ export default async function Page(props: {
   searchParams?: Promise<{
     mulai?: string;
     sampai?: string;
+    page?: string;
   }>;
 }) {
   const searchParams = await props.searchParams;
@@ -121,8 +124,17 @@ export default async function Page(props: {
   );
 
   const laporan = await fetchLaporanKasPeriode(mulai, sampai);
-  const transaksi = await fetchFilteredTransaksiKas(mulai, sampai, 1);
   const totalPages = await fetchLaporanKasPages(mulai, sampai);
+  // Halaman tabel desktop (di-clamp ke rentang valid, defensive).
+  const currentPage = Math.min(
+    Math.max(Number(searchParams?.page) || 1, 1),
+    Math.max(totalPages, 1),
+  );
+  const transaksi = await fetchFilteredTransaksiKas(
+    mulai,
+    sampai,
+    currentPage,
+  );
 
   const infoItems = [
     { label: "Outlet", value: laporan.outlet ?? "-" },
@@ -240,78 +252,12 @@ export default async function Page(props: {
                 totalPages={totalPages}
               />
             </div>
-            {/* Landscape / desktop: tabel */}
-            <div className="overflow-x-auto w-full">
-              <table className="hidden w-full text-gray-900 md:table">
-                <thead className="rounded-lg text-left text-sm font-normal">
-                  <tr className="border-b">
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                      Waktu
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Transaksi
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Tipe
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Keterangan
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Debet
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Kredit
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  {transaksi.map((item) => {
-                    const debet = Number(item.nilai_debet) || 0;
-                    const kredit = Number(item.nilai_kredit) || 0;
-                    return (
-                      <tr
-                        key={item.id}
-                        className="w-full border-b py-3 text-sm last-of-type:border-none hover:bg-primary-50/40 [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
-                      >
-                        <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                          {item.waktu_transaksi
-                            ? formatDateTimeToLocal(item.waktu_transaksi)
-                            : "-"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          <span className="font-medium">
-                            {item.nama_transaksi ?? "-"}
-                          </span>
-                          {item.nomor_pesanan ? (
-                            <span className="block text-xs text-gray-500">
-                              {item.nomor_pesanan}
-                            </span>
-                          ) : null}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3">
-                          {item.tipe_transaksi === "tunai"
-                            ? "Tunai"
-                            : "Non Tunai"}
-                        </td>
-                        <td className="px-3 py-3">
-                          <span className="block max-w-[240px] truncate">
-                            {item.keterangan || "-"}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-right">
-                          {debet > 0 ? formatRupiah(debet) : "-"}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-3 text-right">
-                          {kredit > 0 ? formatRupiah(kredit) : "-"}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            {/* Landscape / desktop: tabel + pagination */}
+            <LaporanKasTable transaksi={transaksi} />
           </div>
+        </div>
+        <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">
+          <Pagination totalPages={totalPages} />
         </div>
       </div>
     </div>

@@ -451,3 +451,240 @@ export async function fetchLaporanKas() {
   }
 }
 
+/* =========================================================================
+ * Laporan Pesanan (per periode)
+ * ========================================================================= */
+
+/** Tanggal (YYYY-MM-DD) berikutnya dari `tgl`. */
+function nextDay(tgl: string): string {
+  const [y, m, d] = tgl.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + 1)).toISOString().slice(0, 10);
+}
+
+/** Batas bawah periode (mulai, 00:00 WIB) sebagai timestamptz ISO. */
+function startTs(mulai: string): string {
+  return `${mulai}T00:00:00+07:00`;
+}
+
+/** Batas atas periode (eksklusif, besok 00:00 WIB) sebagai timestamptz ISO. */
+function endTs(sampai: string): string {
+  return `${nextDay(sampai)}T00:00:00+07:00`;
+}
+
+export type LaporanPesananPeriode = {
+  outlet: string | null;
+  // Pesanan valid (status <> 'batal')
+  jumlahPesanan: number;
+  nilaiPesanan: number;
+  sudahBayar: number;
+  belumBayar: number;
+  // Pesanan batal
+  pesananBatal: number;
+  nilaiPesananBatal: number;
+  // Rincian nilai
+  totalAntarJemput: number;
+  totalDiskon: number;
+  // Rincian volume item pesanan (per satuan kg / pcs / m)
+  totalKiloan: number;
+  totalSatuan: number;
+  totalMeteran: number;
+};
+
+const LAPORAN_PERIODE_KESELONGAN: LaporanPesananPeriode = {
+  outlet: null,
+  jumlahPesanan: 0,
+  nilaiPesanan: 0,
+  sudahBayar: 0,
+  belumBayar: 0,
+  pesananBatal: 0,
+  nilaiPesananBatal: 0,
+  totalAntarJemput: 0,
+  totalDiskon: 0,
+  totalKiloan: 0,
+  totalSatuan: 0,
+  totalMeteran: 0,
+};
+
+/**
+ * Ringkasan Laporan Pesanan per periode & per toko (dari cookie
+ * `selected_toko`). Filter waktu memakai `tgl_pesanan` dalam zona waktu
+ * Asia/Jakarta (konsisten dengan fetchLaporanPesananHariIni).
+ *
+ * - Pesanan batal dikecualikan dari jumlah/nilai/sudah/belum bayar,
+ *   antar-jemput, dan diskon; dilaporkan terpisah (pesananBatal &
+ *   nilaiPesananBatal).
+ * - Total Kiloan/Satuan/Meteran dihitung dari item_pesanan.jumlah
+ *   dikelompokkan per satuan ('kg' / 'pcs' / 'm'), item batal dikecualikan.
+ */
+export async function fetchLaporanPesananPeriode(
+  mulai: string,
+  sampai: string,
+): Promise<LaporanPesananPeriode> {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  if (!selectedToko) return LAPORAN_PERIODE_KESELONGAN;
+
+  const awal = startTs(mulai);
+  const akhir = endTs(sampai);
+
+  try {
+    const data = await sql`
+      WITH ps AS (
+        SELECT id, status_pesanan, total_bayar, jumlah_bayar, kurang_bayar,
+               biaya_antar_jemput, nilai_diskon
+        FROM public.pesanan
+        WHERE toko_id = ${selectedToko}
+          AND tgl_pesanan >= ${awal}::timestamptz
+          AND tgl_pesanan < ${akhir}::timestamptz
+      )
+      SELECT
+        (SELECT nama_toko FROM public.toko WHERE id::text = ${selectedToko}) AS outlet,
+        (SELECT COUNT(*) FROM ps WHERE status_pesanan <> 'batal') AS jumlah_pesanan,
+        (SELECT COALESCE(SUM(total_bayar), 0) FROM ps WHERE status_pesanan <> 'batal') AS nilai_pesanan,
+        (SELECT COALESCE(SUM(jumlah_bayar), 0) FROM ps WHERE status_pesanan <> 'batal') AS sudah_bayar,
+        (SELECT COALESCE(SUM(kurang_bayar), 0) FROM ps WHERE status_pesanan <> 'batal') AS belum_bayar,
+        (SELECT COUNT(*) FROM ps WHERE status_pesanan = 'batal') AS pesanan_batal,
+        (SELECT COALESCE(SUM(total_bayar), 0) FROM ps WHERE status_pesanan = 'batal') AS nilai_pesanan_batal,
+        (SELECT COALESCE(SUM(biaya_antar_jemput), 0) FROM ps WHERE status_pesanan <> 'batal') AS total_antar_jemput,
+        (SELECT COALESCE(SUM(nilai_diskon), 0) FROM ps WHERE status_pesanan <> 'batal') AS total_diskon,
+        (SELECT COALESCE(SUM(ip.jumlah), 0)
+           FROM public.item_pesanan AS ip
+           JOIN ps ON ps.id = ip.pesanan_id
+          WHERE ps.status_pesanan <> 'batal'
+            AND ip.status_item <> 'batal'
+            AND ip.satuan = 'kg') AS total_kiloan,
+        (SELECT COALESCE(SUM(ip.jumlah), 0)
+           FROM public.item_pesanan AS ip
+           JOIN ps ON ps.id = ip.pesanan_id
+          WHERE ps.status_pesanan <> 'batal'
+            AND ip.status_item <> 'batal'
+            AND ip.satuan = 'pcs') AS total_satuan,
+        (SELECT COALESCE(SUM(ip.jumlah), 0)
+           FROM public.item_pesanan AS ip
+           JOIN ps ON ps.id = ip.pesanan_id
+          WHERE ps.status_pesanan <> 'batal'
+            AND ip.status_item <> 'batal'
+            AND ip.satuan = 'm') AS total_meteran
+    `;
+
+    const row = data[0];
+    return {
+      outlet: (row?.outlet as string | null) ?? null,
+      jumlahPesanan: Number(row?.jumlah_pesanan ?? 0),
+      nilaiPesanan: Number(row?.nilai_pesanan ?? 0),
+      sudahBayar: Number(row?.sudah_bayar ?? 0),
+      belumBayar: Number(row?.belum_bayar ?? 0),
+      pesananBatal: Number(row?.pesanan_batal ?? 0),
+      nilaiPesananBatal: Number(row?.nilai_pesanan_batal ?? 0),
+      totalAntarJemput: Number(row?.total_antar_jemput ?? 0),
+      totalDiskon: Number(row?.total_diskon ?? 0),
+      totalKiloan: Number(row?.total_kiloan ?? 0),
+      totalSatuan: Number(row?.total_satuan ?? 0),
+      totalMeteran: Number(row?.total_meteran ?? 0),
+    };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil laporan pesanan per periode.");
+  }
+}
+
+/**
+ * Daftar pesanan untuk halaman Laporan Pesanan: baris pesanan dalam rentang
+ * tgl_pesanan (mulai s.d. sampai, inklusif) & toko terpilih. Bentuk kolom
+ * sama dengan fetchFilteredPesanan (type TabelPesanan) tanpa filter
+ * pencarian/status — urut tanggal masuk paling awal di paling atas.
+ */
+export async function fetchFilteredPesananLaporan(
+  mulai: string,
+  sampai: string,
+  currentPage: number,
+) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  if (!selectedToko) return [];
+
+  try {
+    const pesanan = await sql<TabelPesanan[]>`
+      SELECT
+        p.id,
+        p.toko_id,
+        p.pelanggan_id,
+        p.kasir_id,
+        p.nomor_pesanan,
+        p.status_pesanan,
+        p.tgl_pesanan,
+        p.tgl_estimasi_selesai,
+        p.tgl_selesai,
+        p.tgl_diambil,
+        p.nama_antar_jemput_snapshot,
+        p.total_layanan,
+        p.biaya_antar_jemput,
+        p.nilai_diskon,
+        p.total_bayar,
+        p.status_pembayaran,
+        p.metode_pembayaran,
+        p.jumlah_bayar,
+        p.kurang_bayar,
+        p.catatan,
+        p.created_at,
+        p.last_update,
+        p.update_by,
+        p.antar_jemput_yt,
+        t.nama_toko,
+        t.alamat_toko,
+        t.telephone AS telephone_toko,
+        pl.nama AS nama_pelanggan,
+        pl.no_hp,
+        u.name AS nama_user
+      FROM public.pesanan AS p
+      LEFT JOIN public.toko AS t
+        ON t.id = p.toko_id
+      LEFT JOIN public.pelanggan AS pl
+        ON pl.id = p.pelanggan_id
+      LEFT JOIN public.users AS u
+        ON u.id = p.kasir_id
+      WHERE p.toko_id = ${selectedToko}
+        AND p.tgl_pesanan >= ${startTs(mulai)}::timestamptz
+        AND p.tgl_pesanan < ${endTs(sampai)}::timestamptz
+      ORDER BY
+        p.tgl_pesanan ASC,
+        p.created_at ASC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return pesanan;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil daftar pesanan laporan.");
+  }
+}
+
+/** Total halaman daftar pesanan Laporan Pesanan (untuk pagination/list). */
+export async function fetchLaporanPesananPages(
+  mulai: string,
+  sampai: string,
+): Promise<number> {
+  const cookieStore = await cookies();
+  const selectedToko = cookieStore.get("selected_toko")?.value;
+
+  if (!selectedToko) return 0;
+
+  try {
+    const data = await sql`
+      SELECT COUNT(*) AS count
+      FROM public.pesanan AS p
+      WHERE p.toko_id = ${selectedToko}
+        AND p.tgl_pesanan >= ${startTs(mulai)}::timestamptz
+        AND p.tgl_pesanan < ${endTs(sampai)}::timestamptz
+    `;
+
+    return Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Gagal mengambil total halaman laporan pesanan.");
+  }
+}
+

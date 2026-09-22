@@ -14,6 +14,7 @@ export {
   fetchMorePesanan,
   fetchMoreItemPesanan,
   fetchItemPesananForStruk,
+  fetchMoreLaporanPesanan,
 } from "./crud";
 export { updateStatusPesanan, updatePembayaranPesanan } from "./status";
 export {

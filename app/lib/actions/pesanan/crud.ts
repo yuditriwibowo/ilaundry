@@ -684,6 +684,18 @@ export async function fetchMorePesanan(
   return await fetchFilteredPesanan(query, page, statusPesanan, statusPembayaran);
 }
 
+// Server action untuk infinite scroll daftar pesanan di halaman Laporan
+// Pesanan (pola sama dengan fetchMoreLaporanKas / fetchMorePesanan).
+export async function fetchMoreLaporanPesanan(
+  mulai: string,
+  sampai: string,
+  page: number,
+) {
+  await getCurrentUser();
+  const { fetchFilteredPesananLaporan } = await import("../../data/pesanan");
+  return fetchFilteredPesananLaporan(mulai, sampai, page);
+}
+
 export async function fetchMoreItemPesanan(pesananId: string, page: number) {
   await getCurrentUser();
   return await fetchItemPesananByPesananId(pesananId, page);
