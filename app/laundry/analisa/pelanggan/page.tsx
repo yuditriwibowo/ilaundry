@@ -82,7 +82,7 @@ function KartuStatistik({
   subvalue?: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
+    <div className="flex min-w-0 items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
       <span aria-hidden className="h-9 w-9 shrink-0 rounded-full bg-primary-500" />
       <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
         <div className="min-w-0">
@@ -91,12 +91,14 @@ function KartuStatistik({
             <p className="truncate text-xs italic text-gray-500">{sublabel}</p>
           )}
         </div>
-        <div className="text-right">
-          <p className="truncate text-sm font-semibold text-gray-900">
+        {/* min-w-0 + wrap (tanpa truncate) agar nama panjang pindah baris,
+            tidak memaksa lebar kartu melebihi layar. */}
+        <div className="min-w-0 text-right">
+          <p className="text-sm font-semibold leading-tight text-gray-900">
             {value}
           </p>
           {subvalue && (
-            <p className="whitespace-nowrap text-xs italic text-gray-500">
+            <p className="text-xs italic leading-tight text-gray-500">
               {subvalue}
             </p>
           )}
@@ -172,7 +174,7 @@ export default async function Page(props: {
 
       <div className="p-4 md:p-6">
         {/* ============ Ringkasan (bagian atas) ============ */}
-        <fieldset className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
+        <fieldset className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
           <legend className="px-2 text-sm font-semibold text-gray-700">
             Analisa Pelanggan
           </legend>
@@ -208,7 +210,7 @@ export default async function Page(props: {
                 </span>
               </div>
             ))}
-            <div className="col-span-2 grid grid-cols-2 gap-4 border-t border-gray-100 pt-3">
+            <div className="col-span-2 grid min-w-0 grid-cols-2 gap-4 border-t border-gray-100 pt-3">
               {kartuItems.map((item, i) => (
                 <KartuStatistik key={i} {...item} />
               ))}
