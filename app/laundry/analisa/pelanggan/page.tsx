@@ -91,10 +91,11 @@ function KartuStatistik({
         <Users className="h-5 w-5" aria-hidden />
       </div>
       <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+        {/* Label tidak di-truncate: saat tidak muat, teks pindah baris. */}
         <div className="min-w-0">
-          <p className="truncate text-sm text-gray-700">{label}</p>
+          <p className="text-sm text-gray-700">{label}</p>
           {sublabel && (
-            <p className="truncate text-xs italic text-gray-500">{sublabel}</p>
+            <p className="text-xs italic text-gray-500">{sublabel}</p>
           )}
         </div>
         {/* min-w-0 + wrap (tanpa truncate) agar nama panjang pindah baris,
