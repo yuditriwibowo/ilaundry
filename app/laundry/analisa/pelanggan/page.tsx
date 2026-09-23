@@ -1,3 +1,4 @@
+import { Users } from "lucide-react";
 import Breadcrumbs from "@/app/ui/breadcrumbs";
 import {
   fetchAnalisaPelangganPeriode,
@@ -69,7 +70,7 @@ function BarisInfo({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** Kartu statistik: titik primary + label (± baris italic) kiri, nilai kanan. */
+/** Kartu statistik: kotak ikon (style Fieldset "Lihat Laporan") + label kiri, nilai kanan. */
 function KartuStatistik({
   label,
   sublabel,
@@ -83,7 +84,12 @@ function KartuStatistik({
 }) {
   return (
     <div className="flex min-w-0 items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
-      <span aria-hidden className="h-9 w-9 shrink-0 rounded-full bg-primary-500" />
+      {/* Kotak ikon identik dengan menu-link Analisa Pelanggan
+          (app/ui/analisa-pelanggan/menu-link.tsx): rounded-lg bg-primary-100
+          text-primary-700, bukan lingkaran polos lagi. */}
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-700">
+        <Users className="h-5 w-5" aria-hidden />
+      </div>
       <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm text-gray-700">{label}</p>
@@ -172,52 +178,53 @@ export default async function Page(props: {
         />
       </div>
 
-      <div className="p-4 md:p-6">
-        {/* ============ Ringkasan (bagian atas) ============ */}
-        <fieldset className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
-          <legend className="px-2 text-sm font-semibold text-gray-700">
-            Analisa Pelanggan
-          </legend>
+      {/* ============ Ringkasan (bagian atas) ============ */}
+      {/* Langsung di dalam konten halaman (tanpa wrapper padding ekstra),
+          pola sama dengan fieldset di app/laundry/laporan/page.tsx agar
+          jarak kiri/kanan identik. */}
+      <fieldset className="mt-4 min-w-0 rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
+        <legend className="px-2 text-sm font-semibold text-gray-700">
+          Analisa Pelanggan
+        </legend>
 
-          {/* Portrait: baris info + kartu statistik (satu kolom) */}
-          <div className="md:hidden landscape:hidden">
-            <div className="divide-y divide-gray-100">
-              {infoItems.map((item) => (
-                <BarisInfo
-                  key={item.label}
-                  label={item.label}
-                  value={item.value}
-                />
-              ))}
-            </div>
-            <div className="mt-3 flex flex-col gap-3 border-t border-gray-100 pt-3">
-              {kartuItems.map((item, i) => (
-                <KartuStatistik key={i} {...item} />
-              ))}
-            </div>
-          </div>
-
-          {/* Landscape/desktop: 2 kolom — info, lalu kartu statistik melebar */}
-          <div className="hidden md:grid landscape:grid grid-cols-2 gap-x-8 gap-y-4">
+        {/* Portrait: baris info + kartu statistik (satu kolom) */}
+        <div className="md:hidden landscape:hidden">
+          <div className="divide-y divide-gray-100">
             {infoItems.map((item) => (
-              <div
+              <BarisInfo
                 key={item.label}
-                className="flex items-baseline justify-between gap-3"
-              >
-                <span className="text-sm text-gray-700">{item.label}</span>
-                <span className="whitespace-nowrap text-sm font-semibold text-gray-900">
-                  {item.value}
-                </span>
-              </div>
+                label={item.label}
+                value={item.value}
+              />
             ))}
-            <div className="col-span-2 grid min-w-0 grid-cols-2 gap-4 border-t border-gray-100 pt-3">
-              {kartuItems.map((item, i) => (
-                <KartuStatistik key={i} {...item} />
-              ))}
-            </div>
           </div>
-        </fieldset>
-      </div>
+          <div className="mt-3 flex flex-col gap-3 border-t border-gray-100 pt-3">
+            {kartuItems.map((item, i) => (
+              <KartuStatistik key={i} {...item} />
+            ))}
+          </div>
+        </div>
+
+        {/* Landscape/desktop: 2 kolom — info, lalu kartu statistik melebar */}
+        <div className="hidden md:grid landscape:grid grid-cols-2 gap-x-8 gap-y-4">
+          {infoItems.map((item) => (
+            <div
+              key={item.label}
+              className="flex items-baseline justify-between gap-3"
+            >
+              <span className="text-sm text-gray-700">{item.label}</span>
+              <span className="whitespace-nowrap text-sm font-semibold text-gray-900">
+                {item.value}
+              </span>
+            </div>
+          ))}
+          <div className="col-span-2 grid min-w-0 grid-cols-2 gap-4 border-t border-gray-100 pt-3">
+            {kartuItems.map((item, i) => (
+              <KartuStatistik key={i} {...item} />
+            ))}
+          </div>
+        </div>
+      </fieldset>
     </div>
   );
 }

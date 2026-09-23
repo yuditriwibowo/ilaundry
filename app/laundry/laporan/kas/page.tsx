@@ -168,9 +168,11 @@ export default async function Page(props: {
         />
       </div>
 
-      <div className="p-4 md:p-6">
+      {/* Tanpa padding ekstra (pola sama dengan app/laundry/laporan/page.tsx)
+          agar jarak kiri/kanan fieldset identik dengan halaman Laporan. */}
+      <div>
         {/* ============ Ringkasan (bagian atas) ============ */}
-        <fieldset className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
+        <fieldset className="mt-4 rounded-xl border border-gray-200 bg-white p-4 md:p-5 short-screen:p-3 shadow-sm">
           <legend className="px-2 text-sm font-semibold text-gray-700">
             Ringkasan Kas
           </legend>
