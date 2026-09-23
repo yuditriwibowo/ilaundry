@@ -6,8 +6,6 @@ import {
     ReceiptText,
     SquareX,
     BanknoteArrowDown,
-    Users,
-    Shirt,
     Plus,
     Minus,
     type LucideIcon,
@@ -20,44 +18,32 @@ import {
 import LaporanKasMenuLink from "@/app/ui/kas/laporan-kas-menu-link";
 import LaporanPesananMenuLink from "@/app/ui/laporan-pesanan/menu-link";
 import AnalisaPelangganMenuLink from "@/app/ui/analisa-pelanggan/menu-link";
+import AnalisaLayananMenuLink from "@/app/ui/analisa-layanan/menu-link";
 
-
-// TODO: Perbarui href "Analisa Layanan" setelah route halamannya dibuat.
 // Laporan Kas & Laporan Pesanan sudah punya halaman: menu item-nya membuka
 // popup Pilih Periode (`popup` menentukan komponen menu-link mana yang
-// dirender). Analisa Pelanggan juga sudah punya halaman dengan popup periode.
+// dirender). Analisa Pelanggan & Analisa Layanan juga sudah punya halaman
+// dengan popup periode.
 const menuItems = [
     {
         title: "Laporan Kas",
         description: "Laporan mutasi kas",
-        icon: CircleDollarSign,
-        href: "#",
-        usesPeriodPopup: true,
         popup: "kas" as const,
     },
     {
         title: "Laporan Pesanan",
         description: "Laporan data pesanan",
-        icon: ReceiptText,
-        href: "#",
-        usesPeriodPopup: true,
         popup: "pesanan" as const,
     },
     {
         title: "Analisa Pelanggan",
         description: "Analisa data pelanggan",
-        icon: Users,
-        href: "#",
-        usesPeriodPopup: true,
         popup: "pelanggan" as const,
     },
     {
         title: "Analisa Layanan",
         description: "Analisa data layanan",
-        icon: Shirt,
-        href: "#",
-        usesPeriodPopup: false,
-        popup: undefined,
+        popup: "layanan" as const,
     },
 ];
 
@@ -98,38 +84,6 @@ function SummaryItem({
             <span className="text-xs text-gray-500 block">{label}</span>
             <span className={valueClassName}>{value}</span>
         </div>
-    );
-}
-
-/* Item menu "Lihat Laporan" */
-function MenuLink({
-    icon: Icon,
-    title,
-    description,
-    href,
-}: {
-    icon: LucideIcon;
-    title: string;
-    description: string;
-    href: string;
-}) {
-    return (
-        <Link
-            href={href}
-            className="group flex items-center gap-3 rounded-lg px-1 -mx-1 py-2.5 transition-colors duration-200 hover:bg-gray-50"
-        >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-700 transition-colors duration-200 group-hover:bg-primary-500 group-hover:text-white">
-                <Icon className="h-5 w-5" />
-            </div>
-            <div className="flex min-w-0 flex-col">
-                <span className="truncate text-sm font-medium text-gray-900 group-hover:text-primary-600 transition-colors duration-200">
-                    {title}
-                </span>
-                <span className="truncate text-xs text-gray-500 leading-tight">
-                    {description}
-                </span>
-            </div>
-        </Link>
     );
 }
 
@@ -236,33 +190,29 @@ export default async function Page() {
                     </legend>
                     <div className="divide-y divide-gray-100">
                         {menuItems.map((item, index) =>
-                            item.usesPeriodPopup ? (
-                                item.popup === "kas" ? (
-                                    <LaporanKasMenuLink
-                                        key={index}
-                                        title={item.title}
-                                        description={item.description}
-                                    />
-                                ) : item.popup === "pelanggan" ? (
-                                    <AnalisaPelangganMenuLink
-                                        key={index}
-                                        title={item.title}
-                                        description={item.description}
-                                    />
-                                ) : (
-                                    <LaporanPesananMenuLink
-                                        key={index}
-                                        title={item.title}
-                                        description={item.description}
-                                    />
-                                )
-                            ) : (
-                                <MenuLink
+                            item.popup === "kas" ? (
+                                <LaporanKasMenuLink
                                     key={index}
-                                    icon={item.icon}
                                     title={item.title}
                                     description={item.description}
-                                    href={item.href}
+                                />
+                            ) : item.popup === "pelanggan" ? (
+                                <AnalisaPelangganMenuLink
+                                    key={index}
+                                    title={item.title}
+                                    description={item.description}
+                                />
+                            ) : item.popup === "layanan" ? (
+                                <AnalisaLayananMenuLink
+                                    key={index}
+                                    title={item.title}
+                                    description={item.description}
+                                />
+                            ) : (
+                                <LaporanPesananMenuLink
+                                    key={index}
+                                    title={item.title}
+                                    description={item.description}
                                 />
                             ),
                         )}
@@ -350,33 +300,29 @@ export default async function Page() {
                         </legend>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6">
                             {menuItems.map((item, index) =>
-                                item.usesPeriodPopup ? (
-                                    item.popup === "kas" ? (
-                                        <LaporanKasMenuLink
-                                            key={index}
-                                            title={item.title}
-                                            description={item.description}
-                                        />
-                                    ) : item.popup === "pelanggan" ? (
-                                        <AnalisaPelangganMenuLink
-                                            key={index}
-                                            title={item.title}
-                                            description={item.description}
-                                        />
-                                    ) : (
-                                        <LaporanPesananMenuLink
-                                            key={index}
-                                            title={item.title}
-                                            description={item.description}
-                                        />
-                                    )
-                                ) : (
-                                    <MenuLink
+                                item.popup === "kas" ? (
+                                    <LaporanKasMenuLink
                                         key={index}
-                                        icon={item.icon}
                                         title={item.title}
                                         description={item.description}
-                                        href={item.href}
+                                    />
+                                ) : item.popup === "pelanggan" ? (
+                                    <AnalisaPelangganMenuLink
+                                        key={index}
+                                        title={item.title}
+                                        description={item.description}
+                                    />
+                                ) : item.popup === "layanan" ? (
+                                    <AnalisaLayananMenuLink
+                                        key={index}
+                                        title={item.title}
+                                        description={item.description}
+                                    />
+                                ) : (
+                                    <LaporanPesananMenuLink
+                                        key={index}
+                                        title={item.title}
+                                        description={item.description}
                                     />
                                 ),
                             )}
