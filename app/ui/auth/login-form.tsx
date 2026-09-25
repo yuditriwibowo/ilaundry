@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { verifyCredentials, setSelectedTokoCookie } from "@/app/lib/actions";
 import type { TokoAssignment } from "@/app/lib/definitions";
+import SelectPopup, { type OpsiSelect } from "@/app/ui/shared/select-popup";
 
 /**
  * Form login di halaman depan:
@@ -160,21 +161,18 @@ export default function LoginForm() {
           <label htmlFor="toko" className="mb-1 block text-sm font-medium text-gray-700">
             Toko
           </label>
-          <select
+          <SelectPopup
             id="toko"
             name="toko"
-            disabled={isPending}
+            options={tokos.map((toko) => ({
+              id: toko.tokoId,
+              label: `${toko.namaToko} - ${toko.peran ?? "belum ada peran"}`,
+            }))}
             value={selectedToko}
-            onChange={(e) => handleSelectToko(e.target.value)}
-            className={`${inputCls} disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400`}
-          >
-            <option value="">Pilih toko</option>
-            {tokos.map((toko) => (
-              <option key={toko.tokoId} value={toko.tokoId}>
-                {`${toko.namaToko} - ${toko.peran ?? "belum ada peran"}`}
-              </option>
-            ))}
-          </select>
+            onChangeAction={handleSelectToko}
+            placeholder="Pilih toko"
+            disabled={isPending}
+          />
         </div>
       )}
     </div>

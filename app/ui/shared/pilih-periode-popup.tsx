@@ -3,18 +3,20 @@
 /**
  * Popup "Pilih Periode" generik (dipakai menu laporan apa pun).
  *
- * - Dua input date native (tanggal mulai & tanggal sampai) bergaya input form
- *   project — project tidak memakai library date picker.
+ * - Date picker CUSTOM (app/ui/shared/kalender-tanggal.tsx), bukan
+ *   <input type="date"> native: dialog native di Android dirender oleh OS
+ *   dan selalu mengikuti tema perangkat — tidak bisa dipaksa mengikuti
+ *   pengaturan Mode Display. Kalender custom dirender React di dalam
+ *   halaman, jadi 100% mengikuti tema aplikasi di semua platform.
+ * - Dua field tanggal (mulai & sampai) memakai satu kalender inline yang
+ *   menarget field yang sedang aktif (diklik).
  * - Batas default: tanggal paling awal = 3 bulan yang lalu, paling akhir =
- *   hari ini (atribut min/max; halaman tujuan tetap memvalidasi ulang
- *   secara server-side).
+ *   hari ini (dinonaktifkan di kalender; halaman tujuan tetap memvalidasi
+ *   ulang secara server-side).
  * - Tombol aksi default "Lihat Laporan" (bisa diubah via `labelTombolAksi`).
- * - Mode tampilan mengikuti pengaturan Mode Display di Pengaturan (terang /
- *   gelap / sesuai system): `color-scheme` di-set eksplisit pada tiap input
- *   date dari `resolvedTheme` (useTheme) agar native date picker ikut tema
- *   aplikasi, bukan hanya tema system/browser.
  * - Dirender via portal ke document.body (pola select-popup / modal
- *   update pembayaran).
+ *   update pembayaran). Keyboard: tanggal dinavigasi panah/PageUp/
+ *   PageDown/Home/End, Escape menutup kalender lalu popup.
  *
  * Pemakaian (state `open` dikelola pemanggil, mis. menu link laporan):
  *   <PilihPeriodePopup
@@ -27,27 +29,20 @@
  *   />
  */
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useTheme } from "@/app/ui/theme-provider";
+import { CalendarDaysIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import KalenderTanggal from "./kalender-tanggal";
+import { formatTanggal, geserBulanIso, todayIso } from "./kalender-utils";
 
 /** Periode terpilih yang dikirim ke pemanggil lewat `onSubmitAction`. */
 export type PeriodeTerpilih = { mulai: string; sampai: string };
 
-/** Tanggal hari ini (YYYY-MM-DD) pada zona waktu lokal. */
-function todayIso(): string {
-  const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-}
-
 /** Tanggal 3 bulan yang lalu (YYYY-MM-DD) pada zona waktu lokal. */
 function threeMonthsAgoIso(): string {
-  const now = new Date();
-  const d = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  // geserBulanIso sudah menangani clamping (mis. 31 Mei - 3 bulan = 30 Feb? tidak —
+  // 31 Mei - 3 bulan = 28/29 Feb sesuai kabisat; logika clamping teruji di kalender-utils).
+  return geserBulanIso(todayIso(), -3);
 }
 
 type FormState = {
@@ -55,6 +50,8 @@ type FormState = {
   sampai: string;
   errorMsg: string | null;
 };
+
+type FieldTanggal = "mulai" | "sampai";
 
 export default function PilihPeriodePopup({
   open,
@@ -71,19 +68,21 @@ export default function PilihPeriodePopup({
   judul?: string;
   labelTombolAksi?: string;
   keteranganBatas?: string;
-  // Prefix id input date (default: useId) agar id selalu unik walau popup
-  // dipakai lebih dari sekali dalam satu halaman.
+  // Prefix id (default: useId) agar id selalu unik walau popup dipakai
+  // lebih dari sekali dalam satu halaman.
   idPrefix?: string;
 }) {
   const autoId = useId();
   const prefix = idPrefix ?? autoId;
-  // Tema aktual sesuai Pengaturan (light | dark | system yang sudah resolved).
-  const { resolvedTheme } = useTheme();
   const [form, setForm] = useState<FormState>(() => ({
     mulai: threeMonthsAgoIso(),
     sampai: todayIso(),
     errorMsg: null,
   }));
+  // Field yang kalendernya sedang terbuka (satu kalender untuk dua field).
+  const [fieldAktif, setFieldAktif] = useState<FieldTanggal | null>(null);
+  const mulaiRef = useRef<HTMLButtonElement>(null);
+  const sampaiRef = useRef<HTMLButtonElement>(null);
 
   const minDate = threeMonthsAgoIso();
   const maxDate = todayIso();
@@ -94,7 +93,43 @@ export default function PilihPeriodePopup({
     if (!open) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm({ mulai: threeMonthsAgoIso(), sampai: todayIso(), errorMsg: null });
+    setFieldAktif(null);
   }, [open]);
+
+  // Escape: tutup kalender dulu (fokus kembali ke field-nya), Escape kedua
+  // menutup popup. Satu listener global agar tidak dobel dengan grid kalender.
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key !== "Escape") return;
+      if (fieldAktif) {
+        (fieldAktif === "mulai" ? mulaiRef : sampaiRef).current?.focus();
+        setFieldAktif(null);
+      } else {
+        onCloseAction();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, fieldAktif, onCloseAction]);
+
+  function pilihTanggal(field: FieldTanggal, iso: string) {
+    setForm((f) => {
+      const next: FormState = { ...f, [field]: iso, errorMsg: null };
+      // Validasi urutan langsung (bukan menunggu submit) supaya kesalahan
+      // terlihat saat terjadi. Pesan sama dengan validasi handleSubmit.
+      if (next.mulai > next.sampai) {
+        next.errorMsg =
+          field === "mulai"
+            ? "Tanggal mulai tidak boleh setelah tanggal sampai."
+            : "Tanggal sampai tidak boleh sebelum tanggal mulai.";
+      }
+      return next;
+    });
+    // Tutup kalender dan kembalikan fokus ke tombol field terkait.
+    (field === "mulai" ? mulaiRef : sampaiRef).current?.focus();
+    setFieldAktif(null);
+  }
 
   function handleSubmit() {
     if (!form.mulai || !form.sampai) {
@@ -148,20 +183,21 @@ export default function PilihPeriodePopup({
         >
           Tanggal Mulai
         </label>
-        <input
+        <button
+          ref={mulaiRef}
           id={`${prefix}-mulai`}
-          type="date"
-          value={form.mulai}
-          min={minDate}
-          max={maxDate}
-          // colorScheme eksplisit: native date picker mengikuti pengaturan
-          // Mode Display (bukan hanya bawaan system/browser).
-          style={{ colorScheme: resolvedTheme }}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, mulai: e.target.value, errorMsg: null }))
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded={fieldAktif === "mulai"}
+          aria-controls={fieldAktif === "mulai" ? `${prefix}-kalender` : undefined}
+          onClick={() =>
+            setFieldAktif((f) => (f === "mulai" ? null : "mulai"))
           }
-          className="block w-full rounded-md border border-gray-200 py-2 pl-3 pr-3 text-sm outline-2 placeholder:text-gray-500"
-        />
+          className="flex w-full items-center justify-between rounded-md border border-gray-200 py-2 pl-3 pr-3 text-sm text-gray-900 transition-colors hover:bg-gray-50"
+        >
+          <span>{formatTanggal(form.mulai) || "Pilih tanggal"}</span>
+          <CalendarDaysIcon className="h-5 w-5 text-gray-500" />
+        </button>
 
         {/* Tanggal sampai */}
         <label
@@ -170,18 +206,41 @@ export default function PilihPeriodePopup({
         >
           Tanggal Sampai
         </label>
-        <input
+        <button
+          ref={sampaiRef}
           id={`${prefix}-sampai`}
-          type="date"
-          value={form.sampai}
-          min={minDate}
-          max={maxDate}
-          style={{ colorScheme: resolvedTheme }}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, sampai: e.target.value, errorMsg: null }))
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded={fieldAktif === "sampai"}
+          aria-controls={fieldAktif === "sampai" ? `${prefix}-kalender` : undefined}
+          onClick={() =>
+            setFieldAktif((f) => (f === "sampai" ? null : "sampai"))
           }
-          className="block w-full rounded-md border border-gray-200 py-2 pl-3 pr-3 text-sm outline-2 placeholder:text-gray-500"
-        />
+          className="flex w-full items-center justify-between rounded-md border border-gray-200 py-2 pl-3 pr-3 text-sm text-gray-900 transition-colors hover:bg-gray-50"
+        >
+          <span>{formatTanggal(form.sampai) || "Pilih tanggal"}</span>
+          <CalendarDaysIcon className="h-5 w-5 text-gray-500" />
+        </button>
+
+        {/* Kalender inline untuk field yang sedang aktif */}
+        {fieldAktif && (
+          <div
+            id={`${prefix}-kalender`}
+            className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-3"
+          >
+            <KalenderTanggal
+              value={fieldAktif === "mulai" ? form.mulai : form.sampai}
+              minDate={minDate}
+              maxDate={maxDate}
+              onSelectAction={(iso) => pilihTanggal(fieldAktif, iso)}
+              judul={
+                fieldAktif === "mulai"
+                  ? "Pilih tanggal mulai"
+                  : "Pilih tanggal sampai"
+              }
+            />
+          </div>
+        )}
 
         {/* Keterangan batas tanggal */}
         <p className="mt-3 text-xs text-gray-500">{keteranganBatas}</p>
@@ -212,4 +271,3 @@ export default function PilihPeriodePopup({
     document.body,
   );
 }
-
