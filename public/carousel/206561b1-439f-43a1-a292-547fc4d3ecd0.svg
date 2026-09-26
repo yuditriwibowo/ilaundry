@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-label="Promo Diskon 20% Cuci Kiloan">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d4ed8"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="400" fill="url(#bg)"/>
+  <circle cx="1050" cy="60" r="130" fill="#ffffff" opacity="0.08"/>
+  <circle cx="1130" cy="330" r="170" fill="#ffffff" opacity="0.08"/>
+  <circle cx="120" cy="360" r="90" fill="#ffffff" opacity="0.06"/>
+  <circle cx="640" cy="40" r="24" fill="none" stroke="#ffffff" opacity="0.25" stroke-width="6"/>
+  <circle cx="700" cy="340" r="16" fill="none" stroke="#ffffff" opacity="0.25" stroke-width="5"/>
+  <circle cx="760" cy="120" r="10" fill="#ffffff" opacity="0.3"/>
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <rect x="440" y="70" width="320" height="56" rx="28" fill="#ffffff" opacity="0.2"/>
+    <text x="600" y="108" font-size="30" font-weight="bold" fill="#ffffff" letter-spacing="6">PROMO SPESIAL</text>
+    <text x="600" y="215" font-size="88" font-weight="bold" fill="#ffffff">Diskon 20%</text>
+    <text x="600" y="290" font-size="52" font-weight="bold" fill="#bfdbfe">Cuci Kiloan</text>
+    <text x="600" y="345" font-size="26" fill="#dbeafe">Berlaku s.d. akhir bulan ini</text>
+  </g>
+</svg>

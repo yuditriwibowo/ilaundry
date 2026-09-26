@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-label="Gratis Antar Jemput">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d97706"/>
+      <stop offset="1" stop-color="#ea580c"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="400" fill="url(#bg)"/>
+  <circle cx="90" cy="70" r="110" fill="#ffffff" opacity="0.08"/>
+  <circle cx="1120" cy="90" r="140" fill="#ffffff" opacity="0.08"/>
+  <circle cx="1080" cy="340" r="80" fill="#ffffff" opacity="0.06"/>
+  <g transform="translate(500 130)">
+    <rect x="0" y="40" width="120" height="80" rx="10" fill="#ffffff" opacity="0.9"/>
+    <path d="M120 60 h55 l30 30 v30 h-85 z" fill="#ffffff" opacity="0.75"/>
+    <circle cx="45" cy="125" r="16" fill="#7c2d12"/>
+    <circle cx="150" cy="125" r="16" fill="#7c2d12"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="600" y="270" font-size="80" font-weight="bold" fill="#ffffff">GRATIS Antar Jemput</text>
+    <text x="600" y="335" font-size="30" fill="#fef3c7">Area tertentu &#8226; minimal 5 kg</text>
+  </g>
+</svg>
