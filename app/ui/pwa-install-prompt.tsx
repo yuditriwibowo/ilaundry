@@ -139,7 +139,7 @@ export default function PWAInstallPrompt() {
 
         {/* Deskripsi */}
         <p className="mt-3.5 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-          Pasang aplikasi di layar utama perangkat Anda untuk akses instan, lebih responsif, dan tampilan layar penuh tanpa browser bar.
+          Install aplikasi di layar utama perangkat Anda untuk akses instan, lebih responsif, dan tampilan layar penuh tanpa browser bar.
         </p>
 
         {/* Khusus Perangkat iOS (Safari): Panduan Manual */}
