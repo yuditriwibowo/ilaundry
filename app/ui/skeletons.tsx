@@ -46,6 +46,20 @@ export function LaundryCardSkeleton() {
   );
 }
 
+export function AccountActiveCardSkeleton() {
+  return (
+    <div className="w-full">
+      <div className={`${shimmer} relative overflow-hidden w-full rounded-2xl bg-white border border-gray-200 shadow-sm p-5 flex items-center justify-between gap-4`}>
+        <div className="space-y-2">
+          <div className="h-4 w-28 rounded-md bg-gray-200" />
+          <div className="h-5 w-24 rounded-md bg-gray-200" />
+        </div>
+        <div className="h-10 w-32 shrink-0 rounded-xl bg-gray-200" />
+      </div>
+    </div>
+  );
+}
+
 export default function LaundrySkeleton() {
   return (
     <div className="flex h-full w-full flex-col -mt-2">
@@ -63,7 +77,13 @@ export default function LaundrySkeleton() {
       <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0 mt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
           <LaundryCardSkeleton />
-          <QuickActionsSkeleton />
+          {/* Struktur sama dengan app/laundry/(overview)/page.tsx: portrait —
+              kartu masa aktif di bawah LaundryCard & di atas QuickActions;
+              landscape (md) — kartu masa aktif di atas QuickActions. */}
+          <div className="flex flex-col gap-6 justify-between">
+            <AccountActiveCardSkeleton />
+            <QuickActionsSkeleton />
+          </div>
         </div>
       </div>
     </div>

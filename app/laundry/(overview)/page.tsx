@@ -1,5 +1,6 @@
 import LaundryCard from "@/app/ui/laundry/laundrycards";
 import QuickActions from "@/app/ui/laundry/quick-actions";
+import AccountActiveCard from "@/app/ui/laundry/account-active-card";
 import InfoCarousel from "@/app/ui/laundry/info-carousel";
 import SelectToko from "@/app/ui/laundry/select-toko";
 import { fetchAccessibleToko, fetchRingkasanHariIni, fetchInfoIklanForCarousel } from "@/app/lib/data";
@@ -40,7 +41,13 @@ export default async function Page() {
             satuanPcs={ringkasan.satuanPcs}
             meteranM={ringkasan.meteranM}
           />
-          <QuickActions />
+          {/* Portrait (1 kolom): kartu masa aktif di bawah LaundryCard dan di
+              atas QuickActions. Landscape (md, 2 kolom): kedua kartu menyamping
+              — kartu masa aktif tetap di atas QuickActions pada kolom kanan. */}
+          <div className="flex flex-col gap-6 justify-between">
+            <AccountActiveCard />
+            <QuickActions />
+          </div>
         </div>
         <div className="mt-6">
           <InfoCarousel slides={carouselSlides} />
