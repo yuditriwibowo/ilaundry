@@ -115,6 +115,22 @@ export type AntarJemput = {
   update_by: string | null;
 };
 
+// Informasi & Iklan global (tabel info_iklan).
+// Berlaku lintas toko — tidak di-scope per selected_toko.
+// Kelola hanya oleh Administrator (lihat app/lib/auth.ts: canManageInfoIklan).
+export type InfoIklan = {
+  id: string;
+  title: string | null;
+  description: string | null;
+  image_src: string | null;
+  link: string | null;
+  start: string | null;
+  end: string | null;
+  created_at: string;
+  last_update: string | null;
+  update_by: string | null;
+};
+
 export type UserToko = {
   id: string;
   user_id: string;

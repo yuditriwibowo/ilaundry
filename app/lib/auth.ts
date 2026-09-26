@@ -137,3 +137,12 @@ export function canManageUserToko(ctx: SessionContext): boolean {
   if (ctx.isAdmin) return true;
   return ctx.peran === "Administrator" || ctx.peran === "Account_Owner";
 }
+
+/**
+ * Kelola Info & Iklan (tabel info_iklan): HANYA Administrator.
+ * Berbeda dengan master data lain: menu disembunyikan untuk non-Administrator
+ * dan datanya berlaku global (tidak di-scope per selected_toko).
+ */
+export function canManageInfoIklan(peran: Peran | null): boolean {
+  return peran === "Administrator";
+}

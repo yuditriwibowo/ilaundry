@@ -7,6 +7,7 @@ export * from "./toko";
 export * from "./durasi";
 export * from "./layanan";
 export * from "./parfum";
+export * from "./info-iklan";
 export * from "./diskon";
 export * from "./antar-jemput";
 export * from "./usertoko";

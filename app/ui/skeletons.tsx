@@ -280,6 +280,10 @@ export function ParfumTableSkeleton() {
   return <EntityTableSkeleton headers={["Nama Parfum"]} />;
 }
 
+export function InfoIklanTableSkeleton() {
+  return <EntityTableSkeleton headers={["Judul"]} />;
+}
+
 export function DiskonTableSkeleton() {
   return <EntityTableSkeleton headers={["Nama Diskon", "Tipe", "Nilai"]} />;
 }

@@ -2,7 +2,7 @@ import LaundryCard from "@/app/ui/laundry/laundrycards";
 import QuickActions from "@/app/ui/laundry/quick-actions";
 import InfoCarousel from "@/app/ui/laundry/info-carousel";
 import SelectToko from "@/app/ui/laundry/select-toko";
-import { fetchAccessibleToko, fetchRingkasanHariIni } from "@/app/lib/data";
+import { fetchAccessibleToko, fetchRingkasanHariIni, fetchInfoIklanForCarousel } from "@/app/lib/data";
 import { getSessionContext } from "@/app/lib/auth";
 import { CreateToko } from "@/app/ui/button";
 import YlaundryLogo from "@/app/ui/ylaundry-logo";
@@ -10,10 +10,11 @@ import YlaundryLogo from "@/app/ui/ylaundry-logo";
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const [ctx, ringkasan, stores] = await Promise.all([
+  const [ctx, ringkasan, stores, carouselSlides] = await Promise.all([
     getSessionContext(),
     fetchRingkasanHariIni(),
     fetchAccessibleToko(),
+    fetchInfoIklanForCarousel(),
   ]);
   const selectedToko = ctx.selectedTokoId;
 
@@ -42,7 +43,7 @@ export default async function Page() {
           <QuickActions />
         </div>
         <div className="mt-6">
-          <InfoCarousel />
+          <InfoCarousel slides={carouselSlides} />
         </div>
       </div>
     </div>

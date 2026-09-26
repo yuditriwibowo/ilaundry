@@ -12,6 +12,7 @@ export { verifyCredentials, registerAccount, signOutAction } from "./auth";
 export { createToko, updateToko, deleteToko, fetchMoreToko } from "./toko";
 export { createDurasi, updateDurasi, deleteDurasi, fetchMoreDurasi } from "./durasi";
 export { createParfum, updateParfum, deleteParfum, fetchMoreParfum } from "./parfum";
+export { createInfoIklan, updateInfoIklan, deleteInfoIklan, fetchMoreInfoIklan } from "./info-iklan";
 export { createDiskon, updateDiskon, deleteDiskon, fetchMoreDiskon } from "./diskon";
 export { createAntarJemput, updateAntarJemput, deleteAntarJemput, fetchMoreAntarJemput } from "./antar-jemput";
 export { createLayanan, updateLayanan, deleteLayanan, fetchMoreLayanan } from "./layanan";

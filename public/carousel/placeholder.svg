@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-label="Info dan Iklan">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d4ed8"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="400" fill="url(#bg)"/>
+  <circle cx="1100" cy="330" r="130" fill="#ffffff" opacity="0.08"/>
+  <circle cx="140" cy="60" r="100" fill="#ffffff" opacity="0.08"/>
+  <circle cx="980" cy="80" r="18" fill="#ffffff" opacity="0.25"/>
+  <g transform="translate(552 72) scale(4)" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
+    <path d="m3 11 18-5v12L3 14v-3z"/>
+    <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="600" y="255" font-size="58" font-weight="bold" fill="#ffffff">Info & Iklan</text>
+    <text x="600" y="320" font-size="34" fill="#dbeafe">Informasi terbaru dari kami</text>
+  </g>
+</svg>

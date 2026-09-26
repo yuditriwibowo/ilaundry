@@ -16,10 +16,18 @@ import {
     Users, 
     FileText,
     SunMoon,
+    Megaphone,
     type LucideIcon,
 } from "lucide-react";
 
-const menuItems = [
+const menuItems: {
+    title: string;
+    description: string;
+    icon: LucideIcon;
+    href: string;
+    // Hanya tampil untuk user dengan peran Administrator.
+    adminOnly?: boolean;
+}[] = [
     {
         title: "Pengaturan Akun",
         description: "Ubah password akun anda",
@@ -67,6 +75,13 @@ const menuItems = [
         description: "Atur, tambah, ubah, hapus user toko",
         icon: UserCog,
         href: "/laundry/pengaturan/usertoko",
+    },
+    {
+        title: "Pengaturan Info & Iklan",
+        description: "Kelola info dan iklan global (Administrator)",
+        icon: Megaphone,
+        href: "/laundry/pengaturan/info-iklan",
+        adminOnly: true,
     },
     {
         title: "Pengaturan Pelanggan",
@@ -119,6 +134,12 @@ export default async function Page() {
     const stores = await fetchAccessibleToko();
     const selectedToko = ctx.selectedTokoId;
 
+    // Info & Iklan (adminOnly) hanya tampil untuk user dengan peran Administrator.
+    // Menu pengaturan lain tetap tampil untuk semua role.
+    const visibleMenuItems = menuItems.filter(
+        (item) => !item.adminOnly || ctx.peran === "Administrator",
+    );
+
     return (
         <div className="w-full pb-4 md:pb-10">
             {/* Header halaman: sticky gradient di mobile portrait, statis di landscape/desktop */}
@@ -158,7 +179,7 @@ export default async function Page() {
                         Menu Pengaturan
                     </legend>
                     <div className="divide-y divide-gray-100">
-                        {menuItems.map((item, index) => (
+                        {visibleMenuItems.map((item, index) => (
                             <MenuLink
                                 key={index}
                                 icon={item.icon}
@@ -194,7 +215,7 @@ export default async function Page() {
                             Menu Pengaturan
                         </legend>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6">
-                            {menuItems.map((item, index) => (
+                            {visibleMenuItems.map((item, index) => (
                                 <MenuLink
                                     key={index}
                                     icon={item.icon}
