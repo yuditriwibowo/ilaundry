@@ -6,7 +6,13 @@ import { UserTokoDetail } from '@/app/lib/definitions';
 import { formatDateTimeToLocal } from '@/app/lib/utils';
 import { Users, MailIcon } from 'lucide-react';
 
-export default function UserTokoDetailView({ userToko }: { userToko: UserTokoDetail }) {
+export default function UserTokoDetailView({
+  userToko,
+  canManage = true,
+}: {
+  userToko: UserTokoDetail;
+  canManage?: boolean;
+}) {
   const router = useRouter();
 
   return (
@@ -27,13 +33,15 @@ export default function UserTokoDetailView({ userToko }: { userToko: UserTokoDet
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 gap-2">
-            <UpdateUserToko id={userToko.id} />
-            <DeleteUserToko
-              id={userToko.id}
-              onDeleteAction={() => router.push('/laundry/pengaturan/usertoko')}
-            />
-          </div>
+          {canManage && (
+            <div className="flex shrink-0 gap-2">
+              <UpdateUserToko id={userToko.id} />
+              <DeleteUserToko
+                id={userToko.id}
+                onDeleteAction={() => router.push('/laundry/pengaturan/usertoko')}
+              />
+            </div>
+          )}
         </div>
       </div>
 

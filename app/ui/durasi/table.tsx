@@ -7,10 +7,12 @@ export default async function DurasiTable({
   query,
   currentPage,
   totalPages,
+  canManage = true,
 }: {
   query: string;
   currentPage: number;
   totalPages: number;
+  canManage?: boolean;
 }) {
   const durasiList = await fetchFilteredDurasi(query, currentPage);
 
@@ -24,11 +26,12 @@ export default async function DurasiTable({
           initialDurasi={durasiList}
           query={query}
           totalPages={totalPages}
+          canManage={canManage}
         />
       }
     >
       {durasiList?.map((durasi) => (
-        <DurasiTableRow key={durasi.id} durasi={durasi} />
+        <DurasiTableRow key={durasi.id} durasi={durasi} canManage={canManage} />
       ))}
     </TableShell>
   );

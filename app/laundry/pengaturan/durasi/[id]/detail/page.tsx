@@ -1,6 +1,7 @@
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 import DurasiDetailView from '@/app/ui/durasi/detail-view';
 import { fetchDurasiById } from '@/app/lib/data';
+import { getSessionContext, canManageMasterData } from '@/app/lib/auth';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
@@ -9,7 +10,11 @@ export const metadata: Metadata = {
 };
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
+  const [ctx, params] = await Promise.all([
+    getSessionContext(),
+    props.params,
+  ]);
+  const canManage = canManageMasterData(ctx.peran);
   const id = params.id;
   const durasi = await fetchDurasiById(id);
 
@@ -31,7 +36,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           ]}
         />
       </div>
-      <DurasiDetailView durasi={durasi} />
+      <DurasiDetailView durasi={durasi} canManage={canManage} />
     </main>
   );
 }

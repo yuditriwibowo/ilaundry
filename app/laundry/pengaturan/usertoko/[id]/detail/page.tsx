@@ -1,6 +1,7 @@
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 import UserTokoDetailView from '@/app/ui/usertoko/detail-view';
 import { fetchUserTokoById } from '@/app/lib/data';
+import { getSessionContext, canManageUserToko } from '@/app/lib/auth';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
@@ -9,7 +10,11 @@ export const metadata: Metadata = {
 };
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
+  const [ctx, params] = await Promise.all([
+    getSessionContext(),
+    props.params,
+  ]);
+  const canManage = canManageUserToko(ctx);
   const id = params.id;
   const userToko = await fetchUserTokoById(id);
 
@@ -31,7 +36,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           ]}
         />
       </div>
-      <UserTokoDetailView userToko={userToko} />
+      <UserTokoDetailView userToko={userToko} canManage={canManage} />
     </main>
   );
 }

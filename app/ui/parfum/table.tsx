@@ -7,10 +7,12 @@ export default async function ParfumTable({
   query,
   currentPage,
   totalPages,
+  canManage = true,
 }: {
   query: string;
   currentPage: number;
   totalPages: number;
+  canManage?: boolean;
 }) {
   const parfumList = await fetchFilteredParfum(query, currentPage);
 
@@ -24,11 +26,12 @@ export default async function ParfumTable({
           initialParfum={parfumList}
           query={query}
           totalPages={totalPages}
+          canManage={canManage}
         />
       }
     >
       {parfumList?.map((parfum) => (
-        <ParfumTableRow key={parfum.id} parfum={parfum} />
+        <ParfumTableRow key={parfum.id} parfum={parfum} canManage={canManage} />
       ))}
     </TableShell>
   );

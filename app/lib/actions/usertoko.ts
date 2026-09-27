@@ -124,7 +124,7 @@ async function insertUserTokoForExistingUser(
 
 export async function createUserToko(prevState: State, formData: FormData): Promise<State> {
   const ctx = await getSessionContext();
-  // Otorisasi: kelola user toko hanya Administrator & Account_Owner.
+  // Otorisasi: kelola user toko hanya Administrator & Account_Owner atau Manager.
   if (!canManageUserToko(ctx)) {
     return {
       message: "Anda tidak memiliki hak akses untuk mengelola user toko.",
@@ -258,7 +258,7 @@ export async function createUserToko(prevState: State, formData: FormData): Prom
 
 export async function updateUserToko(id: string, prevState: State, formData: FormData) {
   const ctx = await getSessionContext();
-  // Otorisasi: kelola user toko hanya Administrator & Account_Owner.
+  // Otorisasi: kelola user toko hanya Administrator & Account_Owner atau Manager.
   if (!canManageUserToko(ctx)) {
     return {
       message: "Anda tidak memiliki hak akses untuk mengelola user toko.",
@@ -303,7 +303,7 @@ export async function updateUserToko(id: string, prevState: State, formData: For
 
 export async function deleteUserToko(id: string) {
   const ctx = await getSessionContext();
-  // Otorisasi: kelola user toko hanya Administrator & Account_Owner.
+  // Otorisasi: kelola user toko hanya Administrator & Account_Owner atau Manager.
   if (!canManageUserToko(ctx)) {
     throw new Error("Anda tidak memiliki hak akses untuk mengelola user toko.");
   }

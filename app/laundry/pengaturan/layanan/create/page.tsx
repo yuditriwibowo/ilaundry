@@ -1,8 +1,15 @@
 import Form from "@/app/ui/layanan/create-form";
 import Breadcrumbs from "@/app/ui/breadcrumbs";
 import { fetchTipeLayanan, fetchDurasiForFilter } from "@/app/lib/data";
+import { getSessionContext, canManageMasterData } from "@/app/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function Page() {
+  const ctx = await getSessionContext();
+  if (!canManageMasterData(ctx.peran)) {
+    redirect("/laundry/pengaturan/layanan");
+  }
+
   const [optionsTipe, optionsDurasi] = await Promise.all([
     fetchTipeLayanan(),
     fetchDurasiForFilter(),

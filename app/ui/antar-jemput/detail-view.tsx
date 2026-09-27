@@ -9,7 +9,13 @@ import DetailLayout from '@/app/ui/shared/detail-layout';
 
 const BASE = '/laundry/pengaturan/antar-jemput';
 
-export default function AntarJemputDetailView({ antarJemput }: { antarJemput: AntarJemput }) {
+export default function AntarJemputDetailView({
+  antarJemput,
+  canManage = true,
+}: {
+  antarJemput: AntarJemput;
+  canManage?: boolean;
+}) {
   const router = useRouter();
 
   return (
@@ -20,13 +26,15 @@ export default function AntarJemputDetailView({ antarJemput }: { antarJemput: An
         antarJemput.last_update ? formatDateTimeToLocal(antarJemput.last_update) : '-'
       }
       actions={
-        <>
-          <UpdateAntarJemput id={antarJemput.id} />
-          <DeleteAntarJemput
-            id={antarJemput.id}
-            onDeleteAction={() => router.push(BASE)}
-          />
-        </>
+        canManage ? (
+          <>
+            <UpdateAntarJemput id={antarJemput.id} />
+            <DeleteAntarJemput
+              id={antarJemput.id}
+              onDeleteAction={() => router.push(BASE)}
+            />
+          </>
+        ) : null
       }
       sectionTitle="Informasi Antar-Jemput"
       fields={[

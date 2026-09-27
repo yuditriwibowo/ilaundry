@@ -4,6 +4,7 @@ import Table from "@/app/ui/layanan/table";
 import LayananFilters from "@/app/ui/layanan/filters";
 import { CreateLayanan } from "@/app/ui/layanan/buttons";
 import { fetchLayananPages, fetchTipeLayanan, fetchDurasiForFilter } from "@/app/lib/data";
+import { getSessionContext, canManageMasterData } from "@/app/lib/auth";
 import { Suspense } from "react";
 import { LayananTableSkeleton } from "@/app/ui/skeletons";
 
@@ -15,7 +16,11 @@ export default async function Page(props: {
     durasi?: string;
   }>;
 }) {
-  const searchParams = await props.searchParams;
+  const [ctx, searchParams] = await Promise.all([
+    getSessionContext(),
+    props.searchParams,
+  ]);
+  const canManage = canManageMasterData(ctx.peran);
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
   const tipe = searchParams?.tipe || "";
@@ -37,7 +42,7 @@ export default async function Page(props: {
             </div>
             <div className="mt-4 flex items-center justify-between gap-2 md:mt-6 short-screen:mt-2">
               <Search placeholder="Cari Layanan..." />
-              <CreateLayanan />
+              {canManage && <CreateLayanan />}
             </div>
           </div>
           {/* Filters tetap sticky (berada di dalam wrapper sticky), bg solid agar konten tidak tembus di belakangnya.
@@ -55,6 +60,7 @@ export default async function Page(props: {
                 tipeId={tipe}
                 durasiNama={durasi}
                 totalPages={totalPages}
+                canManage={canManage}
               />
             </Suspense>
             <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">

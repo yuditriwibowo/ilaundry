@@ -9,7 +9,13 @@ import DetailLayout from '@/app/ui/shared/detail-layout';
 
 const BASE = '/laundry/pengaturan/diskon';
 
-export default function DiskonDetailView({ diskon }: { diskon: Diskon }) {
+export default function DiskonDetailView({
+  diskon,
+  canManage = true,
+}: {
+  diskon: Diskon;
+  canManage?: boolean;
+}) {
   const router = useRouter();
 
   return (
@@ -20,13 +26,15 @@ export default function DiskonDetailView({ diskon }: { diskon: Diskon }) {
         diskon.last_update ? formatDateTimeToLocal(diskon.last_update) : '-'
       }
       actions={
-        <>
-          <UpdateDiskon id={diskon.id} />
-          <DeleteDiskon
-            id={diskon.id}
-            onDeleteAction={() => router.push(BASE)}
-          />
-        </>
+        canManage ? (
+          <>
+            <UpdateDiskon id={diskon.id} />
+            <DeleteDiskon
+              id={diskon.id}
+              onDeleteAction={() => router.push(BASE)}
+            />
+          </>
+        ) : null
       }
       sectionTitle="Informasi Diskon"
       fields={[

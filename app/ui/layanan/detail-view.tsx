@@ -9,7 +9,13 @@ import DetailLayout from '@/app/ui/shared/detail-layout';
 
 const BASE = '/laundry/pengaturan/layanan';
 
-export default function LayananDetailView({ layanan }: { layanan: DetailLayanan }) {
+export default function LayananDetailView({
+  layanan,
+  canManage = true,
+}: {
+  layanan: DetailLayanan;
+  canManage?: boolean;
+}) {
   const router = useRouter();
 
   return (
@@ -20,13 +26,15 @@ export default function LayananDetailView({ layanan }: { layanan: DetailLayanan 
         layanan.last_update ? formatDateTimeToLocal(layanan.last_update) : '-'
       }
       actions={
-        <>
-          <UpdateLayanan id={layanan.id} />
-          <DeleteLayanan
-            id={layanan.id}
-            onDeleteAction={() => router.push(BASE)}
-          />
-        </>
+        canManage ? (
+          <>
+            <UpdateLayanan id={layanan.id} />
+            <DeleteLayanan
+              id={layanan.id}
+              onDeleteAction={() => router.push(BASE)}
+            />
+          </>
+        ) : null
       }
       sectionTitle="Informasi Layanan"
       fields={[

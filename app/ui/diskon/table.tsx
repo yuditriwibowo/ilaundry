@@ -7,10 +7,12 @@ export default async function DiskonTable({
   query,
   currentPage,
   totalPages,
+  canManage = true,
 }: {
   query: string;
   currentPage: number;
   totalPages: number;
+  canManage?: boolean;
 }) {
   const diskonList = await fetchFilteredDiskon(query, currentPage);
 
@@ -24,11 +26,12 @@ export default async function DiskonTable({
           initialDiskon={diskonList}
           query={query}
           totalPages={totalPages}
+          canManage={canManage}
         />
       }
     >
       {diskonList?.map((diskon) => (
-        <DiskonTableRow key={diskon.id} diskon={diskon} />
+        <DiskonTableRow key={diskon.id} diskon={diskon} canManage={canManage} />
       ))}
     </TableShell>
   );

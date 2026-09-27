@@ -8,15 +8,23 @@ import { EntityTableRow, EntityNameCell } from "@/app/ui/shared/entity-card";
 
 const BASE = "/laundry/pengaturan/antar-jemput";
 
-export default function AntarJemputTableRow({ antarJemput }: { antarJemput: AntarJemput }) {
+export default function AntarJemputTableRow({
+  antarJemput,
+  canManage = true,
+}: {
+  antarJemput: AntarJemput;
+  canManage?: boolean;
+}) {
   return (
     <EntityTableRow
       detailHref={`${BASE}/${antarJemput.id}/detail`}
       actions={
-        <>
-          <UpdateAntarJemput id={antarJemput.id} />
-          <DeleteAntarJemput id={antarJemput.id} />
-        </>
+        canManage ? (
+          <>
+            <UpdateAntarJemput id={antarJemput.id} />
+            <DeleteAntarJemput id={antarJemput.id} />
+          </>
+        ) : null
       }
     >
       <EntityNameCell icon={Truck} name={antarJemput.nama_antar_jemput} />

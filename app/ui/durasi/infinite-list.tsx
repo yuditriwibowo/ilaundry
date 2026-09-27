@@ -13,10 +13,12 @@ export default function InfiniteList({
   initialDurasi,
   query,
   totalPages,
+  canManage = true,
 }: {
   initialDurasi: Durasi[];
   query: string;
   totalPages: number;
+  canManage?: boolean;
 }) {
   return (
     <SharedInfiniteList
@@ -37,10 +39,12 @@ export default function InfiniteList({
             </>
           }
           actions={
-            <>
-              <UpdateDurasi id={durasi.id} />
-              <DeleteDurasi id={durasi.id} onDeleteAction={remove} />
-            </>
+            canManage ? (
+              <>
+                <UpdateDurasi id={durasi.id} />
+                <DeleteDurasi id={durasi.id} onDeleteAction={remove} />
+              </>
+            ) : null
           }
         />
       )}

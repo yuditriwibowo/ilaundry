@@ -13,10 +13,12 @@ export default function InfiniteList({
   initialParfum,
   query,
   totalPages,
+  canManage = true,
 }: {
   initialParfum: Parfum[];
   query: string;
   totalPages: number;
+  canManage?: boolean;
 }) {
   return (
     <SharedInfiniteList
@@ -32,10 +34,12 @@ export default function InfiniteList({
           icon={Droplets}
           title={parfum.nama_parfum}
           actions={
-            <>
-              <UpdateParfum id={parfum.id} />
-              <DeleteParfum id={parfum.id} onDeleteAction={remove} />
-            </>
+            canManage ? (
+              <>
+                <UpdateParfum id={parfum.id} />
+                <DeleteParfum id={parfum.id} onDeleteAction={remove} />
+              </>
+            ) : null
           }
         />
       )}

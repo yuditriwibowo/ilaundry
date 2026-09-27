@@ -118,9 +118,14 @@ const MANAGE_MASTER_PERANS: Peran[] = [
   "Manager",
 ];
 
-/** CRUD master data (durasi, layanan, parfum, diskon, antar-jemput, toko). */
+/** CRUD master data (durasi, layanan, parfum, diskon, antar-jemput). */
 export function canManageMasterData(peran: Peran | null): boolean {
   return peran !== null && MANAGE_MASTER_PERANS.includes(peran);
+}
+
+/** CRUD master toko (update, delete): HANYA Administrator & Account_Owner. */
+export function canManageToko(peran: Peran | null): boolean {
+  return peran === "Administrator" || peran === "Account_Owner";
 }
 
 /**
@@ -135,7 +140,11 @@ export function canCreateToko(ctx: SessionContext): boolean {
 /** Kelola user-toko (assign/edit/hapus user pada toko aktif). */
 export function canManageUserToko(ctx: SessionContext): boolean {
   if (ctx.isAdmin) return true;
-  return ctx.peran === "Administrator" || ctx.peran === "Account_Owner";
+  return (
+    ctx.peran === "Administrator" ||
+    ctx.peran === "Account_Owner" ||
+    ctx.peran === "Manager"
+  );
 }
 
 /**

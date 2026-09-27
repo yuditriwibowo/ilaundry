@@ -8,15 +8,23 @@ import { EntityTableRow, EntityNameCell } from "@/app/ui/shared/entity-card";
 
 const BASE = "/laundry/pengaturan/diskon";
 
-export default function DiskonTableRow({ diskon }: { diskon: Diskon }) {
+export default function DiskonTableRow({
+  diskon,
+  canManage = true,
+}: {
+  diskon: Diskon;
+  canManage?: boolean;
+}) {
   return (
     <EntityTableRow
       detailHref={`${BASE}/${diskon.id}/detail`}
       actions={
-        <>
-          <UpdateDiskon id={diskon.id} />
-          <DeleteDiskon id={diskon.id} />
-        </>
+        canManage ? (
+          <>
+            <UpdateDiskon id={diskon.id} />
+            <DeleteDiskon id={diskon.id} />
+          </>
+        ) : null
       }
     >
       <EntityNameCell icon={TicketIcon} name={diskon.nama_diskon} />

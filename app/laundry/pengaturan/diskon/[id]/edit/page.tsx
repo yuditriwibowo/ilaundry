@@ -1,9 +1,15 @@
 import EditDiskonForm from '@/app/ui/diskon/edit-form';
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 import { fetchDiskonById } from '@/app/lib/data';
-import { notFound } from 'next/navigation';
+import { getSessionContext, canManageMasterData } from '@/app/lib/auth';
+import { notFound, redirect } from 'next/navigation';
 
 export default async function Page(props: {params: Promise<{id: string}>}) {
+    const ctx = await getSessionContext();
+    if (!canManageMasterData(ctx.peran)) {
+      redirect("/laundry/pengaturan/diskon");
+    }
+
     const params = await props.params;
     const id = params.id;
     const diskon = await fetchDiskonById(id);

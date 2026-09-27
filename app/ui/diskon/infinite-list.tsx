@@ -14,10 +14,12 @@ export default function InfiniteList({
   initialDiskon,
   query,
   totalPages,
+  canManage = true,
 }: {
   initialDiskon: Diskon[];
   query: string;
   totalPages: number;
+  canManage?: boolean;
 }) {
   return (
     <SharedInfiniteList
@@ -44,10 +46,12 @@ export default function InfiniteList({
             </>
           }
           actions={
-            <>
-              <UpdateDiskon id={diskon.id} />
-              <DeleteDiskon id={diskon.id} onDeleteAction={remove} />
-            </>
+            canManage ? (
+              <>
+                <UpdateDiskon id={diskon.id} />
+                <DeleteDiskon id={diskon.id} onDeleteAction={remove} />
+              </>
+            ) : null
           }
         />
       )}

@@ -13,10 +13,12 @@ export default function InfiniteList({
   initialToko,
   query,
   totalPages,
+  canManage = true,
 }: {
   initialToko: Toko[];
   query: string;
   totalPages: number;
+  canManage?: boolean;
 }) {
   const [tokoList, setTokoList] = useState<Toko[]>(initialToko);
   const [page, setPage] = useState(1);
@@ -87,13 +89,15 @@ export default function InfiniteList({
                     <p className="truncate text-gray-500">{toko.alamat_toko || "-"}</p>
                   </div>
                 </div>
-                <div
-                  className="flex shrink-0 gap-2"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <UpdateToko id={toko.id} />
-                  <DeleteToko id={toko.id} onDeleteAction={handleDelete} />
-                </div>
+                {canManage && (
+                  <div
+                    className="flex shrink-0 gap-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <UpdateToko id={toko.id} />
+                    <DeleteToko id={toko.id} onDeleteAction={handleDelete} />
+                  </div>
+                )}
               </div>
             </div>
           ))}

@@ -7,10 +7,12 @@ export default async function AntarJemputTable({
   query,
   currentPage,
   totalPages,
+  canManage = true,
 }: {
   query: string;
   currentPage: number;
   totalPages: number;
+  canManage?: boolean;
 }) {
   const antarJemputList = await fetchFilteredAntarJemput(query, currentPage);
 
@@ -24,11 +26,12 @@ export default async function AntarJemputTable({
           initialAntarJemput={antarJemputList}
           query={query}
           totalPages={totalPages}
+          canManage={canManage}
         />
       }
     >
       {antarJemputList?.map((antarJemput) => (
-        <AntarJemputTableRow key={antarJemput.id} antarJemput={antarJemput} />
+        <AntarJemputTableRow key={antarJemput.id} antarJemput={antarJemput} canManage={canManage} />
       ))}
     </TableShell>
   );

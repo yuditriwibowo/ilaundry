@@ -9,7 +9,13 @@ import DetailLayout from '@/app/ui/shared/detail-layout';
 
 const BASE = '/laundry/pengaturan/durasi';
 
-export default function DurasiDetailView({ durasi }: { durasi: Durasi }) {
+export default function DurasiDetailView({
+  durasi,
+  canManage = true,
+}: {
+  durasi: Durasi;
+  canManage?: boolean;
+}) {
   const router = useRouter();
 
   return (
@@ -20,13 +26,15 @@ export default function DurasiDetailView({ durasi }: { durasi: Durasi }) {
         durasi.last_update ? formatDateTimeToLocal(durasi.last_update) : '-'
       }
       actions={
-        <>
-          <UpdateDurasi id={durasi.id} />
-          <DeleteDurasi
-            id={durasi.id}
-            onDeleteAction={() => router.push(BASE)}
-          />
-        </>
+        canManage ? (
+          <>
+            <UpdateDurasi id={durasi.id} />
+            <DeleteDurasi
+              id={durasi.id}
+              onDeleteAction={() => router.push(BASE)}
+            />
+          </>
+        ) : null
       }
       sectionTitle="Informasi Durasi"
       fields={[

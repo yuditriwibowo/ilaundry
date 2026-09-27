@@ -9,12 +9,14 @@ export default async function LayananTable({
   tipeId,
   durasiNama,
   totalPages,
+  canManage = true,
 }: {
   query: string;
   currentPage: number;
   tipeId?: string;
   durasiNama?: string;
   totalPages: number;
+  canManage?: boolean;
 }) {
   const layananList = await fetchFilteredLayanan(query, currentPage, tipeId, durasiNama);
 
@@ -28,11 +30,12 @@ export default async function LayananTable({
           initialLayanan={layananList}
           query={query}
           totalPages={totalPages}
+          canManage={canManage}
         />
       }
     >
       {layananList?.map((layanan) => (
-        <LayananTableRow key={layanan.id} layanan={layanan} />
+        <LayananTableRow key={layanan.id} layanan={layanan} canManage={canManage} />
       ))}
     </TableShell>
   );

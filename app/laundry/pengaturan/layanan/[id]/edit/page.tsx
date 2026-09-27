@@ -5,9 +5,15 @@ import {
   fetchTipeLayanan,
   fetchDurasiForFilter,
 } from "@/app/lib/data";
-import { notFound } from "next/navigation";
+import { getSessionContext, canManageMasterData } from "@/app/lib/auth";
+import { notFound, redirect } from "next/navigation";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
+  const ctx = await getSessionContext();
+  if (!canManageMasterData(ctx.peran)) {
+    redirect("/laundry/pengaturan/layanan");
+  }
+
   const params = await props.params;
   const id = params.id;
   const [layanan, optionsTipe, optionsDurasi] = await Promise.all([

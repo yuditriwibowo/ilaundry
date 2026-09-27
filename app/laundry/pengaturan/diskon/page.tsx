@@ -5,6 +5,7 @@ import { CreateDiskon } from "@/app/ui/diskon/buttons";
 import { DiskonTableSkeleton } from "@/app/ui/skeletons";
 import { Suspense } from "react";
 import { fetchDiskonPages } from "@/app/lib/data";
+import { getSessionContext, canManageMasterData } from "@/app/lib/auth";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -12,7 +13,11 @@ export default async function Page(props: {
     page?: string;
   }>;
 }) {
-  const searchParams = await props.searchParams;
+  const [ctx, searchParams] = await Promise.all([
+    getSessionContext(),
+    props.searchParams,
+  ]);
+  const canManage = canManageMasterData(ctx.peran);
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
   const totalPages = await fetchDiskonPages(query);
@@ -25,12 +30,12 @@ export default async function Page(props: {
            </div>
            <div className="mt-4 flex items-center justify-between gap-2 md:mt-6 short-screen:mt-2">
               <Search placeholder="Cari Diskon..." />
-              <CreateDiskon />
+              {canManage && <CreateDiskon />}
            </div>
           </div>
           <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar">
             <Suspense key={query + currentPage} fallback={<DiskonTableSkeleton />}>
-              <Table query={query} currentPage={currentPage} totalPages={totalPages} />
+              <Table query={query} currentPage={currentPage} totalPages={totalPages} canManage={canManage} />
             </Suspense>
             <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">
               <Pagination totalPages={totalPages} />

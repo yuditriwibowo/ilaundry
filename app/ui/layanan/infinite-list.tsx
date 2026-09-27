@@ -14,10 +14,12 @@ export default function InfiniteList({
   initialLayanan,
   query,
   totalPages,
+  canManage = true,
 }: {
   initialLayanan: TabelLayanan[];
   query: string;
   totalPages: number;
+  canManage?: boolean;
 }) {
   return (
     <SharedInfiniteList
@@ -43,10 +45,12 @@ export default function InfiniteList({
             </>
           }
           actions={
-            <>
-              <UpdateLayanan id={layanan.id} />
-              <DeleteLayanan id={layanan.id} onDeleteAction={remove} />
-            </>
+            canManage ? (
+              <>
+                <UpdateLayanan id={layanan.id} />
+                <DeleteLayanan id={layanan.id} onDeleteAction={remove} />
+              </>
+            ) : null
           }
         />
       )}

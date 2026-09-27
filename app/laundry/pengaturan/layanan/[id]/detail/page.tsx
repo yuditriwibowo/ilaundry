@@ -1,6 +1,7 @@
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 import LayananDetailView from '@/app/ui/layanan/detail-view';
 import { fetchLayananDetailById } from '@/app/lib/data';
+import { getSessionContext, canManageMasterData } from '@/app/lib/auth';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
@@ -9,7 +10,11 @@ export const metadata: Metadata = {
 };
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
+  const [ctx, params] = await Promise.all([
+    getSessionContext(),
+    props.params,
+  ]);
+  const canManage = canManageMasterData(ctx.peran);
   const id = params.id;
   const layanan = await fetchLayananDetailById(id);
 
@@ -31,7 +36,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           ]}
         />
       </div>
-      <LayananDetailView layanan={layanan} />
+      <LayananDetailView layanan={layanan} canManage={canManage} />
     </main>
   );
 }

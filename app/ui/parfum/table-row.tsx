@@ -7,15 +7,23 @@ import { EntityTableRow, EntityNameCell } from "@/app/ui/shared/entity-card";
 
 const BASE = "/laundry/pengaturan/parfum";
 
-export default function ParfumTableRow({ parfum }: { parfum: Parfum }) {
+export default function ParfumTableRow({
+  parfum,
+  canManage = true,
+}: {
+  parfum: Parfum;
+  canManage?: boolean;
+}) {
   return (
     <EntityTableRow
       detailHref={`${BASE}/${parfum.id}/detail`}
       actions={
-        <>
-          <UpdateParfum id={parfum.id} />
-          <DeleteParfum id={parfum.id} />
-        </>
+        canManage ? (
+          <>
+            <UpdateParfum id={parfum.id} />
+            <DeleteParfum id={parfum.id} />
+          </>
+        ) : null
       }
     >
       <EntityNameCell icon={Droplets} name={parfum.nama_parfum} />

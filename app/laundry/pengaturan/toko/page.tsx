@@ -5,6 +5,7 @@ import { CreateToko } from "@/app/ui/toko/buttons";
 import { TokoTableSkeleton } from "@/app/ui/skeletons";
 import { Suspense } from "react";
 import { fetchTokoPages } from "@/app/lib/data";
+import { getSessionContext, canManageToko, canCreateToko } from "@/app/lib/auth";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -12,7 +13,14 @@ export default async function Page(props: {
     page?: string;
   }>;
 }) {
-  const searchParams = await props.searchParams;
+  const [ctx, searchParams] = await Promise.all([
+    getSessionContext(),
+    props.searchParams,
+  ]);
+  // Pengaturan Toko: CRUD (create, update, delete) HANYA untuk
+  // Administrator & Account_Owner.
+  const canManage = canManageToko(ctx.peran);
+  const canCreate = canCreateToko(ctx);
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
   const totalPages = await fetchTokoPages(query);
@@ -24,12 +32,12 @@ export default async function Page(props: {
            </div>
            <div className="mt-4 flex items-center justify-between gap-2 md:mt-6 short-screen:mt-2">
              <Search placeholder="Cari Toko..." />
-             <CreateToko />
+             {canCreate && <CreateToko />}
            </div>
          </div>
          <div className="flex-1 overflow-y-auto min-h-0 portrait:scrollbar-hide portrait-no-scrollbar">
            <Suspense key={query + currentPage} fallback={<TokoTableSkeleton />}>
-             <Table query={query} currentPage={currentPage} totalPages={totalPages} />
+             <Table query={query} currentPage={currentPage} totalPages={totalPages} canManage={canManage} />
            </Suspense>
            <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">
              <Pagination totalPages={totalPages} />

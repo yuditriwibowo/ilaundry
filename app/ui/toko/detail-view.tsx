@@ -6,7 +6,13 @@ import { Toko } from '@/app/lib/definitions';
 import { formatDateTimeToLocal } from '@/app/lib/utils';
 import { BuildingStorefrontIcon, PhoneIcon, HomeIcon, ClockIcon } from '@heroicons/react/24/outline';
 
-export default function TokoDetailView({ toko }: { toko: Toko }) {
+export default function TokoDetailView({
+  toko,
+  canManage = true,
+}: {
+  toko: Toko;
+  canManage?: boolean;
+}) {
   const router = useRouter();
 
   return (
@@ -28,13 +34,15 @@ export default function TokoDetailView({ toko }: { toko: Toko }) {
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 gap-2">
-            <UpdateToko id={toko.id} />
-            <DeleteToko
-              id={toko.id}
-              onDeleteAction={() => router.push('/laundry/pengaturan/toko')}
-            />
-          </div>
+          {canManage && (
+            <div className="flex shrink-0 gap-2">
+              <UpdateToko id={toko.id} />
+              <DeleteToko
+                id={toko.id}
+                onDeleteAction={() => router.push('/laundry/pengaturan/toko')}
+              />
+            </div>
+          )}
         </div>
       </div>
 

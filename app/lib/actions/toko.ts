@@ -8,7 +8,7 @@ import {
   getCurrentUser,
   getSessionContext,
   canCreateToko,
-  canManageMasterData,
+  canManageToko,
 } from "../auth";
 import { fetchFilteredToko } from "../data/toko";
 import type { State } from "./types";
@@ -91,11 +91,11 @@ export async function createToko(prevState: State, formData: FormData) {
 
 export async function updateToko(id: string, prevState: State, formData: FormData) {
   const user = await getCurrentUser();
-  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
-  if (!canManageMasterData(user.peran)) {
+  // Otorisasi: fungsi pengaturan toko hanya Administrator & Account_Owner.
+  if (!canManageToko(user.peran)) {
     return {
       message:
-        "Anda tidak memiliki hak akses untuk mengubah data pengaturan.",
+        "Anda tidak memiliki hak akses untuk mengubah data pengaturan toko.",
     };
   }
 
@@ -134,10 +134,10 @@ export async function updateToko(id: string, prevState: State, formData: FormDat
 
 export async function deleteToko(id: string) {
   const user = await getCurrentUser();
-  // Otorisasi: fungsi pengaturan ditolak untuk Pegawai.
-  if (!canManageMasterData(user.peran)) {
+  // Otorisasi: fungsi pengaturan toko hanya Administrator & Account_Owner.
+  if (!canManageToko(user.peran)) {
     throw new Error(
-      "Anda tidak memiliki hak akses untuk menghapus data pengaturan.",
+      "Anda tidak memiliki hak akses untuk menghapus data pengaturan toko.",
     );
   }
   try {

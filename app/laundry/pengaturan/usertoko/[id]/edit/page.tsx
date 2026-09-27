@@ -1,9 +1,15 @@
 import EditUserTokoForm from '@/app/ui/usertoko/edit-form';
 import Breadcrumbs from '@/app/ui/breadcrumbs';
 import { fetchUserTokoById } from '@/app/lib/data';
-import { notFound } from 'next/navigation';
+import { getSessionContext, canManageUserToko } from '@/app/lib/auth';
+import { notFound, redirect } from 'next/navigation';
 
 export default async function Page(props: {params: Promise<{id: string}>}) {
+    const ctx = await getSessionContext();
+    if (!canManageUserToko(ctx)) {
+      redirect("/laundry/pengaturan/usertoko");
+    }
+
     const params = await props.params;
     const id = params.id;
     const userToko = await fetchUserTokoById(id);

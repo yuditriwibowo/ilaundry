@@ -7,15 +7,23 @@ import { EntityTableRow, EntityNameCell } from "@/app/ui/shared/entity-card";
 
 const BASE = "/laundry/pengaturan/layanan";
 
-export default function LayananTableRow({ layanan }: { layanan: TabelLayanan }) {
+export default function LayananTableRow({
+  layanan,
+  canManage = true,
+}: {
+  layanan: TabelLayanan;
+  canManage?: boolean;
+}) {
   return (
     <EntityTableRow
       detailHref={`${BASE}/${layanan.id}/detail`}
       actions={
-        <>
-          <UpdateLayanan id={layanan.id} />
-          <DeleteLayanan id={layanan.id} />
-        </>
+        canManage ? (
+          <>
+            <UpdateLayanan id={layanan.id} />
+            <DeleteLayanan id={layanan.id} />
+          </>
+        ) : null
       }
     >
       <EntityNameCell icon={PackageIcon} name={layanan.nama_layanan} />

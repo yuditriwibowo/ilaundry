@@ -7,15 +7,23 @@ import { EntityTableRow, EntityNameCell } from "@/app/ui/shared/entity-card";
 
 const BASE = "/laundry/pengaturan/durasi";
 
-export default function DurasiTableRow({ durasi }: { durasi: Durasi }) {
+export default function DurasiTableRow({
+  durasi,
+  canManage = true,
+}: {
+  durasi: Durasi;
+  canManage?: boolean;
+}) {
   return (
     <EntityTableRow
       detailHref={`${BASE}/${durasi.id}/detail`}
       actions={
-        <>
-          <UpdateDurasi id={durasi.id} />
-          <DeleteDurasi id={durasi.id} />
-        </>
+        canManage ? (
+          <>
+            <UpdateDurasi id={durasi.id} />
+            <DeleteDurasi id={durasi.id} />
+          </>
+        ) : null
       }
     >
       <EntityNameCell icon={ClockIcon} name={durasi.nama_durasi} />

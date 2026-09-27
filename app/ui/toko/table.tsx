@@ -7,10 +7,12 @@ export default async function TokoTable({
   query,
   currentPage,
   totalPages,
+  canManage = true,
 }: {
   query: string;
   currentPage: number;
   totalPages: number;
+  canManage?: boolean;
 }) {
   const tokoList = await fetchFilteredToko(query, currentPage);
 
@@ -27,6 +29,7 @@ export default async function TokoTable({
                 initialToko={tokoList} 
                 query={query} 
                 totalPages={totalPages} 
+                canManage={canManage}
               />
             </div>
             <div className="overflow-x-auto w-full">
@@ -42,14 +45,16 @@ export default async function TokoTable({
                     <th scope="col" className="px-3 py-5 font-medium">
                       Alamat
                     </th>
-                    <th scope="col" className="relative py-3 pl-6 pr-3">
-                      <span className="sr-only">Edit</span>
-                    </th>
+                    {canManage && (
+                      <th scope="col" className="relative py-3 pl-6 pr-3">
+                        <span className="sr-only">Edit</span>
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="bg-white">
                   {tokoList?.map((toko) => (
-                    <TokoTableRow key={toko.id} toko={toko} />
+                    <TokoTableRow key={toko.id} toko={toko} canManage={canManage} />
                   ))}
                 </tbody>
               </table>

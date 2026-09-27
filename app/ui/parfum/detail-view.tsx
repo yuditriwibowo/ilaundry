@@ -9,7 +9,13 @@ import DetailLayout from '@/app/ui/shared/detail-layout';
 
 const BASE = '/laundry/pengaturan/parfum';
 
-export default function ParfumDetailView({ parfum }: { parfum: Parfum }) {
+export default function ParfumDetailView({
+  parfum,
+  canManage = true,
+}: {
+  parfum: Parfum;
+  canManage?: boolean;
+}) {
   const router = useRouter();
 
   return (
@@ -20,13 +26,15 @@ export default function ParfumDetailView({ parfum }: { parfum: Parfum }) {
         parfum.last_update ? formatDateTimeToLocal(parfum.last_update) : '-'
       }
       actions={
-        <>
-          <UpdateParfum id={parfum.id} />
-          <DeleteParfum
-            id={parfum.id}
-            onDeleteAction={() => router.push(BASE)}
-          />
-        </>
+        canManage ? (
+          <>
+            <UpdateParfum id={parfum.id} />
+            <DeleteParfum
+              id={parfum.id}
+              onDeleteAction={() => router.push(BASE)}
+            />
+          </>
+        ) : null
       }
       sectionTitle="Informasi Parfum"
       fields={[

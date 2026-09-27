@@ -5,7 +5,13 @@ import { Store } from "lucide-react";
 import { UpdateToko, DeleteToko } from "@/app/ui/toko/buttons";
 import { Toko } from "@/app/lib/definitions";
 
-export default function TokoTableRow({ toko }: { toko: Toko }) {
+export default function TokoTableRow({
+  toko,
+  canManage = true,
+}: {
+  toko: Toko;
+  canManage?: boolean;
+}) {
   const router = useRouter();
 
   return (
@@ -28,15 +34,17 @@ export default function TokoTableRow({ toko }: { toko: Toko }) {
       <td className="whitespace-nowrap px-3 py-3">
         {toko.alamat_toko || "-"}
       </td>
-      <td
-        className="whitespace-nowrap py-3 pl-6 pr-3"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex justify-end gap-2">
-          <UpdateToko id={toko.id} />
-          <DeleteToko id={toko.id} />
-        </div>
-      </td>
+      {canManage && (
+        <td
+          className="whitespace-nowrap py-3 pl-6 pr-3"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex justify-end gap-2">
+            <UpdateToko id={toko.id} />
+            <DeleteToko id={toko.id} />
+          </div>
+        </td>
+      )}
     </tr>
   );
 }

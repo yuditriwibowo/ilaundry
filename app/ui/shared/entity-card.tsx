@@ -109,12 +109,14 @@ export function EntityCard({
             {subtitle && <p className="truncate text-gray-500">{subtitle}</p>}
           </div>
         </div>
-        <div
-          className="flex shrink-0 gap-2"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {actions}
-        </div>
+        {actions && (
+          <div
+            className="flex shrink-0 gap-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {actions}
+          </div>
+        )}
       </div>
     </div>
   );

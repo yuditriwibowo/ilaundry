@@ -13,10 +13,12 @@ export default function InfiniteList({
   initialUserToko,
   query,
   totalPages,
+  canManage = true,
 }: {
   initialUserToko: TabelUserToko[];
   query: string;
   totalPages: number;
+  canManage?: boolean;
 }) {
   const [userTokoList, setUserTokoList] = useState<TabelUserToko[]>(initialUserToko);
   const [page, setPage] = useState(1);
@@ -89,13 +91,15 @@ export default function InfiniteList({
                       <p className="truncate text-gray-500">Peran: {item.peran === "Account_Owner" ? "Account Owner" : item.peran}</p>
                     </div>
                   </div>
-                  <div
-                    className="flex shrink-0 gap-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <UpdateUserToko id={itemId} />
-                    <DeleteUserToko id={itemId} onDeleteAction={handleDelete} />
-                  </div>
+                  {canManage && (
+                    <div
+                      className="flex shrink-0 gap-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <UpdateUserToko id={itemId} />
+                      <DeleteUserToko id={itemId} onDeleteAction={handleDelete} />
+                    </div>
+                  )}
                 </div>
               </div>
             );

@@ -4,7 +4,7 @@ import AccountActiveCard from "@/app/ui/laundry/account-active-card";
 import InfoCarousel from "@/app/ui/laundry/info-carousel";
 import SelectToko from "@/app/ui/laundry/select-toko";
 import { fetchAccessibleToko, fetchRingkasanHariIni, fetchInfoIklanForCarousel } from "@/app/lib/data";
-import { getSessionContext } from "@/app/lib/auth";
+import { getSessionContext, canCreateToko } from "@/app/lib/auth";
 import { CreateToko } from "@/app/ui/button";
 import YlaundryLogo from "@/app/ui/ylaundry-logo";
 
@@ -28,7 +28,7 @@ export default async function Page() {
           </div>
           <div className="w-full flex items-center gap-4 justify-between">
             <SelectToko stores={stores} selectedToko={selectedToko} />
-            <CreateToko />
+            {canCreateToko(ctx) && <CreateToko />}
           </div>
         </div>
       </div>

@@ -14,10 +14,12 @@ export default function InfiniteList({
   initialAntarJemput,
   query,
   totalPages,
+  canManage = true,
 }: {
   initialAntarJemput: AntarJemput[];
   query: string;
   totalPages: number;
+  canManage?: boolean;
 }) {
   return (
     <SharedInfiniteList
@@ -36,10 +38,12 @@ export default function InfiniteList({
             <>Harga: {formatRupiah(antarJemput.harga_antar_jemput)}</>
           }
           actions={
-            <>
-              <UpdateAntarJemput id={antarJemput.id} />
-              <DeleteAntarJemput id={antarJemput.id} onDeleteAction={remove} />
-            </>
+            canManage ? (
+              <>
+                <UpdateAntarJemput id={antarJemput.id} />
+                <DeleteAntarJemput id={antarJemput.id} onDeleteAction={remove} />
+              </>
+            ) : null
           }
         />
       )}

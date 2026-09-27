@@ -5,7 +5,13 @@ import { Users } from "lucide-react";
 import { UpdateUserToko, DeleteUserToko } from "@/app/ui/usertoko/buttons";
 import { TabelUserToko } from "@/app/lib/definitions";
 
-export default function UserTokoTableRow({ userToko }: { userToko: TabelUserToko }) {
+export default function UserTokoTableRow({
+  userToko,
+  canManage = true,
+}: {
+  userToko: TabelUserToko;
+  canManage?: boolean;
+}) {
   const router = useRouter();
   const itemId = userToko.id || userToko.name;
 
@@ -28,15 +34,17 @@ export default function UserTokoTableRow({ userToko }: { userToko: TabelUserToko
       <td className="whitespace-nowrap px-3 py-3">
         {userToko.peran === "Account_Owner" ? "Account Owner" : userToko.peran}
       </td>
-      <td
-        className="whitespace-nowrap py-3 pl-6 pr-3"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex justify-end gap-2">
-          <UpdateUserToko id={itemId} />
-          <DeleteUserToko id={itemId} />
-        </div>
-      </td>
+      {canManage && (
+        <td
+          className="whitespace-nowrap py-3 pl-6 pr-3"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex justify-end gap-2">
+            <UpdateUserToko id={itemId} />
+            <DeleteUserToko id={itemId} />
+          </div>
+        </td>
+      )}
     </tr>
   );
 }

@@ -42,7 +42,7 @@ export default function DetailLayout({
               )}
             </div>
           </div>
-          <div className="flex shrink-0 gap-2">{actions}</div>
+          {actions && <div className="flex shrink-0 gap-2">{actions}</div>}
         </div>
       </div>
 
