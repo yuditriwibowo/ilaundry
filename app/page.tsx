@@ -35,7 +35,7 @@ export default function Page() {
 
         <div className="flex items-center justify-center p-4 md:w-3/5 md:px-28 md:py-12 short-screen:hidden">
           <Image
-            src="/ylaundry-desktop.png"
+            src="/ylaundry3-desktop.png"
             alt="yLaundry image desktop version"
             width={1000}
             height={760}
@@ -43,11 +43,11 @@ export default function Page() {
             loading="eager"
           />
           <Image
-            src="/ylaundry-mobile.png"
+            src="/ylaundry2-mobile.png"
             alt="yLaundry image mobile version"
             width={560}
             height={620}
-            className="block max-h-[20vh] w-auto md:hidden"
+            className="block max-h-[40vh] w-auto md:hidden"
             loading="eager"
           />
         </div>
