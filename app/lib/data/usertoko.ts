@@ -82,7 +82,8 @@ export async function fetchUnassignedUserToko() {
         ut.toko_id,
         ut.peran,
         u.name,
-        u.email
+        u.email,
+        u.no_hp
       FROM public.user_toko AS ut
       JOIN public.users AS u
         ON u.id = ut.user_id
@@ -108,6 +109,7 @@ export async function fetchUserTokoById(id: string) {
         ut.peran,
         u.name,
         u.email,
+        u.no_hp,
         t.nama_toko,
         ut.created_at,
         ut.last_update

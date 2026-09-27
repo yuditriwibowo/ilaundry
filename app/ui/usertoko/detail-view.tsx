@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { UpdateUserToko, DeleteUserToko } from '@/app/ui/usertoko/buttons';
 import { UserTokoDetail } from '@/app/lib/definitions';
 import { formatDateTimeToLocal } from '@/app/lib/utils';
-import { Users, MailIcon } from 'lucide-react';
+import { Users, MailIcon, PhoneIcon } from 'lucide-react';
 
 export default function UserTokoDetailView({
   userToko,
@@ -67,6 +67,15 @@ export default function UserTokoDetailView({
             </span>
             <span className="font-medium text-gray-900 text-right">
               {userToko.email}
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-3 border-b border-gray-100 py-2">
+            <span className="flex items-center gap-1.5 text-gray-500">
+              <PhoneIcon className="h-4 w-4" />
+              No. HP
+            </span>
+            <span className="font-medium text-gray-900 text-right">
+              {userToko.no_hp || '-'}
             </span>
           </div>
           <div className="flex items-center justify-between gap-3 border-b border-gray-100 py-2">

@@ -23,6 +23,7 @@ const UserSchema = z.object({
 const CreateUserTokoSchema = z.object({
   name: z.string().min(1, { message: "Nama wajib diisi." }),
   email: z.string().email({ message: "Email tidak valid." }).min(1, { message: "Email wajib diisi." }),
+  no_hp: z.string().min(1, { message: "No. HP wajib diisi." }),
   password: z.string().min(6, { message: "Password minimal 6 karakter." }),
   peran: z.enum(['Administrator', 'Account_Owner', 'Manager', 'Pegawai'], {
     message: "Peran wajib dipilih.",
@@ -207,6 +208,7 @@ export async function createUserToko(prevState: State, formData: FormData): Prom
   const validatedFields = CreateUserTokoSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
+    no_hp: formData.get("no_hp"),
     password: formData.get("password"),
     peran: formData.get("peran"),
   });
@@ -218,7 +220,7 @@ export async function createUserToko(prevState: State, formData: FormData): Prom
     };
   }
 
-  const { name, email, password, peran } = validatedFields.data;
+  const { name, email, password, no_hp, peran } = validatedFields.data;
   // Password disimpan terenkripsi (bcrypt).
   const passwordHash = await bcrypt.hash(password, 10);
   const newUserId = crypto.randomUUID();
@@ -227,8 +229,8 @@ export async function createUserToko(prevState: State, formData: FormData): Prom
   try {
     await sql.begin(async (sql) => {
       await sql`
-        INSERT INTO users (id, name, email, password)
-        VALUES (${newUserId}, ${name}, ${email}, ${passwordHash})
+        INSERT INTO users (id, name, email, password, no_hp, tanggal_mulai, status)
+        VALUES (${newUserId}, ${name}, ${email}, ${passwordHash}, ${no_hp}, ${now}, 'aktif')
       `;
       await sql`
         INSERT INTO user_toko (id, user_id, toko_id, peran, created_at, last_update, update_by)
@@ -247,8 +249,9 @@ export async function createUserToko(prevState: State, formData: FormData): Prom
       return handleExistingUserConflict(email, tokoId, peran);
     }
 
+    // Error lain (bukan unique violation): pesan umum tanpa asumsi email duplikat.
     return {
-      message: "Database Error: Gagal menambah user toko. Email mungkin sudah terdaftar.",
+      message: "Database Error: Gagal menambah user toko.",
     };
   }
 

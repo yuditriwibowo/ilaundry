@@ -155,6 +155,7 @@ export type UserTokoDetail = {
   peran: Peran | null;
   name: string;
   email: string;
+  no_hp: string;
   nama_toko: string | null;
   created_at: string | null;
   last_update: string | null;
