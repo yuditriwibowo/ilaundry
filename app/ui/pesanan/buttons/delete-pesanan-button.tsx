@@ -17,11 +17,10 @@ export function DeletePesanan({
   onDeleteAction?: (id: string) => void;
   canDelete?: boolean;
 }) {
+  if (!canDelete) return null;
   const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  if (!canDelete) return null;
 
   async function handleConfirm() {
     setIsDeleting(true);
