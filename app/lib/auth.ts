@@ -155,3 +155,9 @@ export function canManageUserToko(ctx: SessionContext): boolean {
 export function canManageInfoIklan(peran: Peran | null): boolean {
   return peran === "Administrator";
 }
+
+/** Hapus pesanan & item pesanan: HANYA Administrator. */
+export function canDeletePesanan(peran: Peran | null): boolean {
+  return peran === "Administrator";
+}
+

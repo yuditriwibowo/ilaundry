@@ -3,6 +3,7 @@ import { fetchPesananById, fetchItemPesananByPesananId, fetchItemPesananPages } 
 import { notFound } from "next/navigation";
 import PesananDetailView from "@/app/ui/pesanan/detail/pesanan-detail-view";
 import { Metadata } from "next";
+import { getSessionContext, canDeletePesanan } from "@/app/lib/auth";
 
 export const metadata: Metadata = {
   title: "Detail Pesanan",
@@ -12,15 +13,18 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const id = params.id;
 
-  const [pesanan, initialItems, totalPages] = await Promise.all([
+  const [pesanan, initialItems, totalPages, ctx] = await Promise.all([
     fetchPesananById(id),
     fetchItemPesananByPesananId(id, 1),
     fetchItemPesananPages(id),
+    getSessionContext(),
   ]);
 
   if (!pesanan) {
     notFound();
   }
+
+  const canDelete = canDeletePesanan(ctx.peran);
 
   return (
     <div className="flex min-h-full w-full flex-col">
@@ -42,6 +46,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         pesanan={pesanan}
         initialItems={initialItems}
         totalPages={totalPages}
+        canDelete={canDelete}
       />
     </div>
   );

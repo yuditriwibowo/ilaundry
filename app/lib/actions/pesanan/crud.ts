@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { sql } from "../../db";
-import { getCurrentUser } from "../../auth";
+import { getCurrentUser, getSessionContext, canDeletePesanan } from "../../auth";
 import {
   fetchAllItemPesananByPesananId,
   fetchFilteredPesanan,
@@ -599,9 +599,14 @@ export async function updatePesanan(
 }
 
 export async function deletePesanan(id: string): Promise<DeletePesananResult> {
-  await getCurrentUser();
-  const cookieStore = await cookies();
-  const selectedToko = cookieStore.get("selected_toko")?.value || null;
+  const ctx = await getSessionContext();
+  if (!canDeletePesanan(ctx.peran)) {
+    return {
+      success: false,
+      message: "Hanya Administrator yang memiliki akses untuk menghapus pesanan.",
+    };
+  }
+  const selectedToko = ctx.selectedTokoId;
 
   // Pastikan pesanan ada dan milik toko yang sedang dipilih
   const existingPesanan = await fetchPesananById(id);

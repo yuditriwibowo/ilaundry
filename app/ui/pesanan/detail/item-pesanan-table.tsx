@@ -10,9 +10,11 @@ import { SparklesIcon } from "@heroicons/react/24/outline";
 export default function ItemPesananTable({
   pesanan,
   initialItems,
+  canDelete = false,
 }: {
   pesanan: TabelPesanan;
   initialItems: ItemPesanan[];
+  canDelete?: boolean;
 }) {
   const [items, setItems] = useState<ItemPesanan[]>(initialItems);
 
@@ -182,6 +184,7 @@ export default function ItemPesananTable({
                     item={item}
                     onDeleteAction={handleDelete}
                     onUpdateAction={handleUpdate}
+                    canDelete={canDelete}
                   />
                 </div>
               </td>

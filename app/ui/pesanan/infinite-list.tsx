@@ -30,12 +30,14 @@ export default function InfiniteList({
   status,
   bayar,
   totalPages,
+  canDelete = false,
 }: {
   initialPesanan: TabelPesanan[];
   query: string;
   status: string;
   bayar: string;
   totalPages: number;
+  canDelete?: boolean;
 }) {
   const router = useRouter();
   const [pesananList, setPesananList] = useState<TabelPesanan[]>(initialPesanan);
@@ -161,6 +163,7 @@ export default function InfiniteList({
                     pesanan={pesanan}
                     onDeleteAction={handleDelete}
                     onUpdateAction={handleUpdate}
+                    canDelete={canDelete}
                   />
                 </div>
               </div>

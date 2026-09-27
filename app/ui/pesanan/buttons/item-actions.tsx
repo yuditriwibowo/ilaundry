@@ -26,6 +26,7 @@ export function ItemPesananActionButtons({
   item,
   onDeleteAction,
   onUpdateAction,
+  canDelete = false,
 }: {
   pesanan: TabelPesanan;
   item: ItemPesanan;
@@ -33,12 +34,14 @@ export function ItemPesananActionButtons({
   // Dipanggil setelah update status item sukses dengan data item terbaru,
   // agar list (infinite scroll/table) bisa mengganti data barisnya di state lokal.
   onUpdateAction?: (updated: ItemPesanan) => void;
+  canDelete?: boolean;
 }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleConfirmDelete() {
+    if (!canDelete) return;
     setIsDeleting(true);
     try {
       await deleteItemPesanan(item.id, item.pesanan_id);
@@ -90,22 +93,24 @@ export function ItemPesananActionButtons({
           <span className="sr-only">Edit Item</span>
           <PencilIcon className="h-3.5 w-3.5" />
         </Link>
-        <button
-          type="button"
-          onClick={(e) => {
-            // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
-            e.stopPropagation();
-            setShowConfirm(true);
-          }}
-          title="Hapus Item"
-          className="flex h-7 w-7 touch-manipulation items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-red-950/50 dark:hover:text-red-400"
-        >
-          <span className="sr-only">Hapus Item</span>
-          <TrashIcon className="h-3.5 w-3.5" />
-        </button>
+        {canDelete && (
+          <button
+            type="button"
+            onClick={(e) => {
+              // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
+              e.stopPropagation();
+              setShowConfirm(true);
+            }}
+            title="Hapus Item"
+            className="flex h-7 w-7 touch-manipulation items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:border-slate-700 dark:text-gray-300 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+          >
+            <span className="sr-only">Hapus Item</span>
+            <TrashIcon className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
 
-      {showConfirm &&
+      {showConfirm && canDelete &&
         createPortal(
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"

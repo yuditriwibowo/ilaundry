@@ -10,12 +10,14 @@ export default async function PesananTable({
   status,
   bayar,
   totalPages,
+  canDelete = false,
 }: {
   query: string;
   currentPage: number;
   status?: string;
   bayar?: string;
   totalPages: number | Promise<number>;
+  canDelete?: boolean;
 }) {
   const [pesananList, resolvedTotalPages] = await Promise.all([
     fetchFilteredPesanan(query, currentPage, status, bayar),
@@ -37,6 +39,7 @@ export default async function PesananTable({
                 status={status ?? ""}
                 bayar={bayar ?? ""}
                 totalPages={resolvedTotalPages}
+                canDelete={canDelete}
               />
             </div>
             <div className="overflow-x-auto w-full">
@@ -71,7 +74,7 @@ export default async function PesananTable({
                 </thead>
                 <tbody className="bg-white">
                   {pesananList?.map((pesanan: TabelPesanan) => (
-                    <PesananTableRow key={pesanan.id} pesanan={pesanan} />
+                    <PesananTableRow key={pesanan.id} pesanan={pesanan} canDelete={canDelete} />
                   ))}
                 </tbody>
               </table>

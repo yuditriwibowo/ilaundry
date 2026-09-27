@@ -9,7 +9,13 @@ import {
 import { formatDateTimeToLocal, formatEstimasiJam, formatRupiah } from "@/app/lib/utils";
 import { TabelPesanan } from "@/app/lib/definitions";
 
-export default function PesananTableRow({ pesanan }: { pesanan: TabelPesanan }) {
+export default function PesananTableRow({
+  pesanan,
+  canDelete = false,
+}: {
+  pesanan: TabelPesanan;
+  canDelete?: boolean;
+}) {
   const router = useRouter();
 
   return (
@@ -74,7 +80,7 @@ export default function PesananTableRow({ pesanan }: { pesanan: TabelPesanan }) 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-end">
-          <PesananActionMenu pesanan={pesanan} />
+          <PesananActionMenu pesanan={pesanan} canDelete={canDelete} />
         </div>
       </td>
     </tr>

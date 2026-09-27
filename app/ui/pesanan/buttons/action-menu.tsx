@@ -34,12 +34,14 @@ export function PesananActionMenu({
   pesanan,
   onDeleteAction,
   onUpdateAction,
+  canDelete = false,
 }: {
   pesanan: TabelPesanan;
   onDeleteAction?: (id: string) => void;
   // Dipanggil setelah update status/pembayaran sukses dengan baris terbaru,
   // agar list (infinite scroll) bisa mengganti data barisnya di state lokal.
   onUpdateAction?: (updated: TabelPesanan) => void;
+  canDelete?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -63,6 +65,7 @@ export function PesananActionMenu({
   }, [open]);
 
   async function handleConfirmDelete() {
+    if (!canDelete) return;
     setIsDeleting(true);
     try {
       const result = await deletePesanan(pesanan.id);
@@ -169,27 +172,31 @@ export function PesananActionMenu({
               <BanknotesIcon className="h-4 w-4 text-green-600" />
               Update Pembayaran
             </button>
-            <div className="my-1 border-t border-gray-100 dark:border-slate-800" />
-            <button
-              type="button"
-              role="menuitem"
-              className={`${menuItemClass} text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 dark:text-red-400`}
-              onClick={(e) => {
-                // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
-                e.stopPropagation();
-                setOpen(false);
-                setErrorMsg(null);
-                setShowConfirm(true);
-              }}
-            >
-              <TrashIcon className="h-4 w-4" />
-              Hapus
-            </button>
+            {canDelete && (
+              <>
+                <div className="my-1 border-t border-gray-100 dark:border-slate-800" />
+                <button
+                  type="button"
+                  role="menuitem"
+                  className={`${menuItemClass} text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 dark:text-red-400`}
+                  onClick={(e) => {
+                    // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
+                    e.stopPropagation();
+                    setOpen(false);
+                    setErrorMsg(null);
+                    setShowConfirm(true);
+                  }}
+                >
+                  <TrashIcon className="h-4 w-4" />
+                  Hapus
+                </button>
+              </>
+            )}
           </div>
         ) : null}
       </div>
 
-      {showConfirm &&
+      {showConfirm && canDelete &&
         createPortal(
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"

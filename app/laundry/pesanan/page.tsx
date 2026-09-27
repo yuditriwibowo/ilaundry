@@ -6,6 +6,7 @@ import { CreatePesanan } from "@/app/ui/pesanan/buttons";
 import { fetchPesananPages } from "@/app/lib/data";
 import { Suspense } from "react";
 import { PesananTableSkeleton } from "@/app/ui/skeletons";
+import { getSessionContext, canDeletePesanan } from "@/app/lib/auth";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -15,7 +16,11 @@ export default async function Page(props: {
     bayar?: string;
   }>;
 }) {
-  const searchParams = await props.searchParams;
+  const [searchParams, ctx] = await Promise.all([
+    props.searchParams,
+    getSessionContext(),
+  ]);
+  const canDelete = canDeletePesanan(ctx.peran);
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
   const status = searchParams?.status || "";
@@ -51,6 +56,7 @@ export default async function Page(props: {
             status={status}
             bayar={bayar}
             totalPages={totalPagesPromise}
+            canDelete={canDelete}
           />
         </Suspense>
         <div className="mt-5 hidden w-full justify-center md:flex short-screen:mt-3">

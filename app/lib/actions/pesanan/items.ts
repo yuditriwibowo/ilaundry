@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { sql } from "../../db";
-import { getCurrentUser } from "../../auth";
+import { getCurrentUser, getSessionContext, canDeletePesanan } from "../../auth";
 import {
   fetchAllItemPesananByPesananId,
   fetchItemPesananById,
@@ -275,9 +275,11 @@ export async function updateItemPesanan(
 // yang tersisa agar total di list & detail tidak menyimpan nilai item yang
 // sudah dihapus.
 export async function deleteItemPesanan(id: string, pesananId: string) {
-  await getCurrentUser();
-  const cookieStore = await cookies();
-  const userId = (await getCurrentUser()).id;
+  const ctx = await getSessionContext();
+  if (!canDeletePesanan(ctx.peran)) {
+    throw new Error("Hanya Administrator yang memiliki akses untuk menghapus item pesanan.");
+  }
+  const userId = ctx.user.id;
   const nowIso = new Date().toISOString();
   try {
     await sql.begin(async (tx) => {

@@ -21,9 +21,11 @@ import { UpdateStatusPesananButton, UpdatePembayaranPesananButton } from "./stat
 export function PesananDetailActionButtons({
   pesanan,
   onDeleteSuccessAction,
+  canDelete = false,
 }: {
   pesanan: TabelPesanan;
   onDeleteSuccessAction?: () => void;
+  canDelete?: boolean;
 }) {
   const router = useRouter();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -31,6 +33,7 @@ export function PesananDetailActionButtons({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleConfirmDelete() {
+    if (!canDelete) return;
     setIsDeleting(true);
     try {
       const result = await deletePesanan(pesanan.id);
@@ -94,23 +97,25 @@ export function PesananDetailActionButtons({
         <UpdatePembayaranPesananButton pesanan={pesanan} />
 
         {/* Delete */}
-        <button
-          type="button"
-          onClick={(e) => {
-            // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
-            e.stopPropagation();
-            setErrorMsg(null);
-            setShowConfirm(true);
-          }}
-          title="Hapus Pesanan"
-          className="flex h-9 w-9 touch-manipulation items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600 transition-all hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-400 shadow-sm"
-        >
-          <span className="sr-only">Hapus</span>
-          <TrashIcon className="h-5 w-5" />
-        </button>
+        {canDelete && (
+          <button
+            type="button"
+            onClick={(e) => {
+              // stopPropagation agar tap tidak memicu onClick ancestor yang bisa diklik
+              e.stopPropagation();
+              setErrorMsg(null);
+              setShowConfirm(true);
+            }}
+            title="Hapus Pesanan"
+            className="flex h-9 w-9 touch-manipulation items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600 transition-all hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-400 shadow-sm"
+          >
+            <span className="sr-only">Hapus</span>
+            <TrashIcon className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
-      {showConfirm &&
+      {showConfirm && canDelete &&
         createPortal(
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"

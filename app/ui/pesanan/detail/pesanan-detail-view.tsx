@@ -28,10 +28,12 @@ export default function PesananDetailView({
   pesanan,
   initialItems,
   totalPages,
+  canDelete = false,
 }: {
   pesanan: TabelPesanan;
   initialItems: ItemPesanan[];
   totalPages: number;
+  canDelete?: boolean;
 }) {
   const estimasi = formatEstimasiJam(pesanan.tgl_estimasi_selesai);
 
@@ -71,7 +73,7 @@ export default function PesananDetailView({
 
         {/* 1.2 Di bawah header sticky: Icon buttons WhatsApp, Print, Edit, Delete */}
         <div className="mt-4 flex items-center justify-center rounded-lg bg-white p-3 shadow-sm border border-gray-100">
-          <div className="flex gap-2 btn-animate"><PesananDetailActionButtons pesanan={pesanan} /></div>
+          <div className="flex gap-2 btn-animate"><PesananDetailActionButtons pesanan={pesanan} canDelete={canDelete} /></div>
         </div>
 
         {/* 1.3 Fieldset Informasi Pesanan Tambahan */}
@@ -215,6 +217,7 @@ export default function PesananDetailView({
             pesanan={pesanan}
             initialItems={initialItems}
             totalPages={totalPages}
+            canDelete={canDelete}
           />
         </fieldset>
       </div>
@@ -383,7 +386,7 @@ export default function PesananDetailView({
             <div className="mt-4 border-t border-gray-200 pt-4">
               <div className="text-xs text-gray-500 mb-2">Aksi Cepat</div>
               <div className="flex justify-start">
-                <PesananDetailActionButtons pesanan={pesanan} />
+                <PesananDetailActionButtons pesanan={pesanan} canDelete={canDelete} />
               </div>
             </div>
           </fieldset>
@@ -398,7 +401,7 @@ export default function PesananDetailView({
               <CreateItemPesananButton pesananId={pesanan.id} />
             </div>
             {/* 2.6 Table untuk menampilkan item pesanan */}
-            <ItemPesananTable pesanan={pesanan} initialItems={initialItems} />
+            <ItemPesananTable pesanan={pesanan} initialItems={initialItems} canDelete={canDelete} />
           </fieldset>
         </div>
       </div>

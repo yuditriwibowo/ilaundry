@@ -11,13 +11,17 @@ import { actionButtonClass } from "./shared";
 export function DeletePesanan({
   id,
   onDeleteAction,
+  canDelete = false,
 }: {
   id: string;
   onDeleteAction?: (id: string) => void;
+  canDelete?: boolean;
 }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  if (!canDelete) return null;
 
   async function handleConfirm() {
     setIsDeleting(true);

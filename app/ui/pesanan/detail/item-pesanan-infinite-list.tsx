@@ -13,10 +13,12 @@ export default function ItemPesananInfiniteList({
   pesanan,
   initialItems,
   totalPages,
+  canDelete = false,
 }: {
   pesanan: TabelPesanan;
   initialItems: ItemPesanan[];
   totalPages: number;
+  canDelete?: boolean;
 }) {
   const [items, setItems] = useState<ItemPesanan[]>(initialItems);
   const [isLoading, setIsLoading] = useState(false);
@@ -209,6 +211,7 @@ export default function ItemPesananInfiniteList({
               item={item}
               onDeleteAction={handleDelete}
               onUpdateAction={handleUpdate}
+              canDelete={canDelete}
             />
           </div>
         </div>
