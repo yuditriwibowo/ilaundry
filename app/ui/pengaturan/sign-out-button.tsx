@@ -14,17 +14,19 @@ function SignOutButtonInner() {
     <button
       type="submit"
       disabled={pending}
-      className="flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:opacity-60 md:px-4 md:py-2 md:text-sm"
+      className="flex h-[38px] w-auto shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-60"
     >
-      <PowerIcon className="h-4 w-4" />
-      <span>{pending ? "Keluar..." : "Sign Out"}</span>
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center self-center rounded-full bg-red-500">
+        <PowerIcon className="h-4 w-4 shrink-0 text-white" />
+      </div>
+      <span className="truncate">{pending ? "Keluar..." : "Sign Out"}</span>
     </button>
   );
 }
 
 export default function SignOutButton() {
   return (
-    <form action={signOutAction}>
+    <form action={signOutAction} className="shrink-0">
       <SignOutButtonInner />
     </form>
   );

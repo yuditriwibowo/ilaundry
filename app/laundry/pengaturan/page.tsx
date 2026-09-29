@@ -145,14 +145,16 @@ export default async function Page() {
             {/* Header halaman: sticky gradient di mobile portrait, statis di landscape/desktop */}
             <div className="sticky top-0 z-10 md:static">
                 <div className="header-gradient shadow-md pb-3 px-4 pt-6 -mx-4 rounded-b-xl md:bg-none md:shadow-none md:pb-0 md:px-0 md:pt-0 md:mx-0 md:rounded-b-none short-screen:pb-2 short-screen:pt-3">
-                    <div className="flex w-full items-center justify-between gap-4">
-                        <h1 className="text-2xl text-white md:text-gray-900 short-screen:text-xl">
-                            Pengaturan
-                        </h1>
-                        <div className="flex items-center gap-2 md:gap-3">
-                            <SelectToko stores={stores} selectedToko={selectedToko} />
-                            <SignOutButton />
-                        </div>
+                    <h1 className="text-2xl text-white md:text-gray-900 short-screen:text-xl">
+                        Pengaturan
+                    </h1>
+                    <div className="flex items-center gap-2 md:gap-3 mt-3 landscape:hidden">
+                        <SelectToko stores={stores} selectedToko={selectedToko} />
+                        <SignOutButton />
+                    </div>
+                    <div className="hidden landscape:flex items-center gap-2 md:gap-3 mt-3 md:mt-0">
+                        <SelectToko stores={stores} selectedToko={selectedToko} />
+                        <SignOutButton />
                     </div>
                 </div>
             </div>

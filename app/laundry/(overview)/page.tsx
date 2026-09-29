@@ -44,12 +44,12 @@ export default async function Page() {
           {/* Portrait (1 kolom): kartu masa aktif di bawah LaundryCard dan di
               atas QuickActions. Landscape (md, 2 kolom): kedua kartu menyamping
               — kartu masa aktif tetap di atas QuickActions pada kolom kanan. */}
-          <div className="flex flex-col gap-6 justify-between">
+          <div className="flex flex-col gap-4 justify-between">
             <AccountActiveCard />
             <QuickActions />
           </div>
         </div>
-        <div className="mt-6">
+        <div className="mt-4">
           <InfoCarousel slides={carouselSlides} />
         </div>
       </div>
