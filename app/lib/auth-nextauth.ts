@@ -6,7 +6,7 @@ import { sql } from "./db";
 import { authConfig } from "./auth-config";
 import type { Peran, TokoAssignment } from "./definitions";
 
-import { verifyAuthTicket } from "./auth-ticket";
+import { verifyLoginTicket, type LoginTicketPayload } from "./auth-ticket";
 
 /**
  * NextAuth (Auth.js v5) — instance aplikasi.
@@ -15,6 +15,13 @@ import { verifyAuthTicket } from "./auth-ticket";
  * Saat authorize sukses, daftar toko user (dari tabel user_toko) beserta
  * perannya disertakan ke JWT (lihat auth-config.ts) sehingga otorisasi
  * per-toko tidak butuh query DB di setiap request.
+ *
+ * Dua jalur di authorize():
+ * 1. UTAMA — authTicket valid (dari verifyCredentials): identitas + daftar toko
+ *    diambil dari payload ticket bertanda tangan → NOL query DB, NOL bcrypt.
+ *    Ini inti optimisasi login (Varian A).
+ * 2. FALLBACK — tanpa/invalid ticket (mis. auto sign-in setelah registrasi):
+ *    verifikasi password via bcrypt + query DB seperti biasa.
  *
  * Field `tokoId` opsional = toko yang dipilih user di form login;
  * divalidasi: hanya boleh toko yang ter-assign di user_toko
@@ -45,7 +52,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
         const { email, password, authTicket, tokoId } = parsed.data;
 
-        // 1. Cari user + verifikasi password (authTicket atau bcrypt).
+        // 1. Jalur utama: authTicket valid → tanpa query DB (Varian A).
+        const ticketPayload: LoginTicketPayload | null = authTicket
+          ? verifyLoginTicket(authTicket, email)
+          : null;
+
+        if (ticketPayload) {
+          const tokoList = ticketPayload.tokos;
+          const selectedTokoId = pickToko(tokoList, tokoId);
+          if (selectedTokoId === undefined) {
+            // Toko yang tidak di-assign: tolak login (jangan diam-diam fallback).
+            return null;
+          }
+          return {
+            id: ticketPayload.userId,
+            name: ticketPayload.name,
+            email: ticketPayload.email,
+            peran: effectivePeran(tokoList, selectedTokoId),
+            tokoId: selectedTokoId,
+            tokoList,
+          };
+        }
+
+        // 2. Fallback: tanpa ticket → cari user + verifikasi password bcrypt.
         const users = await sql<
           { id: string; name: string; email: string; password: string }[]
         >`
@@ -58,37 +87,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        const isTicketValid = authTicket
-          ? verifyAuthTicket(authTicket, dbUser.email)
-          : false;
-
-        if (!isTicketValid) {
-          if (!password) {
-            return null;
-          }
-          const passwordMatch = await bcrypt.compare(password, dbUser.password);
-          if (!passwordMatch) {
-            return null;
-          }
+        if (!password) {
+          return null;
+        }
+        const passwordMatch = await bcrypt.compare(password, dbUser.password);
+        if (!passwordMatch) {
+          return null;
         }
 
-        // 2. Ambil daftar toko user + peran masing-masing.
+        // Ambil daftar toko user + peran masing-masing.
         const tokoList = (await fetchTokoList(dbUser.id)) ?? [];
-
-        // 3. Tentukan toko terpilih: dari pilihan login, divalidasi.
-        const isAdmin = tokoList.some((t) => t.peran === "Administrator");
-        let selectedTokoId: string | null = null;
-        if (tokoId) {
-          const allowed =
-            isAdmin || tokoList.some((t) => t.tokoId === tokoId);
-          if (allowed) {
-            selectedTokoId = tokoId;
-          } else {
-            // Toko yang tidak di-assign: tolak login (jangan diam-diam fallback).
-            return null;
-          }
-        } else {
-          selectedTokoId = tokoList[0]?.tokoId ?? null;
+        const selectedTokoId = pickToko(tokoList, tokoId);
+        if (selectedTokoId === undefined) {
+          return null;
         }
 
         return {
@@ -103,6 +114,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
 });
+
+/**
+ * Pilih toko terpilih dari pilihan login (divalidasi):
+ * - tanpa tokoId  → toko pertama daftar assignment (null bila kosong);
+ * - dengan tokoId → harus assignment user, atau user Administrator;
+ * - toko di luar assignment → `undefined` = TOLAK login.
+ */
+function pickToko(
+  tokoList: TokoAssignment[],
+  tokoId: string | undefined,
+): string | null | undefined {
+  if (!tokoId) {
+    return tokoList[0]?.tokoId ?? null;
+  }
+  const isAdmin = tokoList.some((t) => t.peran === "Administrator");
+  const allowed = isAdmin || tokoList.some((t) => t.tokoId === tokoId);
+  return allowed ? tokoId : undefined;
+}
 
 async function fetchTokoList(userId: string): Promise<TokoAssignment[]> {
   const rows = await sql<

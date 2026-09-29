@@ -1,20 +1,22 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import { verifyCredentials, setSelectedTokoCookie } from "@/app/lib/actions";
+import { verifyCredentials, completeLogin } from "@/app/lib/actions";
 import type { TokoAssignment } from "@/app/lib/definitions";
 import SelectPopup, { type OpsiSelect } from "@/app/ui/shared/select-popup";
 
 /**
- * Form login di halaman depan:
+ * Form login di halaman depan (alur ringkas — optimisasi performa):
  * 1. User mengisi email + password, klik "Masuk".
- * 2. Kredensial diverifikasi (server action verifyCredentials) —
- *    jika benar, pilihan toko di-enable berisi [nama_toko - peran].
- * 3. User memilih toko → signIn NextAuth (credentials + tokoId) →
- *    cookie selected_toko di-set → redirect ke beranda.
+ * 2. verifyCredentials (1 query gabungan + bcrypt) diverifikasi di server:
+ *    - 1 toko  → sesi + cookie selected_toko DIBUAT LANGSUNG di server,
+ *                 klien cukup router.push("/laundry") — selesai dalam 1 call.
+ *    - >1 toko → authTicket (bawa daftar toko) disimpan, dropdown toko aktif.
+ *    - 0 toko  → pesan "User belum mempunyai toko & peran."
+ * 3. User memilih toko → completeLogin(ticket, tokoId): verifikasi HMAC +
+ *    buat sesi + set cookie dalam 1 call (tanpa query DB) → redirect.
  * Jika kredensial salah: pesan "email/password salah".
  */
 export default function LoginForm() {
@@ -46,27 +48,9 @@ export default function LoginForm() {
 
       if (tokoList.length === 0) {
         setMessage("User belum mempunyai toko & peran.");
-      } else if (tokoList.length === 1) {
-        // Auto-select single toko and proceed directly
-        const toko = tokoList[0];
-        setSelectedToko(toko.tokoId);
-        const [signInRes] = await Promise.all([
-          signIn("credentials", {
-            redirect: false,
-            email,
-            password,
-            authTicket: res.authTicket,
-            tokoId: toko.tokoId,
-          }),
-          setSelectedTokoCookie(toko.tokoId),
-        ]);
-        if (signInRes?.error) {
-          setTokos(null);
-          setSelectedToko("");
-          setTicket("");
-          setMessage("email/password salah");
-          return;
-        }
+      } else if (res.selectedTokoId) {
+        // Auto-select (1 toko): sesi sudah dibuat server-side — langsung pindah.
+        setSelectedToko(res.selectedTokoId);
         router.push("/laundry");
       }
       // If > 1 toko, show select dropdown (existing behavior)
@@ -78,24 +62,13 @@ export default function LoginForm() {
     if (!tokoId) return;
     setMessage("");
     startTransition(async () => {
-      // Jalankan signIn dan set cookie secara paralel untuk mempercepat.
-      // authorize() di server sudah memvalidasi tokoId, jadi cookie bisa
-      // di-set bersamaan tanpa menunggu signIn selesai.
-      const [res] = await Promise.all([
-        signIn("credentials", {
-          redirect: false,
-          email,
-          password,
-          authTicket: ticket,
-          tokoId,
-        }),
-        setSelectedTokoCookie(tokoId),
-      ]);
-      if (res?.error) {
+      // Satu call: verifikasi ticket + buat sesi + set cookie (tanpa query DB).
+      const res = await completeLogin(ticket, tokoId);
+      if (!res.success) {
         setTokos(null);
         setSelectedToko("");
         setTicket("");
-        setMessage("email/password salah");
+        setMessage(res.message || "email/password salah");
         return;
       }
       router.push("/laundry");
