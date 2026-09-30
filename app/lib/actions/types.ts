@@ -33,6 +33,9 @@ export type State = {
     password?: string[];
     passwordConfirm?: string[];
 
+    // Field verifikasi MFA pendaftaran (kode unik email)
+    kode?: string[];
+
     pelanggan_id?: string[];
     items?: string[];
     antar_jemput_id?: string[];

@@ -1,12 +1,18 @@
-// ===== Bagian bawah register-form: fields, submit, dan auto sign-in =====
+// ===== Bagian bawah register-form: fields + submit =====
 // (dipecah dari RegisterForm agar file tetap kecil & mudah dibaca)
+//
+// MFA: submit (klik tombol / Enter) di-intercept preventDefault — parent
+// mengirim kode verifikasi email dulu (handleSubmitClick). Pendaftaran
+// baru dijalankan parent (formAction + FormData + kode) SETELAH kode
+// terverifikasi. Saat mfaAktif, field disembunyikan via CSS (form tetap
+// mounted agar FormData tetap bisa dibaca parent) dan tombol submit
+// tidak dirender (digantikan panel MFA).
 
-import { useEffect } from "react";
-import { signIn } from "next-auth/react";
+import type { RefObject } from "react";
 import type { State } from "@/app/lib/actions";
-import { setSelectedTokoAction } from "@/app/lib/actions";
 
 export default function RegisterFields({
+  formRef,
   email,
   setEmail,
   password,
@@ -16,10 +22,12 @@ export default function RegisterFields({
   inputCls,
   errCls,
   state,
-  formAction,
+  onSubmitClick,
+  mfaAktif,
   isPending,
   isAutoSigningIn,
 }: {
+  formRef: RefObject<HTMLFormElement | null>;
   email: string;
   setEmail: (v: string) => void;
   password: string;
@@ -29,14 +37,31 @@ export default function RegisterFields({
   inputCls: string;
   errCls: (field?: string[]) => string | undefined;
   state: State;
-  formAction: (payload: FormData) => void;
+  onSubmitClick: () => void;
+  mfaAktif: boolean;
   isPending: boolean;
   isAutoSigningIn: boolean;
 }) {
   return (
-    <form action={formAction} className="flex flex-col gap-3">
-      {/* Dua kolom di desktop: akun (kiri) & toko (kanan); satu kolom di mobile */}
-      <div className="grid grid-cols-1 gap-x-8 gap-y-3 md:grid-cols-2">
+    <form
+      ref={formRef}
+      onSubmit={(e) => {
+        // Intercept submit: jangan proses pendaftaran langsung —
+        // parent kirim kode verifikasi MFA terlebih dahulu.
+        e.preventDefault();
+        if (!mfaAktif) onSubmitClick();
+      }}
+      className="flex flex-col gap-3"
+    >
+      {/* Dua kolom di desktop: akun (kiri) & toko (kanan); satu kolom di mobile.
+          Saat MFA aktif: disembunyikan via CSS (form tetap mounted). */}
+      <div
+        className={
+          mfaAktif
+            ? "hidden"
+            : "grid grid-cols-1 gap-x-8 gap-y-3 md:grid-cols-2"
+        }
+      >
         {/* ===== Kolom 1: Data akun ===== */}
         <div className="flex flex-col gap-3">
           <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">
@@ -159,15 +184,19 @@ export default function RegisterFields({
         </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending || isAutoSigningIn}
-        className="mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-transparent bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 text-sm font-bold transition-all hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 disabled:opacity-60"
-      >
-        <span>
-          {isPending || isAutoSigningIn ? "Memproses..." : "Daftar & Buat Toko"}
-        </span>
-      </button>
+      {!mfaAktif && (
+        <button
+          type="submit"
+          disabled={isPending || isAutoSigningIn}
+          className="mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-transparent bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 text-sm font-bold transition-all hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 disabled:opacity-60"
+        >
+          <span>
+            {isPending || isAutoSigningIn
+              ? "Memproses..."
+              : "Daftar & Buat Toko"}
+          </span>
+        </button>
+      )}
     </form>
   );
 }

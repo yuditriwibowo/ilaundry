@@ -21,6 +21,7 @@ import type { TokoAssignment } from "../definitions";
 import type { State } from "./types";
 
 import { createLoginTicket, verifyLoginTicket } from "../auth-ticket";
+import { cekKode, hapusKode } from "../mfa";
 
 // Opsi cookie selected_toko — identik dengan app/lib/actions/session.ts.
 const TOKO_COOKIE_OPTIONS = {
@@ -228,6 +229,20 @@ export async function registerAccount(
     };
   }
 
+  // MFA: verifikasi kode unik email — FINAL di server (defense in depth;
+  // endpoint /api/mfa/verify hanya memberi umpan balik instan di klien).
+  const mfaKode = formData.get("mfa_kode");
+  const mfaValid =
+    typeof mfaKode === "string" &&
+    /^\d{6}$/.test(mfaKode) &&
+    (await cekKode(data.email, mfaKode, "registrasi"));
+  if (!mfaValid) {
+    return {
+      errors: { kode: ["Kode verifikasi tidak valid atau kedaluwarsa."] },
+      message: "Kode verifikasi tidak valid atau kedaluwarsa. Minta kode baru.",
+    };
+  }
+
   const now = new Date().toISOString();
   const userId = crypto.randomUUID();
   const tokoId = crypto.randomUUID();
@@ -263,6 +278,15 @@ export async function registerAccount(
       };
     }
     return { message: "Database Error: Gagal membuat akun. Coba lagi." };
+  }
+
+  // Kode MFA terpakai — hapus best-effort (di luar transaksi agar
+  // kegagalan penghapusan tidak mempengaruhi registrasi yang sudah
+  // sukses; kode juga akan expired sendiri dalam 3 menit).
+  try {
+    await hapusKode(data.email, "registrasi");
+  } catch (error) {
+    console.error("Gagal hapus kode MFA (best-effort):", error);
   }
 
   return {
