@@ -2,8 +2,13 @@
 // angka (hanya digit, auto-advance fokus, backspace mundur, auto-submit
 // saat 6 digit terisi penuh), pesan salah + reset kotak, dan tombol
 // kirim ulang kode yang dimulai disabled dengan countdown 60 detik.
-
-"use client";
+//
+// CATAT: file ini sengaja TANPA direktif "use client" — hanya diimpor
+// dari register-form.tsx ("use client") sehingga otomatis bagian dari
+// client graph (hooks tetap jalan). Tanpa direktif, file ini bukan
+// "client entry", jadi props fungsi (onComplete/onResend) tidak kena
+// pemeriksaan serializable props ts(71007). Pola sama dengan
+// register-form-fields.tsx & register-form-auto.tsx.
 
 import {
   useCallback,
