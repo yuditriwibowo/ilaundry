@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import LoginForm from "@/app/ui/auth/login-form";
+import PWAInstallPrompt from "@/app/ui/pwa-install-prompt";
 
 /*
  * Halaman depan = halaman login. Layout per orientasi:
@@ -52,6 +53,9 @@ export default function Page() {
           />
         </div>
       </div>
+
+      {/* Prompt install PWA hanya ditampilkan di halaman login ini */}
+      <PWAInstallPrompt />
     </div>
   );
 }

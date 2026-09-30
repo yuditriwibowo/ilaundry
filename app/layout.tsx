@@ -3,7 +3,6 @@ import { inter } from "@/app/ui/fonts";
 import Header from "./ui/header";
 import Link from "next/link";
 import PWARegister from "@/app/ui/pwa-register";
-import PWAInstallPrompt from "@/app/ui/pwa-install-prompt";
 import ViewportHeightFix from "@/app/ui/viewport-height-fix";
 import { ThemeProvider } from "@/app/ui/theme-provider";
 import type { Metadata, Viewport } from "next";
@@ -65,7 +64,6 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <PWARegister />
-          <PWAInstallPrompt />
           <ViewportHeightFix />
           {/* Header flex-none agar mengambil tinggi sesuai konten tanpa menggunakan fixed/margin-top */}
           <Header />

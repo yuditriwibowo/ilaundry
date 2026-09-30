@@ -29,26 +29,33 @@ export default function PWAInstallPrompt() {
       return;
     }
 
-    // 2. Cek apakah user sudah menutup prompt pada sesi browsing ini
-    const isDismissedThisSession = sessionStorage.getItem('pwa_prompt_dismissed') === 'true';
-    if (isDismissedThisSession) {
-      return;
-    }
-
-    // 3. Deteksi perangkat iOS
+    // 2. Deteksi perangkat iOS
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
 
-    // 4. Handle event 'beforeinstallprompt' untuk Android / Desktop (Chrome, Edge, dll)
+    // 3. Handle event 'beforeinstallprompt' untuk Android / Desktop (Chrome, Edge, dll)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
+
+      // Cek ulang penanda "Nanti Saja" setiap kali event ditembakkan,
+      // bukan hanya saat awal mount, agar prompt tidak muncul lagi sesi ini.
+      let isDismissedThisSession = false;
+      try {
+        isDismissedThisSession = sessionStorage.getItem('pwa_prompt_dismissed') === 'true';
+      } catch {
+        // Abaikan jika sessionStorage tidak tersedia
+      }
+      if (isDismissedThisSession) {
+        return;
+      }
+
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setShowPrompt(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // 5. Untuk iOS: karena Safari tidak mendukung beforeinstallprompt, tampilkan panduan setelah jeda singkat
+    // 4. Untuk iOS: karena Safari tidak mendukung beforeinstallprompt, tampilkan panduan setelah jeda singkat
     if (isIosDevice) {
       const timer = setTimeout(() => {
         setIsIOS(true);
@@ -60,7 +67,7 @@ export default function PWAInstallPrompt() {
       };
     }
 
-    // 6. Listener ketika aplikasi berhasil diinstall
+    // 5. Listener ketika aplikasi berhasil diinstall
     const handleAppInstalled = () => {
       setShowPrompt(false);
       setDeferredPrompt(null);
@@ -81,10 +88,14 @@ export default function PWAInstallPrompt() {
     await deferredPrompt.prompt();
 
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setShowPrompt(false);
-    }
     setDeferredPrompt(null);
+    setShowPrompt(false);
+
+    // Tandai sudah diputuskan (di-accepted maupun ditutup) agar tidak
+    // ditawarkan lagi pada sesi browsing ini.
+    if (outcome !== 'accepted') {
+      handleDismiss();
+    }
   };
 
   const handleDismiss = () => {
@@ -105,11 +116,11 @@ export default function PWAInstallPrompt() {
       aria-modal="true"
       aria-labelledby="pwa-prompt-title"
     >
-      <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-800 p-5 shadow-2xl border border-gray-100 dark:border-gray-700 transition-all">
+      <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-slate-800 p-5 shadow-2xl border border-gray-100 dark:border-slate-700 transition-all">
         {/* Tombol Tutup (X) */}
         <button
           onClick={handleDismiss}
-          className="absolute top-4 right-4 p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
           aria-label="Tutup"
         >
           <X className="h-5 w-5" />
@@ -117,7 +128,7 @@ export default function PWAInstallPrompt() {
 
         {/* Konten Atas: Icon + Nama Aplikasi */}
         <div className="flex items-center gap-3.5">
-          <div className="relative h-14 w-14 overflow-hidden rounded-xl shadow-md border border-gray-100 dark:border-gray-700 flex-shrink-0">
+          <div className="relative h-14 w-14 overflow-hidden rounded-xl shadow-md border border-gray-100 dark:border-slate-700 flex-shrink-0">
             <Image
               src="/icon-192x192.png"
               alt="yLaundry Icon"
@@ -138,7 +149,7 @@ export default function PWAInstallPrompt() {
         </div>
 
         {/* Deskripsi */}
-        <p className="mt-3.5 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+        <p className="mt-3.5 text-xs text-gray-600 dark:text-slate-300 leading-relaxed">
           Install aplikasi di layar utama perangkat Anda untuk akses instan, lebih responsif, dan tampilan layar penuh tanpa browser bar.
         </p>
 
@@ -158,7 +169,7 @@ export default function PWAInstallPrompt() {
               <li className="flex items-center gap-1.5">
                 <span className="font-bold">2.</span>
                 <span>Pilih</span>
-                <span className="inline-flex items-center gap-1 font-semibold bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">
+                <span className="inline-flex items-center gap-1 font-semibold bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-slate-700">
                   <PlusSquare className="h-3 w-3 text-blue-600 dark:text-blue-400" />
                   Tambahkan ke Layar Utama
                 </span>
@@ -178,7 +189,7 @@ export default function PWAInstallPrompt() {
           <div className="mt-5 flex items-center gap-2.5">
             <button
               onClick={handleDismiss}
-              className="flex-1 rounded-xl border border-gray-300 dark:border-gray-600 py-2.5 px-3 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
+              className="flex-1 rounded-xl border border-gray-300 dark:border-slate-700 py-2.5 px-3 text-xs font-semibold text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
             >
               Nanti Saja
             </button>
