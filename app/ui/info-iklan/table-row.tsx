@@ -5,7 +5,7 @@ import { UpdateInfoIklan, DeleteInfoIklan } from "@/app/ui/info-iklan/buttons";
 import { InfoIklan } from "@/app/lib/definitions";
 import { EntityTableRow, EntityNameCell } from "@/app/ui/shared/entity-card";
 
-const BASE = "/laundry/pengaturan/info-iklan";
+const BASE = "/laundry/pengaturan/app-admin/info-iklan";
 
 export default function InfoIklanTableRow({
   infoIklan,

@@ -3,7 +3,7 @@
 import { deleteInfoIklan } from "@/app/lib/actions";
 import { CreateButton, UpdateButton, DeleteButton } from "@/app/ui/shared/buttons";
 
-const BASE = "/laundry/pengaturan/info-iklan";
+const BASE = "/laundry/pengaturan/app-admin/info-iklan";
 
 export function CreateInfoIklan() {
   return <CreateButton href={`${BASE}/create`} label="Tambah Info & Iklan" />;

@@ -161,3 +161,12 @@ export function canDeletePesanan(peran: Peran | null): boolean {
   return peran === "Administrator";
 }
 
+/**
+ * Kelola App Admin (pengaturan aplikasi): HANYA Administrator.
+ * Menu disembunyikan untuk non-Administrator dan halamannya
+ * melakukan guard serupa untuk akses URL langsung.
+ */
+export function canManageAppAdmin(peran: Peran | null): boolean {
+  return peran === "Administrator";
+}
+

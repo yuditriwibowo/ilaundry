@@ -11,7 +11,7 @@ import { getCurrentUser, canManageInfoIklan } from "../auth";
 import { fetchInfoIklanById, fetchFilteredInfoIklan } from "../data/info-iklan";
 import type { State } from "./types";
 
-const BASE_PATH = "/laundry/pengaturan/info-iklan";
+const BASE_PATH = "/laundry/pengaturan/app-admin/info-iklan";
 
 // ==== Penyimpanan gambar upload ====
 // File disimpan ke /public/carousel/ dan path RELATIFNYA (/carousel/<file>)

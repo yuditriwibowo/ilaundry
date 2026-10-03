@@ -10,7 +10,7 @@ import {
   FormTextarea,
 } from "@/app/ui/shared/form-fields";
 
-const BASE = "/laundry/pengaturan/info-iklan";
+const BASE = "/laundry/pengaturan/app-admin/info-iklan";
 
 export default function Form() {
   const initialState: State = { message: "", errors: {} };

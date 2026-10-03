@@ -1,9 +1,9 @@
 import SelectToko from "@/app/ui/laundry/select-toko";
 import DisplayModeSetting from "@/app/ui/pengaturan/display-mode-setting";
 import SignOutButton from "@/app/ui/pengaturan/sign-out-button";
+import MenuLink from "@/app/ui/pengaturan/menu-link";
 import { fetchAccessibleToko } from "@/app/lib/data";
 import { getSessionContext } from "@/app/lib/auth";
-import Link from "next/link";
 import { 
     User, 
     Store, 
@@ -16,7 +16,7 @@ import {
     Users, 
     FileText,
     SunMoon,
-    Megaphone,
+    AppWindow,
     type LucideIcon,
 } from "lucide-react";
 
@@ -77,10 +77,10 @@ const menuItems: {
         href: "/laundry/pengaturan/usertoko",
     },
     {
-        title: "Pengaturan Info & Iklan",
-        description: "Kelola info dan iklan global (Administrator)",
-        icon: Megaphone,
-        href: "/laundry/pengaturan/info-iklan",
+        title: "App Admin",
+        description: "Kelola pengaturan aplikasi (Administrator)",
+        icon: AppWindow,
+        href: "/laundry/pengaturan/app-admin",
         adminOnly: true,
     },
     {
@@ -97,45 +97,13 @@ const menuItems: {
     },
 ];
 
-/* Item menu "Menu Pengaturan" (style sama dengan halaman Laporan) */
-function MenuLink({
-    icon: Icon,
-    title,
-    description,
-    href,
-}: {
-    icon: LucideIcon;
-    title: string;
-    description: string;
-    href: string;
-}) {
-    return (
-        <Link
-            href={href}
-            className="group flex items-center gap-3 rounded-lg px-1 -mx-1 py-2.5 transition-colors duration-200 hover:bg-gray-50"
-        >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-700 transition-colors duration-200 group-hover:bg-primary-500 group-hover:text-white">
-                <Icon className="h-5 w-5" />
-            </div>
-            <div className="flex min-w-0 flex-col">
-                <span className="truncate text-sm font-medium text-gray-900 group-hover:text-primary-600 transition-colors duration-200">
-                    {title}
-                </span>
-                <span className="truncate text-xs text-gray-500 leading-tight">
-                    {description}
-                </span>
-            </div>
-        </Link>
-    );
-}
-
 export default async function Page() {
     const ctx = await getSessionContext();
     const stores = await fetchAccessibleToko();
     const selectedToko = ctx.selectedTokoId;
 
-    // Info & Iklan (adminOnly) hanya tampil untuk user dengan peran Administrator.
-    // Menu pengaturan lain tetap tampil untuk semua role.
+    // Item adminOnly (App Admin) hanya tampil untuk user dengan peran
+    // Administrator. Menu pengaturan lain tetap tampil untuk semua role.
     const visibleMenuItems = menuItems.filter(
         (item) => !item.adminOnly || ctx.peran === "Administrator",
     );

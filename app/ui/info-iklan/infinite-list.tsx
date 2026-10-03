@@ -7,7 +7,7 @@ import SharedInfiniteList from "@/app/ui/shared/infinite-list";
 import { EntityCard } from "@/app/ui/shared/entity-card";
 import { UpdateInfoIklan, DeleteInfoIklan } from "@/app/ui/info-iklan/buttons";
 
-const BASE = "/laundry/pengaturan/info-iklan";
+const BASE = "/laundry/pengaturan/app-admin/info-iklan";
 
 export default function InfiniteList({
   initialItems,

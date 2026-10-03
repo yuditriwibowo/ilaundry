@@ -11,7 +11,7 @@ import {
   FormTextarea,
 } from '@/app/ui/shared/form-fields';
 
-const BASE = '/laundry/pengaturan/info-iklan';
+const BASE = '/laundry/pengaturan/app-admin/info-iklan';
 
 // timestamptz ISO -> "YYYY-MM-DD" (tanggal lokal, untuk DatePicker).
 function isoToTanggal(iso: string | null): string {

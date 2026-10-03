@@ -8,7 +8,7 @@ import { formatDateTimeToLocal } from '@/app/lib/utils';
 import { Megaphone } from 'lucide-react';
 import DetailLayout from '@/app/ui/shared/detail-layout';
 
-const BASE = '/laundry/pengaturan/info-iklan';
+const BASE = '/laundry/pengaturan/app-admin/info-iklan';
 
 export default function InfoIklanDetailView({
   infoIklan,
